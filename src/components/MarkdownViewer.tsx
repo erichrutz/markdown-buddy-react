@@ -14,7 +14,7 @@ interface MarkdownViewerProps {
   focusMode?: boolean;
   onInternalLinkClick: (container: HTMLElement) => void;
   onMermaidProcess: (container: HTMLElement) => void;
-  onPlantUMLProcess: (container: HTMLElement) => void;
+  onPlantUMLProcess: (container: HTMLElement) => Promise<void>;
   onExitFocusMode?: () => void;
 }
 
@@ -34,11 +34,15 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (contentRef.current && content && !loading) {
-      onInternalLinkClick(contentRef.current);
-      onMermaidProcess(contentRef.current);
-      onPlantUMLProcess(contentRef.current);
-    }
+    const processContent = async () => {
+      if (contentRef.current && content && !loading) {
+        onInternalLinkClick(contentRef.current);
+        await onMermaidProcess(contentRef.current);
+        await onPlantUMLProcess(contentRef.current);
+      }
+    };
+    
+    processContent();
   }, [content, loading, onInternalLinkClick, onMermaidProcess, onPlantUMLProcess]);
 
   if (loading) {

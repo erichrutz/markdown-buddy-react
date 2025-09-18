@@ -66,8 +66,8 @@ function App() {
     processMermaidDiagrams(container);
   }, [processMermaidDiagrams]);
 
-  const handlePlantUMLProcess = useCallback((container: HTMLElement) => {
-    processPlantUMLDiagrams(container);
+  const handlePlantUMLProcess = useCallback(async (container: HTMLElement) => {
+    await processPlantUMLDiagrams(container);
   }, [processPlantUMLDiagrams]);
 
   return (

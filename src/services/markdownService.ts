@@ -68,19 +68,23 @@ export class MarkdownService {
   }
 
   static async processMermaidDiagrams(container: HTMLElement): Promise<void> {
-    const mermaidElements = container.querySelectorAll('.mermaid-diagram');
+    const mermaidElements = container.querySelectorAll('.mermaid-diagram:not([data-processed])');
     
     for (const element of Array.from(mermaidElements)) {
       try {
         const content = element.textContent || '';
         const id = element.id;
         
-        if (content.trim()) {
+        if (content.trim() && !content.includes('<svg')) {
+          // Mark as processing to prevent double rendering
+          element.setAttribute('data-processed', 'true');
+          
           const { svg } = await mermaid.render(id + '-svg', content);
           element.innerHTML = svg;
         }
       } catch (error) {
         console.error('Mermaid rendering error:', error);
+        element.setAttribute('data-processed', 'error');
         element.innerHTML = `<div class="mermaid-error">
           <p>Error rendering diagram:</p>
           <pre>${error}</pre>
@@ -89,8 +93,8 @@ export class MarkdownService {
     }
   }
 
-  static processPlantUMLDiagrams(container: HTMLElement): void {
-    PlantUMLService.processPlantUMLDiagrams(container);
+  static async processPlantUMLDiagrams(container: HTMLElement): Promise<void> {
+    await PlantUMLService.processPlantUMLDiagrams(container);
   }
 
   static activateInternalLinks(

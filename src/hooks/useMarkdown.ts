@@ -63,9 +63,9 @@ export const useMarkdown = () => {
     }
   }, []);
 
-  const processPlantUMLDiagrams = useCallback((container: HTMLElement) => {
+  const processPlantUMLDiagrams = useCallback(async (container: HTMLElement) => {
     try {
-      MarkdownService.processPlantUMLDiagrams(container);
+      await MarkdownService.processPlantUMLDiagrams(container);
     } catch (err) {
       console.error('Failed to process PlantUML diagrams:', err);
     }
