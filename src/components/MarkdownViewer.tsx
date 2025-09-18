@@ -14,6 +14,7 @@ interface MarkdownViewerProps {
   focusMode?: boolean;
   onInternalLinkClick: (container: HTMLElement) => void;
   onMermaidProcess: (container: HTMLElement) => void;
+  onPlantUMLProcess: (container: HTMLElement) => void;
   onExitFocusMode?: () => void;
 }
 
@@ -26,6 +27,7 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
   focusMode = false,
   onInternalLinkClick,
   onMermaidProcess,
+  onPlantUMLProcess,
   onExitFocusMode
 }) => {
   const { t } = useTranslation();
@@ -35,8 +37,9 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
     if (contentRef.current && content && !loading) {
       onInternalLinkClick(contentRef.current);
       onMermaidProcess(contentRef.current);
+      onPlantUMLProcess(contentRef.current);
     }
-  }, [content, loading, onInternalLinkClick, onMermaidProcess]);
+  }, [content, loading, onInternalLinkClick, onMermaidProcess, onPlantUMLProcess]);
 
   if (loading) {
     return (

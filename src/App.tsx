@@ -35,7 +35,8 @@ function App() {
     error: markdownError,
     loadFile,
     processInternalLinks,
-    processMermaidDiagrams
+    processMermaidDiagrams,
+    processPlantUMLDiagrams
   } = useMarkdown();
 
   // Session management
@@ -64,6 +65,10 @@ function App() {
   const handleMermaidProcess = useCallback((container: HTMLElement) => {
     processMermaidDiagrams(container);
   }, [processMermaidDiagrams]);
+
+  const handlePlantUMLProcess = useCallback((container: HTMLElement) => {
+    processPlantUMLDiagrams(container);
+  }, [processPlantUMLDiagrams]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -128,6 +133,7 @@ function App() {
                 focusMode={focusMode}
                 onInternalLinkClick={handleInternalLinkClick}
                 onMermaidProcess={handleMermaidProcess}
+                onPlantUMLProcess={handlePlantUMLProcess}
                 onExitFocusMode={toggleFocusMode}
               />
             </Box>

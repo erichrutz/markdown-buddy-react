@@ -63,6 +63,14 @@ export const useMarkdown = () => {
     }
   }, []);
 
+  const processPlantUMLDiagrams = useCallback((container: HTMLElement) => {
+    try {
+      MarkdownService.processPlantUMLDiagrams(container);
+    } catch (err) {
+      console.error('Failed to process PlantUML diagrams:', err);
+    }
+  }, []);
+
   useEffect(() => {
     MarkdownService.initialize();
   }, []);
@@ -76,6 +84,7 @@ export const useMarkdown = () => {
     error,
     loadFile,
     processInternalLinks,
-    processMermaidDiagrams
+    processMermaidDiagrams,
+    processPlantUMLDiagrams
   };
 };

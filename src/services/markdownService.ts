@@ -1,6 +1,7 @@
 import { marked } from 'marked';
 import hljs from 'highlight.js';
 import mermaid from 'mermaid';
+import { PlantUMLService } from './plantumlService';
 
 export class MarkdownService {
   private static initialized = false;
@@ -27,6 +28,10 @@ export class MarkdownService {
       if (lang === 'mermaid') {
         const id = 'mermaid-' + Math.random().toString(36).substr(2, 9);
         return `<div class="mermaid-diagram" id="${id}">${text}</div>`;
+      }
+
+      if (lang === 'plantuml' || lang === 'puml') {
+        return `<pre><code class="language-${lang}">${escaped ? text : this.escapeHtml(text)}</code></pre>`;
       }
 
       if (lang && hljs.getLanguage(lang)) {
@@ -82,6 +87,10 @@ export class MarkdownService {
         </div>`;
       }
     }
+  }
+
+  static processPlantUMLDiagrams(container: HTMLElement): void {
+    PlantUMLService.processPlantUMLDiagrams(container);
   }
 
   static activateInternalLinks(
