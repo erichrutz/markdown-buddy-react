@@ -35,6 +35,7 @@ export interface SessionData {
   lastFile?: string;
   expandedFolders: string[];
   language: string;
+  focusMode?: boolean;
 }
 
 export interface UITexts {

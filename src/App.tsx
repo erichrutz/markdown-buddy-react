@@ -41,8 +41,10 @@ function App() {
   // Session management
   const {
     expandedFolders,
+    focusMode,
     saveExpandedFolders,
-    saveCurrentFile
+    saveCurrentFile,
+    toggleFocusMode
   } = useSession();
 
   // Event handlers
@@ -68,37 +70,43 @@ function App() {
       <CssBaseline />
       <ErrorBoundary>
         <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-          {/* Header */}
-          <AppHeader
-            onSelectDirectory={selectDirectory}
-            loading={fileLoading}
-          />
+          {/* Header - Hide in focus mode */}
+          {!focusMode && (
+            <AppHeader
+              onSelectDirectory={selectDirectory}
+              loading={fileLoading}
+              focusMode={focusMode}
+              onToggleFocusMode={toggleFocusMode}
+            />
+          )}
 
           {/* Main Content */}
           <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-            {/* File Tree Sidebar */}
-            <Drawer
-              variant={isMobile ? 'temporary' : 'permanent'}
-              sx={{
-                width: DRAWER_WIDTH,
-                flexShrink: 0,
-                '& .MuiDrawer-paper': {
+            {/* File Tree Sidebar - Hide in focus mode */}
+            {!focusMode && (
+              <Drawer
+                variant={isMobile ? 'temporary' : 'permanent'}
+                sx={{
                   width: DRAWER_WIDTH,
-                  boxSizing: 'border-box',
-                  position: 'relative',
-                  height: '100%'
-                },
-              }}
-            >
-              <FileTree
-                directoryTree={directoryTree}
-                selectedFile={currentFile}
-                expandedFolders={expandedFolders}
-                onFileSelect={handleFileSelect}
-                onExpandedChange={saveExpandedFolders}
-                onCollapseAll={handleCollapseAll}
-              />
-            </Drawer>
+                  flexShrink: 0,
+                  '& .MuiDrawer-paper': {
+                    width: DRAWER_WIDTH,
+                    boxSizing: 'border-box',
+                    position: 'relative',
+                    height: '100%'
+                  },
+                }}
+              >
+                <FileTree
+                  directoryTree={directoryTree}
+                  selectedFile={currentFile}
+                  expandedFolders={expandedFolders}
+                  onFileSelect={handleFileSelect}
+                  onExpandedChange={saveExpandedFolders}
+                  onCollapseAll={handleCollapseAll}
+                />
+              </Drawer>
+            )}
 
             {/* Content Panel */}
             <Box
@@ -107,7 +115,8 @@ function App() {
                 flexGrow: 1,
                 overflow: 'hidden',
                 display: 'flex',
-                flexDirection: 'column'
+                flexDirection: 'column',
+                width: focusMode ? '100%' : 'auto'
               }}
             >
               <MarkdownViewer
@@ -116,8 +125,10 @@ function App() {
                 stats={stats}
                 loading={markdownLoading}
                 error={markdownError || fileError}
+                focusMode={focusMode}
                 onInternalLinkClick={handleInternalLinkClick}
                 onMermaidProcess={handleMermaidProcess}
+                onExitFocusMode={toggleFocusMode}
               />
             </Box>
           </Box>

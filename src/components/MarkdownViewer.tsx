@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
-import { Box, Typography, Paper, Chip } from '@mui/material';
+import { Box, Typography, Paper, Chip, Fab } from '@mui/material';
+import { FullscreenExit } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { MarkdownFile, FileStats } from '../types';
 import 'highlight.js/styles/github.css';
@@ -10,8 +11,10 @@ interface MarkdownViewerProps {
   stats: FileStats | null;
   loading: boolean;
   error: string | null;
+  focusMode?: boolean;
   onInternalLinkClick: (container: HTMLElement) => void;
   onMermaidProcess: (container: HTMLElement) => void;
+  onExitFocusMode?: () => void;
 }
 
 export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
@@ -20,8 +23,10 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
   stats,
   loading,
   error,
+  focusMode = false,
   onInternalLinkClick,
-  onMermaidProcess
+  onMermaidProcess,
+  onExitFocusMode
 }) => {
   const { t } = useTranslation();
   const contentRef = useRef<HTMLDivElement>(null);
@@ -75,52 +80,54 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
   }
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Toolbar */}
-      <Paper
-        elevation={1}
-        sx={{
-          p: 2,
-          borderRadius: 0,
-          borderBottom: 1,
-          borderColor: 'divider'
-        }}
-      >
-        <Typography variant="h6" gutterBottom sx={{ fontSize: '1.1rem' }}>
-          {file.name}
-        </Typography>
-        
-        {stats && (
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-            <Chip 
-              label={`${t('stats.size')}: ${stats.size}`} 
-              size="small" 
-              variant="outlined" 
-            />
-            <Chip 
-              label={`${t('stats.lines')}: ${stats.lines}`} 
-              size="small" 
-              variant="outlined" 
-            />
-            <Chip 
-              label={`${t('stats.characters')}: ${stats.characters}`} 
-              size="small" 
-              variant="outlined" 
-            />
-          </Box>
-        )}
-        
-        <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
-          {t('stats.path')}: {file.path}
-        </Typography>
-      </Paper>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+      {/* Toolbar - Hide in focus mode */}
+      {!focusMode && (
+        <Paper
+          elevation={1}
+          sx={{
+            p: 2,
+            borderRadius: 0,
+            borderBottom: 1,
+            borderColor: 'divider'
+          }}
+        >
+          <Typography variant="h6" gutterBottom sx={{ fontSize: '1.1rem' }}>
+            {file.name}
+          </Typography>
+          
+          {stats && (
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+              <Chip 
+                label={`${t('stats.size')}: ${stats.size}`} 
+                size="small" 
+                variant="outlined" 
+              />
+              <Chip 
+                label={`${t('stats.lines')}: ${stats.lines}`} 
+                size="small" 
+                variant="outlined" 
+              />
+              <Chip 
+                label={`${t('stats.characters')}: ${stats.characters}`} 
+                size="small" 
+                variant="outlined" 
+              />
+            </Box>
+          )}
+          
+          <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+            {t('stats.path')}: {file.path}
+          </Typography>
+        </Paper>
+      )}
 
       {/* Content */}
       <Box 
         sx={{ 
           flex: 1, 
           overflow: 'auto',
-          p: 3
+          p: focusMode ? 4 : 3
         }}
       >
         <div
@@ -129,10 +136,30 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
           dangerouslySetInnerHTML={{ __html: content }}
           style={{
             lineHeight: 1.6,
-            fontSize: '16px'
+            fontSize: '16px',
+            maxWidth: focusMode ? '800px' : 'none',
+            margin: focusMode ? '0 auto' : '0'
           }}
         />
       </Box>
+
+      {/* Floating exit button in focus mode */}
+      {focusMode && onExitFocusMode && (
+        <Fab
+          color="primary"
+          size="medium"
+          onClick={onExitFocusMode}
+          sx={{
+            position: 'fixed',
+            top: 16,
+            right: 16,
+            zIndex: 1000
+          }}
+          title={t('ui.exitFocusMode')}
+        >
+          <FullscreenExit />
+        </Fab>
+      )}
     </Box>
   );
 };

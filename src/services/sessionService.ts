@@ -5,7 +5,8 @@ export class SessionService {
     LAST_FOLDER: 'markdownBuddy_lastFolder',
     LAST_FILE: 'markdownBuddy_lastFile',
     EXPANDED_FOLDERS: 'markdownBuddy_expandedFolders',
-    LANGUAGE: 'markdownBuddy_language'
+    LANGUAGE: 'markdownBuddy_language',
+    FOCUS_MODE: 'markdownBuddy_focusMode'
   };
 
   static saveSession(data: Partial<SessionData>): void {
@@ -28,6 +29,10 @@ export class SessionService {
       if (data.language !== undefined) {
         localStorage.setItem(this.STORAGE_KEYS.LANGUAGE, data.language);
       }
+      
+      if (data.focusMode !== undefined) {
+        localStorage.setItem(this.STORAGE_KEYS.FOCUS_MODE, data.focusMode.toString());
+      }
     } catch (error) {
       console.warn('Failed to save session data:', error);
     }
@@ -39,6 +44,7 @@ export class SessionService {
       const lastFile = localStorage.getItem(this.STORAGE_KEYS.LAST_FILE) || undefined;
       const expandedFoldersStr = localStorage.getItem(this.STORAGE_KEYS.EXPANDED_FOLDERS);
       const language = localStorage.getItem(this.STORAGE_KEYS.LANGUAGE) || 'de';
+      const focusMode = localStorage.getItem(this.STORAGE_KEYS.FOCUS_MODE) === 'true';
       
       let expandedFolders: string[] = [];
       if (expandedFoldersStr) {
@@ -53,13 +59,15 @@ export class SessionService {
         lastFolder,
         lastFile,
         expandedFolders,
-        language
+        language,
+        focusMode
       };
     } catch (error) {
       console.warn('Failed to load session data:', error);
       return {
         expandedFolders: [],
-        language: 'de'
+        language: 'de',
+        focusMode: false
       };
     }
   }
@@ -84,6 +92,10 @@ export class SessionService {
 
   static saveLanguage(language: string): void {
     this.saveSession({ language });
+  }
+
+  static saveFocusMode(focusMode: boolean): void {
+    this.saveSession({ focusMode });
   }
 
   static shouldRestoreSession(): boolean {

@@ -12,7 +12,9 @@ export const translations = {
       fileStats: 'Datei-Statistiken',
       noFileSelected: 'Keine Datei ausgewählt',
       errorLoading: 'Fehler beim Laden der Datei',
-      markdownFiles: 'Markdown-Dateien'
+      markdownFiles: 'Markdown-Dateien',
+      focusMode: 'Focus-Modus',
+      exitFocusMode: 'Focus-Modus beenden'
     },
     stats: {
       size: 'Größe',
@@ -34,7 +36,9 @@ export const translations = {
       fileStats: 'File Statistics',
       noFileSelected: 'No file selected',
       errorLoading: 'Error loading file',
-      markdownFiles: 'Markdown Files'
+      markdownFiles: 'Markdown Files',
+      focusMode: 'Focus Mode',
+      exitFocusMode: 'Exit Focus Mode'
     },
     stats: {
       size: 'Size',

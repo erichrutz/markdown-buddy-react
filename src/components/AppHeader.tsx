@@ -12,18 +12,24 @@ import {
 import {
   FolderOpen,
   Language,
-  MenuBook
+  MenuBook,
+  Fullscreen,
+  FullscreenExit
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 
 interface AppHeaderProps {
   onSelectDirectory: () => void;
   loading: boolean;
+  focusMode: boolean;
+  onToggleFocusMode: () => void;
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({
   onSelectDirectory,
-  loading
+  loading,
+  focusMode,
+  onToggleFocusMode
 }) => {
   const { t, i18n } = useTranslation();
   const [languageAnchor, setLanguageAnchor] = React.useState<null | HTMLElement>(null);
@@ -58,6 +64,15 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           >
             {t('ui.selectFolder')}
           </Button>
+
+          <IconButton
+            color="inherit"
+            onClick={onToggleFocusMode}
+            size="large"
+            title={focusMode ? t('ui.exitFocusMode') : t('ui.focusMode')}
+          >
+            {focusMode ? <FullscreenExit /> : <Fullscreen />}
+          </IconButton>
 
           <IconButton
             color="inherit"

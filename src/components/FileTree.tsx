@@ -29,36 +29,11 @@ export const FileTree: React.FC<FileTreeProps> = ({
   onCollapseAll
 }) => {
   const { t } = useTranslation();
-  
-  console.log('FileTree: Component props:', {
-    directoryTreeLength: directoryTree.length,
-    selectedFile: selectedFile?.path,
-    expandedFoldersLength: expandedFolders.length,
-    expandedFolders
-  });
 
   const renderTreeItems = (nodes: DirectoryNode[], level = 0) => {
-    console.log(`FileTree: Rendering ${nodes.length} nodes at level ${level}`);
-    nodes.forEach((node, index) => {
-      console.log(`FileTree: Node ${index}:`, {
-        name: node.name,
-        path: node.path,
-        type: node.type,
-        hasChildren: node.children ? node.children.length : 0
-      });
-    });
-    
     return nodes.map((node) => {
       const isExpanded = expandedFolders.includes(node.path);
       const isSelected = selectedFile?.path === node.path;
-      
-      console.log(`FileTree: Rendering node ${node.name}:`, {
-        path: node.path,
-        type: node.type,
-        isExpanded,
-        isSelected,
-        hasChildren: node.children ? node.children.length : 0
-      });
       
       return (
         <Box key={node.path}>
@@ -73,21 +48,12 @@ export const FileTree: React.FC<FileTreeProps> = ({
               backgroundColor: isSelected ? 'action.selected' : 'transparent'
             }}
             onClick={() => {
-              console.log(`FileTree: Clicked on ${node.name}:`, {
-                path: node.path,
-                type: node.type,
-                currentlyExpanded: isExpanded,
-                hasChildren: node.children ? node.children.length : 0
-              });
-              
               if (node.type === 'directory') {
                 const newExpanded = isExpanded
                   ? expandedFolders.filter(id => id !== node.path)
                   : [...expandedFolders, node.path];
-                console.log('FileTree: New expanded state:', newExpanded);
                 onExpandedChange(newExpanded);
               } else if (node.file) {
-                console.log('FileTree: Selecting file:', node.file.path);
                 onFileSelect(node.file);
               }
             }}
