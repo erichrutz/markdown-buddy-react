@@ -6,11 +6,13 @@ export const useSession = () => {
   const { i18n } = useTranslation();
   const [expandedFolders, setExpandedFolders] = useState<string[]>([]);
   const [focusMode, setFocusMode] = useState<boolean>(false);
+  const [sidebarVisible, setSidebarVisible] = useState<boolean>(true);
 
   useEffect(() => {
     const session = SessionService.loadSession();
     setExpandedFolders(session.expandedFolders);
     setFocusMode(session.focusMode || false);
+    setSidebarVisible(session.sidebarVisible !== false); // Default to true
     
     if (session.language && session.language !== i18n.language) {
       i18n.changeLanguage(session.language);
@@ -37,10 +39,17 @@ export const useSession = () => {
     SessionService.saveFocusMode(newFocusMode);
   }, [focusMode]);
 
+  const toggleSidebar = useCallback(() => {
+    const newSidebarVisible = !sidebarVisible;
+    setSidebarVisible(newSidebarVisible);
+    SessionService.saveSidebarVisible(newSidebarVisible);
+  }, [sidebarVisible]);
+
   const clearSession = useCallback(() => {
     SessionService.clearSession();
     setExpandedFolders([]);
     setFocusMode(false);
+    setSidebarVisible(true);
   }, []);
 
   const shouldRestoreSession = useCallback(() => {
@@ -54,10 +63,12 @@ export const useSession = () => {
   return {
     expandedFolders,
     focusMode,
+    sidebarVisible,
     saveExpandedFolders,
     saveCurrentFile,
     changeLanguage,
     toggleFocusMode,
+    toggleSidebar,
     clearSession,
     shouldRestoreSession,
     getLastOpenedFile

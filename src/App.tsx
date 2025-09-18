@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline, Box, Drawer, useMediaQuery } from '@mui/material';
 import theme from './theme/theme';
@@ -6,9 +6,11 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { AppHeader } from './components/AppHeader';
 import { FileTree } from './components/FileTree';
 import { MarkdownViewer } from './components/MarkdownViewer';
+import { KeyboardShortcutsHelp } from './components/KeyboardShortcutsHelp';
 import { useFileSystem } from './hooks/useFileSystem';
 import { useMarkdown } from './hooks/useMarkdown';
 import { useSession } from './hooks/useSession';
+import { useKeyboardShortcuts, createDefaultShortcuts } from './hooks/useKeyboardShortcuts';
 import './i18n/i18n';
 import './styles/markdown.css';
 
@@ -43,10 +45,15 @@ function App() {
   const {
     expandedFolders,
     focusMode,
+    sidebarVisible,
     saveExpandedFolders,
     saveCurrentFile,
-    toggleFocusMode
+    toggleFocusMode,
+    toggleSidebar
   } = useSession();
+
+  // Help dialog state
+  const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
 
   // Event handlers
   const handleFileSelect = useCallback((file: any) => {
@@ -70,6 +77,25 @@ function App() {
     await processPlantUMLDiagrams(container);
   }, [processPlantUMLDiagrams]);
 
+  // Keyboard shortcuts
+  const shortcuts = createDefaultShortcuts({
+    toggleSidebar: () => {
+      if (!focusMode) toggleSidebar();
+    },
+    toggleFocusMode,
+    exitFocusMode: () => {
+      if (focusMode) toggleFocusMode();
+    },
+    selectDirectory,
+    collapseAll: handleCollapseAll,
+    showHelp: () => setShowShortcutsHelp(true)
+  });
+
+  const { formatShortcut } = useKeyboardShortcuts({
+    shortcuts,
+    enabled: true
+  });
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -82,13 +108,14 @@ function App() {
               loading={fileLoading}
               focusMode={focusMode}
               onToggleFocusMode={toggleFocusMode}
+              onShowShortcuts={() => setShowShortcutsHelp(true)}
             />
           )}
 
           {/* Main Content */}
           <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-            {/* File Tree Sidebar - Hide in focus mode */}
-            {!focusMode && (
+            {/* File Tree Sidebar - Hide in focus mode or when toggled off */}
+            {!focusMode && sidebarVisible && (
               <Drawer
                 variant={isMobile ? 'temporary' : 'permanent'}
                 sx={{
@@ -138,6 +165,14 @@ function App() {
               />
             </Box>
           </Box>
+
+          {/* Keyboard Shortcuts Help Dialog */}
+          <KeyboardShortcutsHelp
+            open={showShortcutsHelp}
+            onClose={() => setShowShortcutsHelp(false)}
+            shortcuts={shortcuts}
+            formatShortcut={formatShortcut}
+          />
         </Box>
       </ErrorBoundary>
     </ThemeProvider>

@@ -14,7 +14,8 @@ import {
   Language,
   MenuBook,
   Fullscreen,
-  FullscreenExit
+  FullscreenExit,
+  Keyboard
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 
@@ -23,13 +24,15 @@ interface AppHeaderProps {
   loading: boolean;
   focusMode: boolean;
   onToggleFocusMode: () => void;
+  onShowShortcuts?: () => void;
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({
   onSelectDirectory,
   loading,
   focusMode,
-  onToggleFocusMode
+  onToggleFocusMode,
+  onShowShortcuts
 }) => {
   const { t, i18n } = useTranslation();
   const [languageAnchor, setLanguageAnchor] = React.useState<null | HTMLElement>(null);
@@ -73,6 +76,17 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           >
             {focusMode ? <FullscreenExit /> : <Fullscreen />}
           </IconButton>
+
+          {onShowShortcuts && (
+            <IconButton
+              color="inherit"
+              onClick={onShowShortcuts}
+              size="large"
+              title={t('shortcuts.title')}
+            >
+              <Keyboard />
+            </IconButton>
+          )}
 
           <IconButton
             color="inherit"

@@ -36,6 +36,7 @@ export interface SessionData {
   expandedFolders: string[];
   language: string;
   focusMode?: boolean;
+  sidebarVisible?: boolean;
 }
 
 export interface UITexts {

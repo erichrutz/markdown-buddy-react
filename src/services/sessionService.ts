@@ -6,7 +6,8 @@ export class SessionService {
     LAST_FILE: 'markdownBuddy_lastFile',
     EXPANDED_FOLDERS: 'markdownBuddy_expandedFolders',
     LANGUAGE: 'markdownBuddy_language',
-    FOCUS_MODE: 'markdownBuddy_focusMode'
+    FOCUS_MODE: 'markdownBuddy_focusMode',
+    SIDEBAR_VISIBLE: 'markdownBuddy_sidebarVisible'
   };
 
   static saveSession(data: Partial<SessionData>): void {
@@ -33,6 +34,10 @@ export class SessionService {
       if (data.focusMode !== undefined) {
         localStorage.setItem(this.STORAGE_KEYS.FOCUS_MODE, data.focusMode.toString());
       }
+      
+      if (data.sidebarVisible !== undefined) {
+        localStorage.setItem(this.STORAGE_KEYS.SIDEBAR_VISIBLE, data.sidebarVisible.toString());
+      }
     } catch (error) {
       console.warn('Failed to save session data:', error);
     }
@@ -45,6 +50,7 @@ export class SessionService {
       const expandedFoldersStr = localStorage.getItem(this.STORAGE_KEYS.EXPANDED_FOLDERS);
       const language = localStorage.getItem(this.STORAGE_KEYS.LANGUAGE) || 'de';
       const focusMode = localStorage.getItem(this.STORAGE_KEYS.FOCUS_MODE) === 'true';
+      const sidebarVisible = localStorage.getItem(this.STORAGE_KEYS.SIDEBAR_VISIBLE) !== 'false';
       
       let expandedFolders: string[] = [];
       if (expandedFoldersStr) {
@@ -60,14 +66,16 @@ export class SessionService {
         lastFile,
         expandedFolders,
         language,
-        focusMode
+        focusMode,
+        sidebarVisible
       };
     } catch (error) {
       console.warn('Failed to load session data:', error);
       return {
         expandedFolders: [],
         language: 'de',
-        focusMode: false
+        focusMode: false,
+        sidebarVisible: true
       };
     }
   }
@@ -96,6 +104,10 @@ export class SessionService {
 
   static saveFocusMode(focusMode: boolean): void {
     this.saveSession({ focusMode });
+  }
+
+  static saveSidebarVisible(sidebarVisible: boolean): void {
+    this.saveSession({ sidebarVisible });
   }
 
   static shouldRestoreSession(): boolean {
