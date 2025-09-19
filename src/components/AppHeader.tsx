@@ -118,7 +118,21 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                   height: 8,
                   borderRadius: '50%',
                   backgroundColor: 'warning.main',
-                  animation: 'pulse 2s infinite'
+                  animation: 'pulse 2s infinite',
+                  '@keyframes pulse': {
+                    '0%': {
+                      transform: 'scale(1)',
+                      opacity: 1,
+                    },
+                    '50%': {
+                      transform: 'scale(1.2)',
+                      opacity: 0.7,
+                    },
+                    '100%': {
+                      transform: 'scale(1)',
+                      opacity: 1,
+                    },
+                  }
                 } : {}
               }}
             >

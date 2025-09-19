@@ -13,6 +13,7 @@ import { useMarkdown } from './hooks/useMarkdown';
 import { useSession } from './hooks/useSession';
 import { useKeyboardShortcuts, createDefaultShortcuts } from './hooks/useKeyboardShortcuts';
 import { usePDFExport } from './hooks/usePDFExport';
+import { useFileChangeDetection } from './hooks/useFileChangeDetection';
 import { PDFExportOptions } from './services/pdfExportService';
 import './i18n/i18n';
 import './styles/markdown.css';
@@ -62,19 +63,8 @@ function App() {
   // PDF Export
   const { exportToPDF, generateDefaultFilename } = usePDFExport();
 
-  // File change detection (temporarily simplified)
-  const hasFileChanged = false;
-  
-  // Simple refresh function without change detection
-  const refreshFile = useCallback(async (): Promise<string | null> => {
-    if (!currentFile) return null;
-    try {
-      return await currentFile.file.text();
-    } catch (error) {
-      console.error('Error refreshing file:', error);
-      throw error;
-    }
-  }, [currentFile]);
+  // File change detection
+  const { hasChanged: hasFileChanged, resetChangeState } = useFileChangeDetection(currentFile);
 
   // Event handlers
   const handleFileSelect = useCallback((file: any) => {
@@ -121,20 +111,19 @@ function App() {
   const handleRefresh = useCallback(async () => {
     if (currentFile) {
       try {
-        // Use the file change detection hook for consistent refresh
-        const freshContent = await refreshFile();
+        // Reload the current file using the existing loadFile function
+        await loadFile(currentFile);
         
-        if (freshContent !== null) {
-          // Simply reload the current file using the existing loadFile function
-          await loadFile(currentFile);
-          console.log('File refreshed:', currentFile.path);
-        }
+        // Reset the change state after successful refresh
+        resetChangeState();
+        
+        console.log('File refreshed:', currentFile.path);
       } catch (error) {
         console.error('Error refreshing file:', error);
         // Error handling is already done by useMarkdown hook
       }
     }
-  }, [currentFile, refreshFile, loadFile]);
+  }, [currentFile, loadFile, resetChangeState]);
 
   // Keyboard shortcuts
   const shortcuts = createDefaultShortcuts({
