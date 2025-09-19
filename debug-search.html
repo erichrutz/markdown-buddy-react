@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Search</title>
+    <script src="https://unpkg.com/fuse.js@7.0.0/dist/fuse.min.js"></script>
+</head>
+<body>
+    <h1>Debug Fuse.js Search</h1>
+    <div id="results"></div>
+
+    <script>
+        // Sample data similar to our markdown files
+        const files = [
+            { name: 'alpha-test.md', path: 'test-markdown-files/alpha-test.md' },
+            { name: 'beta-version.md', path: 'test-markdown-files/beta-version.md' },
+            { name: 'alphabet-soup.md', path: 'test-markdown-files/alphabet-soup.md' },
+            { name: 'change-detection-test.md', path: 'test-markdown-files/change-detection-test.md' },
+            { name: 'pdf-export-test.md', path: 'test-markdown-files/export/pdf-export-test.md' }
+        ];
+
+        // Same configuration as in our app
+        const fuseOptions = {
+            keys: [
+                { name: 'name', weight: 0.7 },
+                { name: 'path', weight: 0.3 }
+            ],
+            threshold: 0.6,
+            includeScore: true,
+            includeMatches: true,
+            minMatchCharLength: 1,
+            ignoreLocation: true,
+            findAllMatches: true,
+            shouldSort: true,
+            distance: 100
+        };
+
+        const fuse = new Fuse(files, fuseOptions);
+
+        // Test searches
+        const queries = ['alpha', 'beta', 'alphabet', 'pdf', 'change'];
+        
+        const resultsDiv = document.getElementById('results');
+        
+        queries.forEach(query => {
+            const results = fuse.search(query);
+            const div = document.createElement('div');
+            div.innerHTML = `
+                <h3>Search for "${query}":</h3>
+                <pre>${JSON.stringify(results, null, 2)}</pre>
+                <hr>
+            `;
+            resultsDiv.appendChild(div);
+        });
+    </script>
+</body>
+</html>

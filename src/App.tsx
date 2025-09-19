@@ -107,6 +107,7 @@ function App() {
     }
   }, [currentFile]);
 
+
   // Refresh handler
   const handleRefresh = useCallback(async () => {
     if (currentFile) {
@@ -124,6 +125,7 @@ function App() {
       }
     }
   }, [currentFile, loadFile, resetChangeState]);
+
 
   // Keyboard shortcuts
   const shortcuts = createDefaultShortcuts({
@@ -235,6 +237,7 @@ function App() {
             onExport={handlePDFExport}
             defaultFilename={currentFile ? generateDefaultFilename(currentFile) : 'document.pdf'}
           />
+
         </Box>
       </ErrorBoundary>
     </ThemeProvider>

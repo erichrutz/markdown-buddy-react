@@ -88,6 +88,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             {focusMode ? <FullscreenExit /> : <Fullscreen />}
           </IconButton>
 
+
           {onExportPDF && (
             <IconButton
               color="inherit"

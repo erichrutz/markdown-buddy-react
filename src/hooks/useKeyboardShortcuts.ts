@@ -187,6 +187,7 @@ export const createDefaultShortcuts = (actions: {
     });
   }
 
+
   // Focus mode exit shortcut (separate action for clarity)
   if (actions.exitFocusMode) {
     shortcuts.push({

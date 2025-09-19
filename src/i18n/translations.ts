@@ -20,6 +20,22 @@ export const translations = {
       refresh: 'Datei neu laden',
       refreshChanged: 'Datei wurde geändert - neu laden'
     },
+    search: {
+      title: 'Suchen',
+      placeholder: 'Nach Dateien suchen...',
+      resultsFound: 'Ergebnisse gefunden',
+      noResults: 'Keine Dateien gefunden',
+      searching: 'Suche läuft...',
+      typeToSearch: 'Tippen Sie, um zu suchen',
+      navigate: 'zum Navigieren',
+      recentSearches: 'Letzte Suchvorgänge',
+      quickOpen: 'Schnell öffnen',
+      searchInContent: 'In Inhalten suchen',
+      caseSensitive: 'Groß-/Kleinschreibung beachten',
+      useRegex: 'Reguläre Ausdrücke verwenden',
+      indexing: 'Suchindex wird erstellt...',
+      indexReady: 'Suchindex bereit'
+    },
     shortcuts: {
       title: 'Tastenkürzel',
       subtitle: 'Verfügbare Tastenkürzel für MarkDown Buddy',
@@ -78,6 +94,22 @@ export const translations = {
       cancel: 'Cancel',
       refresh: 'Reload file',
       refreshChanged: 'File changed - reload'
+    },
+    search: {
+      title: 'Search',
+      placeholder: 'Search files...',
+      resultsFound: 'results found',
+      noResults: 'No files found matching your search',
+      searching: 'Searching...',
+      typeToSearch: 'Type to search files',
+      navigate: 'to navigate',
+      recentSearches: 'Recent Searches',
+      quickOpen: 'Quick Open',
+      searchInContent: 'Search in content',
+      caseSensitive: 'Match case',
+      useRegex: 'Use regular expressions',
+      indexing: 'Building search index...',
+      indexReady: 'Search index ready'
     },
     shortcuts: {
       title: 'Keyboard Shortcuts',

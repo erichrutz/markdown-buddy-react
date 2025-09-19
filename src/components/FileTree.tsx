@@ -1,11 +1,24 @@
-import React from 'react';
-import { Box, Typography, IconButton, Tooltip, Collapse, List, ListItem } from '@mui/material';
+import React, { useState, useMemo } from 'react';
+import { 
+  Box, 
+  Typography, 
+  IconButton, 
+  Tooltip, 
+  Collapse, 
+  List, 
+  ListItem, 
+  TextField,
+  InputAdornment,
+  Chip
+} from '@mui/material';
 import { 
   Folder, 
   FolderOpen, 
   Description,
   UnfoldLess,
-  Code
+  Code,
+  Search,
+  Clear
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { DirectoryNode, MarkdownFile } from '../types';
@@ -29,6 +42,54 @@ export const FileTree: React.FC<FileTreeProps> = ({
   onCollapseAll
 }) => {
   const { t } = useTranslation();
+  const [filter, setFilter] = useState('');
+
+  // Filter nodes recursively based on filter text
+  const filterNodes = useMemo(() => {
+    if (!filter.trim()) return directoryTree;
+
+    const filterText = filter.toLowerCase();
+    
+    const filterNodeRecursive = (nodes: DirectoryNode[]): DirectoryNode[] => {
+      return nodes.reduce((filtered: DirectoryNode[], node) => {
+        const nameMatches = node.name.toLowerCase().includes(filterText);
+        const pathMatches = node.path.toLowerCase().includes(filterText);
+        
+        if (node.type === 'file') {
+          // Include file if name or path matches
+          if (nameMatches || pathMatches) {
+            filtered.push(node);
+          }
+        } else {
+          // For directories, check if they contain matching files
+          const filteredChildren = filterNodeRecursive(node.children || []);
+          if (filteredChildren.length > 0 || nameMatches) {
+            filtered.push({
+              ...node,
+              children: filteredChildren
+            });
+          }
+        }
+        
+        return filtered;
+      }, []);
+    };
+
+    return filterNodeRecursive(directoryTree);
+  }, [directoryTree, filter]);
+
+  // Count filtered results
+  const countFilteredFiles = (nodes: DirectoryNode[]): number => {
+    return nodes.reduce((count, node) => {
+      if (node.type === 'file') {
+        return count + 1;
+      }
+      return count + countFilteredFiles(node.children || []);
+    }, 0);
+  };
+
+  const filteredFileCount = useMemo(() => countFilteredFiles(filterNodes), [filterNodes]);
+  const totalFileCount = useMemo(() => countFilteredFiles(directoryTree), [directoryTree]);
 
   const renderTreeItems = (nodes: DirectoryNode[], level = 0) => {
     return nodes.map((node) => {
@@ -132,11 +193,64 @@ export const FileTree: React.FC<FileTreeProps> = ({
           </Tooltip>
         </Box>
       </Box>
+
+      {/* Filter Input */}
+      <Box sx={{ p: 1.5, borderBottom: 1, borderColor: 'divider' }}>
+        <TextField
+          fullWidth
+          size="small"
+          placeholder={t('search.placeholder', 'Search files...')}
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Search sx={{ fontSize: 18, color: 'text.secondary' }} />
+              </InputAdornment>
+            ),
+            endAdornment: filter && (
+              <InputAdornment position="end">
+                <IconButton size="small" onClick={() => setFilter('')}>
+                  <Clear sx={{ fontSize: 16 }} />
+                </IconButton>
+              </InputAdornment>
+            )
+          }}
+          sx={{
+            '& .MuiOutlinedInput-root': {
+              fontSize: '0.875rem',
+              '& fieldset': {
+                borderColor: 'divider'
+              },
+              '&:hover fieldset': {
+                borderColor: 'primary.main'
+              }
+            }
+          }}
+        />
+        
+        {/* Filter Results Count */}
+        {filter && (
+          <Box sx={{ mt: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Chip
+              label={`${filteredFileCount} of ${totalFileCount} files`}
+              size="small"
+              variant="outlined"
+              sx={{ fontSize: '0.75rem', height: 24 }}
+            />
+            {filteredFileCount === 0 && (
+              <Typography variant="caption" color="text.secondary">
+                {t('search.noResults', 'No files found')}
+              </Typography>
+            )}
+          </Box>
+        )}
+      </Box>
       
       <Box sx={{ flex: 1, overflow: 'auto' }}>
         {directoryTree.length > 0 ? (
           <List dense sx={{ py: 0 }}>
-            {renderTreeItems(directoryTree)}
+            {renderTreeItems(filterNodes)}
           </List>
         ) : (
           <Typography variant="body2" color="text.secondary" sx={{ p: 2, textAlign: 'center' }}>
