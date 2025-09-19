@@ -1,8 +1,38 @@
+/* CSS Variables for theming */
+:root {
+  --md-text-color: #333;
+  --md-heading-border: #eaecef;
+  --md-secondary-text: #6a737d;
+  --md-border-color: #dfe2e5;
+  --md-table-header-bg: #f6f8fa;
+  --md-code-bg: rgba(27, 31, 35, 0.05);
+  --md-pre-bg: #f6f8fa;
+  --md-link-color: #0366d6;
+  --md-hr-color: #e1e4e8;
+  --md-syntax-bg: #f6f8fa;
+  --md-syntax-color: #24292e;
+}
+
+/* Dark theme variables */
+[data-theme="dark"] {
+  --md-text-color: #e0e0e0;
+  --md-heading-border: #404040;
+  --md-secondary-text: #b3b3b3;
+  --md-border-color: #404040;
+  --md-table-header-bg: #383838;
+  --md-code-bg: rgba(255, 255, 255, 0.1);
+  --md-pre-bg: #2d2d2d;
+  --md-link-color: #5dade2;
+  --md-hr-color: #404040;
+  --md-syntax-bg: #2d2d2d;
+  --md-syntax-color: #e0e0e0;
+}
+
 /* Markdown Content Styling */
 .markdown-content {
   max-width: 100%;
   line-height: 1.6;
-  color: #333;
+  color: var(--md-text-color);
 }
 
 .markdown-content h1,
@@ -19,13 +49,13 @@
 
 .markdown-content h1 {
   font-size: 2em;
-  border-bottom: 1px solid #eaecef;
+  border-bottom: 1px solid var(--md-heading-border);
   padding-bottom: 10px;
 }
 
 .markdown-content h2 {
   font-size: 1.5em;
-  border-bottom: 1px solid #eaecef;
+  border-bottom: 1px solid var(--md-heading-border);
   padding-bottom: 8px;
 }
 
@@ -43,7 +73,7 @@
 
 .markdown-content h6 {
   font-size: 0.85em;
-  color: #6a737d;
+  color: var(--md-secondary-text);
 }
 
 .markdown-content p {
@@ -52,8 +82,8 @@
 
 .markdown-content blockquote {
   padding: 0 16px;
-  color: #6a737d;
-  border-left: 4px solid #dfe2e5;
+  color: var(--md-secondary-text);
+  border-left: 4px solid var(--md-border-color);
   margin: 0 0 16px 0;
 }
 
@@ -75,18 +105,18 @@
 
 .markdown-content th,
 .markdown-content td {
-  border: 1px solid #dfe2e5;
+  border: 1px solid var(--md-border-color);
   padding: 8px 12px;
   text-align: left;
 }
 
 .markdown-content th {
-  background-color: #f6f8fa;
+  background-color: var(--md-table-header-bg);
   font-weight: 600;
 }
 
 .markdown-content code {
-  background-color: rgba(27, 31, 35, 0.05);
+  background-color: var(--md-code-bg);
   border-radius: 3px;
   font-size: 85%;
   margin: 0;
@@ -95,7 +125,7 @@
 }
 
 .markdown-content pre {
-  background-color: #f6f8fa;
+  background-color: var(--md-pre-bg);
   border-radius: 6px;
   font-size: 85%;
   line-height: 1.45;
@@ -119,7 +149,7 @@
 
 /* Internal Links */
 .markdown-content .internal-md-link {
-  color: #0366d6;
+  color: var(--md-link-color);
   text-decoration: none;
   cursor: pointer;
 }
@@ -186,8 +216,8 @@
 
 /* Syntax Highlighting Adjustments */
 .hljs {
-  background: #f6f8fa !important;
-  color: #24292e !important;
+  background: var(--md-syntax-bg) !important;
+  color: var(--md-syntax-color) !important;
 }
 
 /* Image responsiveness */
@@ -200,6 +230,6 @@
 .markdown-content hr {
   height: 1px;
   margin: 24px 0;
-  background-color: #e1e4e8;
+  background-color: var(--md-hr-color);
   border: 0;
 }

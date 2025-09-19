@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline, Box, Drawer, useMediaQuery } from '@mui/material';
 import { createAppTheme } from './theme/theme';
@@ -168,6 +168,12 @@ function App() {
     shortcuts,
     enabled: true
   });
+
+  // Set data-theme attribute on document element for CSS variables
+  useEffect(() => {
+    const currentTheme = getEffectiveTheme();
+    document.documentElement.setAttribute('data-theme', currentTheme);
+  }, [getEffectiveTheme]);
 
   return (
     <ThemeProvider theme={theme}>

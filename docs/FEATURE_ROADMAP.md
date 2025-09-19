@@ -4,28 +4,33 @@ This document outlines proposed improvements and future features for MarkDown Bu
 
 ## 🚀 Performance & User Experience
 
-### 1. Dark Mode Support
+### 1. Dark Mode Support ✅ COMPLETED
 **Priority: High | Effort: Medium | Impact: High**
 
 ```typescript
 interface DarkModeFeatures {
-  autoDetection: boolean;     // Automatic OS dark mode detection
-  manualToggle: boolean;      // Manual light/dark toggle
-  diagramTheming: boolean;    // Dark theme for Mermaid/PlantUML
-  customColors: ThemeColors;  // Customizable color schemes
+  autoDetection: boolean;     // ✅ Automatic OS dark mode detection
+  manualToggle: boolean;      // ✅ Manual light/dark toggle
+  diagramTheming: boolean;    // ✅ Dark theme for Mermaid/PlantUML
+  customColors: ThemeColors;  // ❌ Customizable color schemes
 }
 ```
 
-**Implementation:**
-- Extend MUI theme system with dark palette
-- Add theme toggle button in header
-- Implement diagram-specific dark themes
-- Persist theme preference in localStorage
+**Implementation:** ✅ COMPLETED
+- ✅ Extended MUI theme system with dark palette
+- ✅ Added Settings dialog with theme controls
+- ✅ Implemented diagram-specific dark themes
+- ✅ Theme preference persisted in localStorage
+- ✅ Real-time OS theme change detection
 
 **Benefits:**
 - Reduced eye strain in low-light environments
 - Modern UI expectation
 - Better accessibility support
+
+**Remaining Work:**
+- Custom color scheme editor
+- Advanced theming options
 
 ---
 
@@ -107,6 +112,59 @@ interface FileHistory {
 - Better organization for frequently used files
 - Faster access to important documents
 - Improved user workflow efficiency
+
+---
+
+### 1.1. Settings System Implementation
+**Priority: Medium | Effort: Medium | Impact: Medium**
+
+```typescript
+interface MissingSettingsFeatures {
+  appearance: {
+    showLineNumbers: boolean;     // ❌ Line numbers in markdown view
+    customFontFamily: string;     // ❌ Font family selection implementation
+    compactMode: boolean;         // ❌ Compact UI spacing
+  };
+  behavior: {
+    autoSave: boolean;            // ❌ Auto-save functionality
+    autoSaveInterval: number;     // ❌ Auto-save interval setting
+    confirmBeforeExit: boolean;   // ❌ Exit confirmation dialog
+    rememberLastFolder: boolean;  // ❌ Folder persistence across sessions
+    openLinksInNewTab: boolean;   // ❌ External link behavior
+  };
+  diagrams: {
+    diagramTheme: 'auto';         // ❌ Separate diagram theme control
+    mermaidTheme: string;         // ❌ Mermaid theme customization
+    plantUMLServer: string;       // ❌ Custom PlantUML server setting
+  };
+  export: {
+    pdfQuality: 'low' | 'medium' | 'high';  // ❌ PDF quality setting
+    exportPath: string;           // ❌ Default export location
+  };
+  keyboard: {
+    customShortcuts: Record<string, string>; // ❌ Custom shortcut editor
+    vimMode: boolean;             // ❌ Vim-style navigation
+  };
+  performance: {
+    renderTimeout: number;        // ❌ Rendering timeout setting
+    enableAnalytics: boolean;     // ❌ Usage analytics toggle
+  };
+}
+```
+
+**Implementation Tasks:**
+- Connect appearance settings to actual UI components
+- Implement auto-save with configurable intervals
+- Add exit confirmation dialog
+- Create custom shortcut key binding system
+- Add Vim mode navigation
+- Implement performance monitoring
+- Add usage analytics system (privacy-focused)
+
+**Benefits:**
+- Full control over application behavior
+- Personalized user experience
+- Performance optimization options
 
 ---
 
@@ -753,7 +811,8 @@ interface AccessibilityFeatures {
 ### Phase 1: Quick Wins (1-2 months)
 | Feature | Priority | Effort | Impact | Status |
 |---------|----------|---------|---------|---------|
-| Dark Mode | High | Medium | High | 🟡 Ready |
+| Dark Mode | High | Medium | High | ✅ Completed |
+| Settings Implementation | Medium | Medium | Medium | 🟡 Ready |
 | Advanced Shortcuts | High | Low | Medium | 🟡 Ready |
 | Tab System | High | Medium | High | 🟡 Ready |
 | Export (Basic) | High | Medium | High | 🟡 Ready |

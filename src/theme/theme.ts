@@ -105,7 +105,7 @@ const darkThemeOptions: ThemeOptions = {
     surface: '#2d2d2d',
     text: {
       primary: '#ffffff',
-      secondary: '#b3b3b3'
+      secondary: '#e0e0e0'
     },
     grey: {
       50: '#fafafa',
@@ -145,7 +145,7 @@ const darkThemeOptions: ThemeOptions = {
     body2: {
       fontSize: '0.875rem',
       lineHeight: 1.5,
-      color: '#b3b3b3'
+      color: '#e0e0e0'
     }
   },
   components: {
