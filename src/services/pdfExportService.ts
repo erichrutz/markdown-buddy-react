@@ -84,9 +84,7 @@ export class PDFExportService {
         this.addHeader(pdf, file, exportOptions);
       }
 
-      // Add content
-      const imgData = canvas.toDataURL('image/png');
-      const yPosition = exportOptions.includeHeader ? exportOptions.margins.top + 15 : exportOptions.margins.top;
+      // Add content preparation
       
       // Handle multi-page content
       let remainingHeight = finalHeight;

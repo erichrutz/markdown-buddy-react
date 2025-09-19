@@ -39,7 +39,7 @@ export const KeyboardShortcutsHelp: React.FC<KeyboardShortcutsHelpProps> = ({
   }, {} as Record<string, KeyboardShortcut[]>);
 
   const categoryOrder: Array<keyof typeof groupedShortcuts> = ['navigation', 'view', 'file', 'custom'];
-  const categoryTitles = {
+  const categoryTitles: Record<string, string> = {
     navigation: t('shortcuts.navigation'),
     view: t('shortcuts.view'),
     file: t('shortcuts.file'),

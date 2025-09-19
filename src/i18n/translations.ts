@@ -16,7 +16,9 @@ export const translations = {
       focusMode: 'Focus-Modus',
       exitFocusMode: 'Focus-Modus beenden',
       close: 'Schließen',
-      cancel: 'Abbrechen'
+      cancel: 'Abbrechen',
+      refresh: 'Datei neu laden',
+      refreshChanged: 'Datei wurde geändert - neu laden'
     },
     shortcuts: {
       title: 'Tastenkürzel',
@@ -73,7 +75,9 @@ export const translations = {
       focusMode: 'Focus Mode',
       exitFocusMode: 'Exit Focus Mode',
       close: 'Close',
-      cancel: 'Cancel'
+      cancel: 'Cancel',
+      refresh: 'Reload file',
+      refreshChanged: 'File changed - reload'
     },
     shortcuts: {
       title: 'Keyboard Shortcuts',

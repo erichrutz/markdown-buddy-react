@@ -62,6 +62,20 @@ function App() {
   // PDF Export
   const { exportToPDF, generateDefaultFilename } = usePDFExport();
 
+  // File change detection (temporarily simplified)
+  const hasFileChanged = false;
+  
+  // Simple refresh function without change detection
+  const refreshFile = useCallback(async (): Promise<string | null> => {
+    if (!currentFile) return null;
+    try {
+      return await currentFile.file.text();
+    } catch (error) {
+      console.error('Error refreshing file:', error);
+      throw error;
+    }
+  }, [currentFile]);
+
   // Event handlers
   const handleFileSelect = useCallback((file: any) => {
     loadFile(file);
@@ -103,6 +117,25 @@ function App() {
     }
   }, [currentFile]);
 
+  // Refresh handler
+  const handleRefresh = useCallback(async () => {
+    if (currentFile) {
+      try {
+        // Use the file change detection hook for consistent refresh
+        const freshContent = await refreshFile();
+        
+        if (freshContent !== null) {
+          // Simply reload the current file using the existing loadFile function
+          await loadFile(currentFile);
+          console.log('File refreshed:', currentFile.path);
+        }
+      } catch (error) {
+        console.error('Error refreshing file:', error);
+        // Error handling is already done by useMarkdown hook
+      }
+    }
+  }, [currentFile, refreshFile, loadFile]);
+
   // Keyboard shortcuts
   const shortcuts = createDefaultShortcuts({
     toggleSidebar: () => {
@@ -115,7 +148,8 @@ function App() {
     selectDirectory,
     collapseAll: handleCollapseAll,
     showHelp: () => setShowShortcutsHelp(true),
-    exportPDF: handleShowPDFExport
+    exportPDF: handleShowPDFExport,
+    refresh: handleRefresh
   });
 
   const { formatShortcut } = useKeyboardShortcuts({
@@ -137,7 +171,9 @@ function App() {
               onToggleFocusMode={toggleFocusMode}
               onShowShortcuts={() => setShowShortcutsHelp(true)}
               onExportPDF={handleShowPDFExport}
+              onRefresh={handleRefresh}
               hasCurrentFile={!!currentFile}
+              hasFileChanged={hasFileChanged}
             />
           )}
 

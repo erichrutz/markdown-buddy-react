@@ -16,7 +16,9 @@ import {
   Fullscreen,
   FullscreenExit,
   Keyboard,
-  PictureAsPdf
+  PictureAsPdf,
+  Refresh,
+  Warning
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 
@@ -27,7 +29,9 @@ interface AppHeaderProps {
   onToggleFocusMode: () => void;
   onShowShortcuts?: () => void;
   onExportPDF?: () => void;
+  onRefresh?: () => void;
   hasCurrentFile?: boolean;
+  hasFileChanged?: boolean;
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({
@@ -37,7 +41,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   onToggleFocusMode,
   onShowShortcuts,
   onExportPDF,
-  hasCurrentFile = false
+  onRefresh,
+  hasCurrentFile = false,
+  hasFileChanged = false
 }) => {
   const { t, i18n } = useTranslation();
   const [languageAnchor, setLanguageAnchor] = React.useState<null | HTMLElement>(null);
@@ -91,6 +97,47 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               disabled={!hasCurrentFile || loading}
             >
               <PictureAsPdf />
+            </IconButton>
+          )}
+
+          {onRefresh && (
+            <IconButton
+              color="inherit"
+              onClick={onRefresh}
+              size="large"
+              title={hasFileChanged ? t('ui.refreshChanged') : t('ui.refresh')}
+              disabled={!hasCurrentFile || loading}
+              sx={{
+                position: 'relative',
+                '&::after': hasFileChanged ? {
+                  content: '""',
+                  position: 'absolute',
+                  top: 8,
+                  right: 8,
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  backgroundColor: 'warning.main',
+                  animation: 'pulse 2s infinite'
+                } : {}
+              }}
+            >
+              {hasFileChanged ? (
+                <Box sx={{ position: 'relative' }}>
+                  <Refresh />
+                  <Warning 
+                    sx={{ 
+                      position: 'absolute', 
+                      top: -4, 
+                      right: -4, 
+                      fontSize: 12,
+                      color: 'warning.main'
+                    }} 
+                  />
+                </Box>
+              ) : (
+                <Refresh />
+              )}
             </IconButton>
           )}
 
