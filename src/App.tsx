@@ -1,16 +1,18 @@
 import { useCallback, useState } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline, Box, Drawer, useMediaQuery } from '@mui/material';
-import theme from './theme/theme';
+import { createAppTheme } from './theme/theme';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { AppHeader } from './components/AppHeader';
 import { FileTree } from './components/FileTree';
 import { MarkdownViewer } from './components/MarkdownViewer';
 import { KeyboardShortcutsHelp } from './components/KeyboardShortcutsHelp';
 import { PDFExportDialog } from './components/PDFExportDialog';
+import { SettingsDialog } from './components/SettingsDialog';
 import { useFileSystem } from './hooks/useFileSystem';
 import { useMarkdown } from './hooks/useMarkdown';
 import { useSession } from './hooks/useSession';
+import { useSettings } from './hooks/useSettings';
 import { useKeyboardShortcuts, createDefaultShortcuts } from './hooks/useKeyboardShortcuts';
 import { usePDFExport } from './hooks/usePDFExport';
 import { useFileChangeDetection } from './hooks/useFileChangeDetection';
@@ -21,6 +23,23 @@ import './styles/markdown.css';
 const DRAWER_WIDTH = 300;
 
 function App() {
+  // Settings management
+  const {
+    settings,
+    updateAppearanceSettings,
+    updateBehaviorSettings,
+    updateDiagramSettings,
+    updateExportSettings,
+    updateKeyboardSettings,
+    updatePerformanceSettings,
+    resetSettings,
+    exportSettings,
+    importSettings,
+    getEffectiveTheme
+  } = useSettings();
+
+  // Create theme based on settings
+  const theme = createAppTheme(getEffectiveTheme());
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   
   // File system management
@@ -43,7 +62,7 @@ function App() {
     processInternalLinks,
     processMermaidDiagrams,
     processPlantUMLDiagrams
-  } = useMarkdown();
+  } = useMarkdown(getEffectiveTheme());
 
   // Session management
   const {
@@ -59,6 +78,7 @@ function App() {
   // Dialog states
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
   const [showPDFExport, setShowPDFExport] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   // PDF Export
   const { exportToPDF, generateDefaultFilename } = usePDFExport();
@@ -140,7 +160,8 @@ function App() {
     collapseAll: handleCollapseAll,
     showHelp: () => setShowShortcutsHelp(true),
     exportPDF: handleShowPDFExport,
-    refresh: handleRefresh
+    refresh: handleRefresh,
+    showSettings: () => setShowSettings(true)
   });
 
   const { formatShortcut } = useKeyboardShortcuts({
@@ -163,6 +184,7 @@ function App() {
               onShowShortcuts={() => setShowShortcutsHelp(true)}
               onExportPDF={handleShowPDFExport}
               onRefresh={handleRefresh}
+              onShowSettings={() => setShowSettings(true)}
               hasCurrentFile={!!currentFile}
               hasFileChanged={hasFileChanged}
             />
@@ -236,6 +258,23 @@ function App() {
             onClose={() => setShowPDFExport(false)}
             onExport={handlePDFExport}
             defaultFilename={currentFile ? generateDefaultFilename(currentFile) : 'document.pdf'}
+          />
+
+          {/* Settings Dialog */}
+          <SettingsDialog
+            open={showSettings}
+            onClose={() => setShowSettings(false)}
+            settings={settings}
+            onUpdateSettings={() => {}}
+            onUpdateAppearanceSettings={updateAppearanceSettings}
+            onUpdateBehaviorSettings={updateBehaviorSettings}
+            onUpdateDiagramSettings={updateDiagramSettings}
+            onUpdateExportSettings={updateExportSettings}
+            onUpdateKeyboardSettings={updateKeyboardSettings}
+            onUpdatePerformanceSettings={updatePerformanceSettings}
+            onResetSettings={resetSettings}
+            onExportSettings={exportSettings}
+            onImportSettings={importSettings}
           />
 
         </Box>

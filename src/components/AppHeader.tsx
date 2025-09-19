@@ -18,7 +18,8 @@ import {
   Keyboard,
   PictureAsPdf,
   Refresh,
-  Warning
+  Warning,
+  Settings
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 
@@ -30,6 +31,7 @@ interface AppHeaderProps {
   onShowShortcuts?: () => void;
   onExportPDF?: () => void;
   onRefresh?: () => void;
+  onShowSettings?: () => void;
   hasCurrentFile?: boolean;
   hasFileChanged?: boolean;
 }
@@ -42,6 +44,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   onShowShortcuts,
   onExportPDF,
   onRefresh,
+  onShowSettings,
   hasCurrentFile = false,
   hasFileChanged = false
 }) => {
@@ -164,6 +167,17 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               title={t('shortcuts.title')}
             >
               <Keyboard />
+            </IconButton>
+          )}
+
+          {onShowSettings && (
+            <IconButton
+              color="inherit"
+              onClick={onShowSettings}
+              size="large"
+              title={t('settings.title', 'Settings')}
+            >
+              <Settings />
             </IconButton>
           )}
 

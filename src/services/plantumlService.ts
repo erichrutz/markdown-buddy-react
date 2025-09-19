@@ -12,11 +12,20 @@ export class PlantUMLService {
   private static readonly CACHE_KEY = 'plantuml-diagram-cache';
   private static readonly CACHE_EXPIRY_DAYS = 30; // Cache expires after 30 days
   private static cache: Map<string, string> = new Map();
+  private static currentTheme: 'light' | 'dark' = 'light';
+  
+  /**
+   * Set the current theme for PlantUML diagrams
+   */
+  static setTheme(theme: 'light' | 'dark') {
+    this.currentTheme = theme;
+  }
   
   /**
    * Process PlantUML diagrams in a container element
    */
-  static async processPlantUMLDiagrams(container: HTMLElement): Promise<void> {
+  static async processPlantUMLDiagrams(container: HTMLElement, theme: 'light' | 'dark' = 'light'): Promise<void> {
+    this.setTheme(theme);
     try {
       const plantUMLBlocks = container.querySelectorAll('pre code.language-plantuml:not([data-processed]), pre code.language-puml:not([data-processed])');
       
@@ -53,18 +62,23 @@ export class PlantUMLService {
       // Create container for the diagram
       const diagramContainer = document.createElement('div');
       diagramContainer.className = 'plantuml-diagram';
+      const borderColor = this.currentTheme === 'dark' ? '#404040' : '#e0e0e0';
+      const backgroundColor = this.currentTheme === 'dark' ? '#2d2d2d' : 'white';
+      const textColor = this.currentTheme === 'dark' ? '#ffffff' : '#666';
+      
       diagramContainer.style.cssText = `
         margin: 16px 0;
         text-align: center;
-        border: 1px solid #e0e0e0;
+        border: 1px solid ${borderColor};
         border-radius: 4px;
         padding: 16px;
-        background-color: white;
+        background-color: ${backgroundColor};
+        color: ${textColor};
       `;
       
       // Add loading indicator first
       diagramContainer.innerHTML = `
-        <div style="color: #666; padding: 16px;">
+        <div style="color: ${textColor}; padding: 16px;">
           Loading PlantUML diagram...
         </div>
       `;

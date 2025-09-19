@@ -5,13 +5,14 @@ import { PlantUMLService } from './plantumlService';
 
 export class MarkdownService {
   private static initialized = false;
+  private static currentTheme: 'light' | 'dark' = 'light';
 
-  static initialize() {
-    if (this.initialized) return;
-
+  static initialize(theme: 'light' | 'dark' = 'light') {
+    this.currentTheme = theme;
+    
     mermaid.initialize({
       startOnLoad: false,
-      theme: 'default',
+      theme: theme === 'dark' ? 'dark' : 'default',
       securityLevel: 'loose'
     });
 
@@ -55,8 +56,16 @@ export class MarkdownService {
     this.initialized = true;
   }
 
-  static async renderMarkdown(content: string): Promise<string> {
-    this.initialize();
+  static updateTheme(theme: 'light' | 'dark') {
+    if (this.currentTheme !== theme) {
+      this.currentTheme = theme;
+      this.initialized = false; // Force re-initialization
+      this.initialize(theme);
+    }
+  }
+
+  static async renderMarkdown(content: string, theme: 'light' | 'dark' = 'light'): Promise<string> {
+    this.initialize(theme);
     
     try {
       const html = await marked(content);
@@ -93,8 +102,8 @@ export class MarkdownService {
     }
   }
 
-  static async processPlantUMLDiagrams(container: HTMLElement): Promise<void> {
-    await PlantUMLService.processPlantUMLDiagrams(container);
+  static async processPlantUMLDiagrams(container: HTMLElement, theme: 'light' | 'dark' = 'light'): Promise<void> {
+    await PlantUMLService.processPlantUMLDiagrams(container, theme);
   }
 
   static activateInternalLinks(

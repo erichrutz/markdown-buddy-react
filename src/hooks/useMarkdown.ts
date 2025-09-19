@@ -3,7 +3,7 @@ import { MarkdownFile, FileStats } from '../types';
 import { MarkdownService } from '../services/markdownService';
 import { FileSystemService } from '../services/fileSystemService';
 
-export const useMarkdown = () => {
+export const useMarkdown = (theme: 'light' | 'dark' = 'light') => {
   const [currentFile, setCurrentFile] = useState<MarkdownFile | null>(null);
   const [content, setContent] = useState<string>('');
   const [renderedHtml, setRenderedHtml] = useState<string>('');
@@ -19,7 +19,7 @@ export const useMarkdown = () => {
     
     try {
       const fileContent = await FileSystemService.readFileContent(file.file);
-      const html = await MarkdownService.renderMarkdown(fileContent);
+      const html = await MarkdownService.renderMarkdown(fileContent, theme);
       const fileStats = FileSystemService.getFileStats(fileContent, file);
       
       setCurrentFile(file);
@@ -31,7 +31,7 @@ export const useMarkdown = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentFile]);
+  }, [currentFile, theme]);
 
   const processInternalLinks = useCallback((
     container: HTMLElement,
@@ -57,23 +57,24 @@ export const useMarkdown = () => {
 
   const processMermaidDiagrams = useCallback(async (container: HTMLElement) => {
     try {
+      MarkdownService.updateTheme(theme);
       await MarkdownService.processMermaidDiagrams(container);
     } catch (err) {
       console.error('Failed to process Mermaid diagrams:', err);
     }
-  }, []);
+  }, [theme]);
 
   const processPlantUMLDiagrams = useCallback(async (container: HTMLElement) => {
     try {
-      await MarkdownService.processPlantUMLDiagrams(container);
+      await MarkdownService.processPlantUMLDiagrams(container, theme);
     } catch (err) {
       console.error('Failed to process PlantUML diagrams:', err);
     }
-  }, []);
+  }, [theme]);
 
   useEffect(() => {
-    MarkdownService.initialize();
-  }, []);
+    MarkdownService.initialize(theme);
+  }, [theme]);
 
   return {
     currentFile,
