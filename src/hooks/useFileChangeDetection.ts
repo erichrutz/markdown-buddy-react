@@ -4,7 +4,7 @@ import { MarkdownFile } from '../types';
 export const useFileChangeDetection = (file: MarkdownFile | null) => {
   const [hasChanged, setHasChanged] = useState(false);
   const originalContentRef = useRef<string | null>(null);
-  const checkIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const checkIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Store original content when file changes
   useEffect(() => {

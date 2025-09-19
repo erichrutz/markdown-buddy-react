@@ -1,4 +1,4 @@
-import { MarkdownFile, DirectoryNode, IGNORED_DIRECTORIES, SUPPORTED_FORMATS } from '../types';
+import { MarkdownFile, DirectoryNode, IGNORED_DIRECTORIES } from '../types';
 
 export class FileSystemService {
   static async selectDirectory(): Promise<MarkdownFile[]> {
@@ -6,6 +6,10 @@ export class FileSystemService {
     console.log('FileSystemService: Browser supports showDirectoryPicker:', 'showDirectoryPicker' in window);
     
     try {
+      // Clear caches before new directory selection
+      this.ignoredPathCache.clear();
+      this.markdownCache.clear();
+      
       // Always use legacy method for better compatibility during testing
       console.log('FileSystemService: Using legacy file input for better compatibility');
       return await this.selectDirectoryLegacy();
@@ -34,14 +38,26 @@ export class FileSystemService {
         const files = Array.from((event.target as HTMLInputElement).files || []);
         console.log('FileSystemService: Raw files from input:', files.length);
         
-        files.forEach((file, index) => {
-          console.log(`File ${index}:`, {
+        // Early performance warning
+        if (files.length > 10000) {
+          console.warn('FileSystemService: Large directory detected with', files.length, 'files. This may take a moment to process.');
+        }
+        
+        // Quick preview of files being processed (limit logging for large directories)
+        const logLimit = Math.min(files.length, 20);
+        for (let i = 0; i < logLimit; i++) {
+          const file = files[i];
+          console.log(`File ${i}:`, {
             name: file.name,
             path: (file as any).webkitRelativePath,
             size: file.size,
             type: file.type
           });
-        });
+        }
+        
+        if (files.length > logLimit) {
+          console.log(`... and ${files.length - logLimit} more files`);
+        }
         
         const markdownFiles = await this.processFileList(files);
         console.log('FileSystemService: Processed to', markdownFiles.length, 'markdown files');
@@ -65,22 +81,55 @@ export class FileSystemService {
 
 
   private static async processFileList(files: File[]): Promise<MarkdownFile[]> {
+    const startTime = performance.now();
     console.log('FileSystemService: Processing file list with', files.length, 'files');
-    const markdownFiles: MarkdownFile[] = [];
     
-    for (const file of files) {
-      const path = (file as any).webkitRelativePath || file.name;
-      const isMarkdown = this.isMarkdownFile(file.name);
-      const isIgnored = this.isInIgnoredDirectory(path);
+    // Fast path: if very few files, process immediately
+    if (files.length <= 100) {
+      const markdownFiles = files
+        .filter(file => {
+          const path = (file as any).webkitRelativePath || file.name;
+          return this.isMarkdownFile(file.name) && !this.isInIgnoredDirectory(path);
+        })
+        .map(file => ({
+          path: (file as any).webkitRelativePath || file.name,
+          name: file.name,
+          file,
+          size: file.size,
+          lastModified: file.lastModified
+        }));
       
-      console.log('FileSystemService: Processing file', file.name, {
-        path,
-        isMarkdown,
-        isIgnored,
-        willInclude: isMarkdown && !isIgnored
-      });
+      console.log(`FileSystemService: Fast path completed in ${performance.now() - startTime}ms`);
+      return markdownFiles;
+    }
+
+    // For larger directories: aggressive early filtering with performance monitoring
+    const markdownFiles: MarkdownFile[] = [];
+    let processedCount = 0;
+    let ignoredCount = 0;
+    
+    // Process in smaller chunks for better responsiveness
+    const chunkSize = 50;
+    
+    for (let i = 0; i < files.length; i += chunkSize) {
+      const chunk = files.slice(i, i + chunkSize);
+      const chunkStart = performance.now();
       
-      if (isMarkdown && !isIgnored) {
+      for (const file of chunk) {
+        const path = (file as any).webkitRelativePath || file.name;
+        
+        // Super fast early rejection
+        if (!this.isMarkdownFile(file.name)) {
+          processedCount++;
+          continue;
+        }
+        
+        if (this.isInIgnoredDirectory(path)) {
+          ignoredCount++;
+          processedCount++;
+          continue;
+        }
+        
         markdownFiles.push({
           path,
           name: file.name,
@@ -88,11 +137,29 @@ export class FileSystemService {
           size: file.size,
           lastModified: file.lastModified
         });
-        console.log('FileSystemService: Added markdown file:', path);
+        processedCount++;
+      }
+      
+      const chunkTime = performance.now() - chunkStart;
+      
+      // Progress reporting every 1000 files
+      if (processedCount % 1000 === 0) {
+        const elapsedTime = performance.now() - startTime;
+        const filesPerSec = Math.round(processedCount / (elapsedTime / 1000));
+        const eta = ((files.length - processedCount) / filesPerSec).toFixed(1);
+        
+        console.log(`FileSystemService: ${processedCount}/${files.length} files processed (${filesPerSec} files/sec, ETA: ${eta}s, found: ${markdownFiles.length}, ignored: ${ignoredCount})`);
+      }
+      
+      // Yield to UI every 250 files or if chunk processing took >10ms
+      if (processedCount % 250 === 0 || chunkTime > 10) {
+        await new Promise(resolve => setTimeout(resolve, 1));
       }
     }
     
-    console.log('FileSystemService: Final markdown files count:', markdownFiles.length);
+    const totalTime = performance.now() - startTime;
+    console.log(`FileSystemService: Completed in ${totalTime.toFixed(1)}ms. Found ${markdownFiles.length} markdown files, ignored ${ignoredCount} files.`);
+    
     return markdownFiles;
   }
 
@@ -147,7 +214,7 @@ export class FileSystemService {
     
     const result = this.sortDirectoryTree(rootNodes);
     console.log('FileSystemService: Built directory tree with', result.length, 'root nodes');
-    result.forEach((node, index) => {
+    result.forEach((node) => {
       this.logTreeNode(node, 0);
     });
     return result;
@@ -201,9 +268,26 @@ export class FileSystemService {
     };
   }
 
+  // Cache for markdown file checks
+  private static markdownCache = new Map<string, boolean>();
+  
   private static isMarkdownFile(filename: string): boolean {
-    const result = SUPPORTED_FORMATS.some(ext => filename.toLowerCase().endsWith(ext));
-    console.log('FileSystemService: isMarkdownFile check:', filename, '→', result, 'supported formats:', SUPPORTED_FORMATS);
+    // Check cache first
+    if (this.markdownCache.has(filename)) {
+      return this.markdownCache.get(filename)!;
+    }
+    
+    // Fast case-sensitive check first for common extensions
+    if (filename.endsWith('.md') || filename.endsWith('.markdown')) {
+      this.markdownCache.set(filename, true);
+      return true;
+    }
+    
+    // Fallback to case-insensitive check
+    const lowerFilename = filename.toLowerCase();
+    const result = lowerFilename.endsWith('.md') || lowerFilename.endsWith('.markdown');
+    
+    this.markdownCache.set(filename, result);
     return result;
   }
 
@@ -215,12 +299,52 @@ export class FileSystemService {
     return result;
   }
 
+  // Cache for ignored directory checks to avoid repeated calculations
+  private static ignoredPathCache = new Map<string, boolean>();
+  
   private static isInIgnoredDirectory(filePath: string): boolean {
-    const pathParts = filePath.split('/');
-    const result = pathParts.some(part => this.isIgnoredDirectory(part));
-    if (result) {
-      console.log('FileSystemService: File in ignored directory:', filePath);
+    // Check cache first
+    if (this.ignoredPathCache.has(filePath)) {
+      return this.ignoredPathCache.get(filePath)!;
     }
-    return result;
+    
+    // Super fast common cases first
+    if (filePath.includes('/node_modules/') || 
+        filePath.includes('/.git/') ||
+        filePath.includes('/.vscode/') ||
+        filePath.includes('/.idea/') ||
+        filePath.includes('/dist/') ||
+        filePath.includes('/build/')) {
+      this.ignoredPathCache.set(filePath, true);
+      return true;
+    }
+    
+    const pathParts = filePath.split('/');
+    
+    // Fast path component check
+    for (const part of pathParts) {
+      if (this.isIgnoredDirectory(part)) {
+        this.ignoredPathCache.set(filePath, true);
+        return true;
+      }
+    }
+    
+    // File-level pattern checks (only if needed)
+    const fileName = pathParts[pathParts.length - 1];
+    for (const pattern of IGNORED_DIRECTORIES) {
+      if (pattern.includes('*')) {
+        if (pattern === '*.log' && fileName.endsWith('.log')) {
+          this.ignoredPathCache.set(filePath, true);
+          return true;
+        }
+        // Add other specific patterns as needed
+      } else if (fileName === pattern) {
+        this.ignoredPathCache.set(filePath, true);
+        return true;
+      }
+    }
+    
+    this.ignoredPathCache.set(filePath, false);
+    return false;
   }
 }
