@@ -15,7 +15,8 @@ import {
   MenuBook,
   Fullscreen,
   FullscreenExit,
-  Keyboard
+  Keyboard,
+  PictureAsPdf
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 
@@ -25,6 +26,8 @@ interface AppHeaderProps {
   focusMode: boolean;
   onToggleFocusMode: () => void;
   onShowShortcuts?: () => void;
+  onExportPDF?: () => void;
+  hasCurrentFile?: boolean;
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({
@@ -32,7 +35,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   loading,
   focusMode,
   onToggleFocusMode,
-  onShowShortcuts
+  onShowShortcuts,
+  onExportPDF,
+  hasCurrentFile = false
 }) => {
   const { t, i18n } = useTranslation();
   const [languageAnchor, setLanguageAnchor] = React.useState<null | HTMLElement>(null);
@@ -76,6 +81,18 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           >
             {focusMode ? <FullscreenExit /> : <Fullscreen />}
           </IconButton>
+
+          {onExportPDF && (
+            <IconButton
+              color="inherit"
+              onClick={onExportPDF}
+              size="large"
+              title={t('export.title')}
+              disabled={!hasCurrentFile || loading}
+            >
+              <PictureAsPdf />
+            </IconButton>
+          )}
 
           {onShowShortcuts && (
             <IconButton

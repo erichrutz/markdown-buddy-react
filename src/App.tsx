@@ -7,10 +7,13 @@ import { AppHeader } from './components/AppHeader';
 import { FileTree } from './components/FileTree';
 import { MarkdownViewer } from './components/MarkdownViewer';
 import { KeyboardShortcutsHelp } from './components/KeyboardShortcutsHelp';
+import { PDFExportDialog } from './components/PDFExportDialog';
 import { useFileSystem } from './hooks/useFileSystem';
 import { useMarkdown } from './hooks/useMarkdown';
 import { useSession } from './hooks/useSession';
 import { useKeyboardShortcuts, createDefaultShortcuts } from './hooks/useKeyboardShortcuts';
+import { usePDFExport } from './hooks/usePDFExport';
+import { PDFExportOptions } from './services/pdfExportService';
 import './i18n/i18n';
 import './styles/markdown.css';
 
@@ -52,8 +55,12 @@ function App() {
     toggleSidebar
   } = useSession();
 
-  // Help dialog state
+  // Dialog states
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
+  const [showPDFExport, setShowPDFExport] = useState(false);
+
+  // PDF Export
+  const { exportToPDF, generateDefaultFilename } = usePDFExport();
 
   // Event handlers
   const handleFileSelect = useCallback((file: any) => {
@@ -77,6 +84,25 @@ function App() {
     await processPlantUMLDiagrams(container);
   }, [processPlantUMLDiagrams]);
 
+  // PDF Export handlers
+  const handlePDFExport = useCallback(async (options: PDFExportOptions) => {
+    if (!currentFile) return;
+    
+    // Find the markdown content element
+    const contentElement = document.querySelector('.markdown-content') as HTMLElement;
+    if (!contentElement) {
+      throw new Error('Content element not found');
+    }
+
+    await exportToPDF(contentElement, currentFile, options);
+  }, [currentFile, exportToPDF]);
+
+  const handleShowPDFExport = useCallback(() => {
+    if (currentFile) {
+      setShowPDFExport(true);
+    }
+  }, [currentFile]);
+
   // Keyboard shortcuts
   const shortcuts = createDefaultShortcuts({
     toggleSidebar: () => {
@@ -88,7 +114,8 @@ function App() {
     },
     selectDirectory,
     collapseAll: handleCollapseAll,
-    showHelp: () => setShowShortcutsHelp(true)
+    showHelp: () => setShowShortcutsHelp(true),
+    exportPDF: handleShowPDFExport
   });
 
   const { formatShortcut } = useKeyboardShortcuts({
@@ -109,6 +136,8 @@ function App() {
               focusMode={focusMode}
               onToggleFocusMode={toggleFocusMode}
               onShowShortcuts={() => setShowShortcutsHelp(true)}
+              onExportPDF={handleShowPDFExport}
+              hasCurrentFile={!!currentFile}
             />
           )}
 
@@ -172,6 +201,14 @@ function App() {
             onClose={() => setShowShortcutsHelp(false)}
             shortcuts={shortcuts}
             formatShortcut={formatShortcut}
+          />
+
+          {/* PDF Export Dialog */}
+          <PDFExportDialog
+            open={showPDFExport}
+            onClose={() => setShowPDFExport(false)}
+            onExport={handlePDFExport}
+            defaultFilename={currentFile ? generateDefaultFilename(currentFile) : 'document.pdf'}
           />
         </Box>
       </ErrorBoundary>

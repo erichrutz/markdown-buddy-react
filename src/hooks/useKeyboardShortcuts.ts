@@ -111,6 +111,7 @@ export const createDefaultShortcuts = (actions: {
   collapseAll?: () => void;
   showHelp?: () => void;
   exitFocusMode?: () => void;
+  exportPDF?: () => void;
 }): KeyboardShortcut[] => {
   const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
   const shortcuts: KeyboardShortcut[] = [];
@@ -162,6 +163,16 @@ export const createDefaultShortcuts = (actions: {
       action: actions.showHelp,
       description: 'Show keyboard shortcuts',
       category: 'navigation'
+    });
+  }
+
+  if (actions.exportPDF) {
+    shortcuts.push({
+      key: 'p',
+      [isMac ? 'metaKey' : 'ctrlKey']: true,
+      action: actions.exportPDF,
+      description: 'Export current file as PDF',
+      category: 'file'
     });
   }
 
