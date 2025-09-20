@@ -1,10 +1,13 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ApplicationSettings, DEFAULT_SETTINGS } from '../types/settings';
 
 const SETTINGS_STORAGE_KEY = 'markdown-buddy-settings';
 
 export const useSettings = () => {
+  const { i18n } = useTranslation();
   const [osThemeChangeCounter, setOsThemeChangeCounter] = useState(0);
+  const initializedRef = useRef(false);
   const [settings, setSettings] = useState<ApplicationSettings>(() => {
     try {
       const stored = localStorage.getItem(SETTINGS_STORAGE_KEY);
@@ -69,7 +72,12 @@ export const useSettings = () => {
       },
       lastModified: new Date()
     }));
-  }, []);
+    
+    // Update i18n language if language setting changed
+    if (updates.language && updates.language !== i18n.language) {
+      i18n.changeLanguage(updates.language);
+    }
+  }, [i18n]);
 
   const updateDiagramSettings = useCallback((updates: Partial<ApplicationSettings['diagrams']>) => {
     setSettings(current => ({
@@ -168,6 +176,29 @@ export const useSettings = () => {
       return () => mediaQuery.removeEventListener('change', handleChange);
     }
   }, [settings.appearance.theme]);
+
+  // Initialize settings language to match current i18n language on first load
+  useEffect(() => {
+    if (!initializedRef.current && settings.behavior.language !== i18n.language) {
+      // Update settings to match current i18n language instead of changing the language
+      setSettings(current => ({
+        ...current,
+        behavior: {
+          ...current.behavior,
+          language: i18n.language as 'en' | 'de'
+        },
+        lastModified: new Date()
+      }));
+      initializedRef.current = true;
+    }
+  }, [settings.behavior.language, i18n.language]); // Run when either changes
+
+  // Sync i18n language with settings when settings change (only after initialization)
+  useEffect(() => {
+    if (initializedRef.current && settings.behavior.language !== i18n.language) {
+      i18n.changeLanguage(settings.behavior.language);
+    }
+  }, [settings.behavior.language, i18n]);
 
   // Helper to get current diagram theme
   const getEffectiveDiagramTheme = useCallback(() => {

@@ -5,13 +5,10 @@ import {
   Typography,
   Button,
   IconButton,
-  Menu,
-  MenuItem,
   Box
 } from '@mui/material';
 import {
   FolderOpen,
-  Language,
   MenuBook,
   Fullscreen,
   FullscreenExit,
@@ -48,21 +45,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   hasCurrentFile = false,
   hasFileChanged = false
 }) => {
-  const { t, i18n } = useTranslation();
-  const [languageAnchor, setLanguageAnchor] = React.useState<null | HTMLElement>(null);
-
-  const handleLanguageClick = (event: React.MouseEvent<HTMLElement>) => {
-    setLanguageAnchor(event.currentTarget);
-  };
-
-  const handleLanguageClose = () => {
-    setLanguageAnchor(null);
-  };
-
-  const handleLanguageChange = (language: string) => {
-    i18n.changeLanguage(language);
-    handleLanguageClose();
-  };
+  const { t } = useTranslation();
 
   return (
     <AppBar position="static" elevation={1}>
@@ -180,33 +163,6 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               <Settings />
             </IconButton>
           )}
-
-          <IconButton
-            color="inherit"
-            onClick={handleLanguageClick}
-            size="large"
-          >
-            <Language />
-          </IconButton>
-
-          <Menu
-            anchorEl={languageAnchor}
-            open={Boolean(languageAnchor)}
-            onClose={handleLanguageClose}
-          >
-            <MenuItem 
-              onClick={() => handleLanguageChange('de')}
-              selected={i18n.language === 'de'}
-            >
-              Deutsch
-            </MenuItem>
-            <MenuItem 
-              onClick={() => handleLanguageChange('en')}
-              selected={i18n.language === 'en'}
-            >
-              English
-            </MenuItem>
-          </Menu>
         </Box>
       </Toolbar>
     </AppBar>

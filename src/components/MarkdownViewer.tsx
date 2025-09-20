@@ -59,12 +59,6 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
     processContent();
   }, [content, loading, onInternalLinkClick, onMermaidProcess, onPlantUMLProcess]);
 
-  // Update CSS variable for font size when appearance settings change
-  useEffect(() => {
-    if (contentRef.current) {
-      contentRef.current.style.setProperty('--md-font-size-base', getContentFontSize());
-    }
-  }, [appearanceSettings?.fontSize]);
 
   if (loading) {
     return (
