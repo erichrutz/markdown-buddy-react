@@ -39,7 +39,7 @@ function App() {
   } = useSettings();
 
   // Create theme based on settings
-  const theme = createAppTheme(getEffectiveTheme());
+  const theme = createAppTheme(getEffectiveTheme(), settings.appearance);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   
   // File system management
@@ -242,6 +242,7 @@ function App() {
                 loading={markdownLoading}
                 error={markdownError || fileError}
                 focusMode={focusMode}
+                appearanceSettings={settings.appearance}
                 onInternalLinkClick={handleInternalLinkClick}
                 onMermaidProcess={handleMermaidProcess}
                 onPlantUMLProcess={handlePlantUMLProcess}

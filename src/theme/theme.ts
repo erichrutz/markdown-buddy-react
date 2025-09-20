@@ -1,4 +1,20 @@
 import { createTheme, Theme, ThemeOptions } from '@mui/material/styles';
+import { AppearanceSettings, FontSize } from '../types/settings';
+
+// Font size scale based on setting
+const getFontSizeScale = (fontSize: FontSize): number => {
+  switch (fontSize) {
+    case 'small': return 0.875;
+    case 'large': return 1.125;
+    case 'medium':
+    default: return 1;
+  }
+};
+
+// Spacing scale based on compact mode
+const getSpacingScale = (compactMode: boolean): number => {
+  return compactMode ? 0.75 : 1;
+};
 
 // Light theme configuration
 const lightThemeOptions: ThemeOptions = {
@@ -102,7 +118,6 @@ const darkThemeOptions: ThemeOptions = {
       default: '#1e1e1e',
       paper: '#2d2d2d'
     },
-    surface: '#2d2d2d',
     text: {
       primary: '#ffffff',
       secondary: '#e0e0e0'
@@ -202,9 +217,68 @@ const darkThemeOptions: ThemeOptions = {
 export const lightTheme = createTheme(lightThemeOptions);
 export const darkTheme = createTheme(darkThemeOptions);
 
-// Theme creator function
-export const createAppTheme = (mode: 'light' | 'dark'): Theme => {
-  return mode === 'dark' ? darkTheme : lightTheme;
+// Enhanced theme creator function with appearance settings
+export const createAppTheme = (mode: 'light' | 'dark', appearanceSettings?: Partial<AppearanceSettings>): Theme => {
+  const baseTheme = mode === 'dark' ? darkThemeOptions : lightThemeOptions;
+  
+  if (!appearanceSettings) {
+    return mode === 'dark' ? darkTheme : lightTheme;
+  }
+
+  const fontScale = getFontSizeScale(appearanceSettings.fontSize || 'medium');
+  const spacingScale = getSpacingScale(appearanceSettings.compactMode || false);
+  const baseFontFamily = typeof baseTheme.typography === 'object' && baseTheme.typography ? 
+    (baseTheme.typography as any).fontFamily : '"Roboto", "Helvetica", "Arial", sans-serif';
+  const customFontFamily = appearanceSettings.fontFamily || baseFontFamily;
+
+  const enhancedThemeOptions: ThemeOptions = {
+    ...baseTheme,
+    spacing: (factor: number) => `${Math.round(8 * factor * spacingScale)}px`,
+    typography: {
+      ...baseTheme.typography,
+      fontFamily: customFontFamily,
+      h1: {
+        ...(baseTheme.typography as any)?.h1,
+        fontSize: `${2 * fontScale}rem`,
+      },
+      h2: {
+        ...(baseTheme.typography as any)?.h2,
+        fontSize: `${1.5 * fontScale}rem`,
+      },
+      h3: {
+        ...(baseTheme.typography as any)?.h3,
+        fontSize: `${1.25 * fontScale}rem`,
+      },
+      h4: {
+        fontSize: `${1.1 * fontScale}rem`,
+        fontWeight: 600,
+      },
+      h5: {
+        fontSize: `${1 * fontScale}rem`,
+        fontWeight: 600,
+      },
+      h6: {
+        fontSize: `${0.875 * fontScale}rem`,
+        fontWeight: 600,
+      },
+      body1: {
+        ...(baseTheme.typography as any)?.body1,
+        fontSize: `${1 * fontScale}rem`,
+      },
+      body2: {
+        ...(baseTheme.typography as any)?.body2,
+        fontSize: `${0.875 * fontScale}rem`,
+      },
+      button: {
+        fontSize: `${0.875 * fontScale}rem`,
+      },
+      caption: {
+        fontSize: `${0.75 * fontScale}rem`,
+      }
+    }
+  };
+
+  return createTheme(enhancedThemeOptions);
 };
 
 // Default export for backward compatibility

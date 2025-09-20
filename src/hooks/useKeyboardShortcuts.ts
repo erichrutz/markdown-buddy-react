@@ -113,6 +113,7 @@ export const createDefaultShortcuts = (actions: {
   exitFocusMode?: () => void;
   exportPDF?: () => void;
   refresh?: () => void;
+  showSettings?: () => void;
 }): KeyboardShortcut[] => {
   const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
   const shortcuts: KeyboardShortcut[] = [];

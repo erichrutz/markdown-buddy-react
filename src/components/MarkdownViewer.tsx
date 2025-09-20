@@ -3,6 +3,7 @@ import { Box, Typography, Paper, Chip, Fab } from '@mui/material';
 import { FullscreenExit } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { MarkdownFile, FileStats } from '../types';
+import { AppearanceSettings } from '../types/settings';
 import 'highlight.js/styles/github.css';
 
 interface MarkdownViewerProps {
@@ -12,6 +13,7 @@ interface MarkdownViewerProps {
   loading: boolean;
   error: string | null;
   focusMode?: boolean;
+  appearanceSettings?: AppearanceSettings;
   onInternalLinkClick: (container: HTMLElement) => void;
   onMermaidProcess: (container: HTMLElement) => void;
   onPlantUMLProcess: (container: HTMLElement) => Promise<void>;
@@ -25,6 +27,7 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
   loading,
   error,
   focusMode = false,
+  appearanceSettings,
   onInternalLinkClick,
   onMermaidProcess,
   onPlantUMLProcess,
@@ -32,6 +35,17 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
 }) => {
   const { t } = useTranslation();
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // Calculate font size based on settings
+  const getContentFontSize = () => {
+    const baseSize = 16; // 16px base
+    switch (appearanceSettings?.fontSize) {
+      case 'small': return `${baseSize * 0.875}px`;
+      case 'large': return `${baseSize * 1.125}px`;
+      case 'medium':
+      default: return `${baseSize}px`;
+    }
+  };
 
   useEffect(() => {
     const processContent = async () => {
@@ -44,6 +58,13 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
     
     processContent();
   }, [content, loading, onInternalLinkClick, onMermaidProcess, onPlantUMLProcess]);
+
+  // Update CSS variable for font size when appearance settings change
+  useEffect(() => {
+    if (contentRef.current) {
+      contentRef.current.style.setProperty('--md-font-size-base', getContentFontSize());
+    }
+  }, [appearanceSettings?.fontSize]);
 
   if (loading) {
     return (
@@ -139,13 +160,18 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
       >
         <div
           ref={contentRef}
-          className="markdown-content"
+          className={`markdown-content ${
+            appearanceSettings?.showLineNumbers ? 'show-line-numbers' : ''
+          } ${
+            appearanceSettings?.wordWrap ? 'word-wrap-enabled' : 'word-wrap-disabled'
+          }`.trim()}
           dangerouslySetInnerHTML={{ __html: content }}
           style={{
             lineHeight: 1.6,
-            fontSize: '16px',
+            fontSize: getContentFontSize(),
             maxWidth: focusMode ? '800px' : 'none',
-            margin: focusMode ? '0 auto' : '0'
+            margin: focusMode ? '0 auto' : '0',
+            fontFamily: appearanceSettings?.fontFamily || 'inherit'
           }}
         />
       </Box>
