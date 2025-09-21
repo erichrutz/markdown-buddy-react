@@ -1,8 +1,33 @@
 {
   "name": "markdown-buddy-react",
-  "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "A modern, elegant Markdown viewer and editor with advanced features for diagrams, syntax highlighting, and PDF export",
+  "author": "Erich Rutz",
+  "license": "MIT",
+  "homepage": "https://github.com/erichrutz/markdown-buddy-react#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/erichrutz/markdown-buddy-react.git"
+  },
+  "bugs": {
+    "url": "https://github.com/erichrutz/markdown-buddy-react/issues"
+  },
+  "keywords": [
+    "markdown",
+    "viewer",
+    "editor",
+    "react",
+    "typescript",
+    "material-ui",
+    "mermaid",
+    "plantuml",
+    "diagrams",
+    "syntax-highlighting",
+    "pdf-export",
+    "i18n",
+    "dark-mode"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
