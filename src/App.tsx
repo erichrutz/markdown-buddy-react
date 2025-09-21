@@ -9,6 +9,7 @@ import { MarkdownViewer } from './components/MarkdownViewer';
 import { KeyboardShortcutsHelp } from './components/KeyboardShortcutsHelp';
 import { PDFExportDialog } from './components/PDFExportDialog';
 import { SettingsDialog } from './components/SettingsDialog';
+import { AboutDialog } from './components/AboutDialog';
 import { useFileSystem } from './hooks/useFileSystem';
 import { useMarkdown } from './hooks/useMarkdown';
 import { useSession } from './hooks/useSession';
@@ -79,6 +80,7 @@ function App() {
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
   const [showPDFExport, setShowPDFExport] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
 
   // PDF Export
   const { exportToPDF, generateDefaultFilename } = usePDFExport();
@@ -187,9 +189,9 @@ function App() {
               loading={fileLoading}
               focusMode={focusMode}
               onToggleFocusMode={toggleFocusMode}
-              onShowShortcuts={() => setShowShortcutsHelp(true)}
               onExportPDF={handleShowPDFExport}
               onRefresh={handleRefresh}
+              onShowAbout={() => setShowAbout(true)}
               onShowSettings={() => setShowSettings(true)}
               hasCurrentFile={!!currentFile}
               hasFileChanged={hasFileChanged}
@@ -282,6 +284,12 @@ function App() {
             onResetSettings={resetSettings}
             onExportSettings={exportSettings}
             onImportSettings={importSettings}
+          />
+
+          {/* About Dialog */}
+          <AboutDialog
+            open={showAbout}
+            onClose={() => setShowAbout(false)}
           />
 
         </Box>

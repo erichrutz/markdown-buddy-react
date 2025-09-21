@@ -12,11 +12,11 @@ import {
   MenuBook,
   Fullscreen,
   FullscreenExit,
-  Keyboard,
   PictureAsPdf,
   Refresh,
   Warning,
-  Settings
+  Settings,
+  Info
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 
@@ -25,10 +25,10 @@ interface AppHeaderProps {
   loading: boolean;
   focusMode: boolean;
   onToggleFocusMode: () => void;
-  onShowShortcuts?: () => void;
   onExportPDF?: () => void;
   onRefresh?: () => void;
   onShowSettings?: () => void;
+  onShowAbout?: () => void;
   hasCurrentFile?: boolean;
   hasFileChanged?: boolean;
 }
@@ -38,10 +38,10 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   loading,
   focusMode,
   onToggleFocusMode,
-  onShowShortcuts,
   onExportPDF,
   onRefresh,
   onShowSettings,
+  onShowAbout,
   hasCurrentFile = false,
   hasFileChanged = false
 }) => {
@@ -142,14 +142,14 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             </IconButton>
           )}
 
-          {onShowShortcuts && (
+          {onShowAbout && (
             <IconButton
               color="inherit"
-              onClick={onShowShortcuts}
+              onClick={onShowAbout}
               size="large"
-              title={t('shortcuts.title')}
+              title={t('about.title')}
             >
-              <Keyboard />
+              <Info />
             </IconButton>
           )}
 

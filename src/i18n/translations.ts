@@ -72,6 +72,24 @@ export const translations = {
       lines: 'Zeilen',
       characters: 'Zeichen',
       path: 'Pfad'
+    },
+    about: {
+      title: 'Über',
+      version: 'Version',
+      author: 'Entwickler',
+      year: 'Jahr',
+      description: 'Ein eleganter Markdown-Viewer und -Editor mit erweiterten Funktionen für Diagramme, Syntax-Highlighting und PDF-Export.',
+      license: {
+        title: 'Lizenz',
+        description: 'Diese Software steht unter der MIT-Lizenz:'
+      },
+      dependencies: {
+        title: 'Abhängigkeiten',
+        description: 'Diese Anwendung verwendet folgende Open-Source-Bibliotheken:'
+      }
+    },
+    settings: {
+      title: 'Einstellungen'
     }
   },
   en: {
@@ -147,6 +165,24 @@ export const translations = {
       lines: 'Lines',
       characters: 'Characters',
       path: 'Path'
+    },
+    about: {
+      title: 'About',
+      version: 'Version',
+      author: 'Developer',
+      year: 'Year',
+      description: 'An elegant Markdown viewer and editor with advanced features for diagrams, syntax highlighting, and PDF export.',
+      license: {
+        title: 'License',
+        description: 'This software is licensed under the MIT License:'
+      },
+      dependencies: {
+        title: 'Dependencies',
+        description: 'This application uses the following open-source libraries:'
+      }
+    },
+    settings: {
+      title: 'Settings'
     }
   }
 };
