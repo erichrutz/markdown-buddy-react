@@ -5,6 +5,24 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.2.2-blue.svg)](https://www.typescriptlang.org/)
 [![Material-UI](https://img.shields.io/badge/MUI-7.3.2-purple.svg)](https://mui.com/)
 
+## Why I Built This
+
+**I was frustrated.** 😤 
+
+As a developer, I constantly work with markdown files - documentation, notes, project READMEs, technical specs. But every time I needed to present or share markdown content during screen sharing sessions, I faced the same annoying problems:
+
+- **Existing viewers** couldn't handle directory structures properly
+- **IDE markdown previews** were too cluttered for presentations  
+- **Online viewers** required uploading files (not great for sensitive docs)
+- **GitHub/GitLab** worked but felt overkill for local files
+- **Simple viewers** lacked proper syntax highlighting and diagram support
+
+I wanted something **clean**, **professional**, and **perfect for screen sharing** - a tool that could elegantly browse through markdown directories and display content beautifully without distractions.
+
+So I built **MarkDown Buddy React** - the markdown viewer I wish I had from the beginning.
+
+## What Makes It Special
+
 A modern, elegant Markdown viewer and editor with Material-UI components, featuring an intuitive two-panel interface for browsing and viewing markdown files with live rendering, syntax highlighting, diagrams, and advanced features like PDF export and dark mode.
 
 ## 🖼️ Screenshots
@@ -52,7 +70,7 @@ A modern, elegant Markdown viewer and editor with Material-UI components, featur
 
 ### Prerequisites
 
-- Node.js 16+ 
+- Node.js 18+ 
 - npm or yarn
 
 ### Installation
@@ -83,16 +101,38 @@ npm run build
 
 The built files will be in the `dist` directory.
 
+## 🧪 Testing
+
+```bash
+# Run tests
+npm test
+
+# Generate coverage report  
+npm run test:coverage
+
+# Run tests once
+npm run test:run
+```
+
 ## 📖 Usage
 
-1. **Select a Directory**: Click "Select Folder" in the header to choose a directory containing markdown files
-2. **Browse Files**: Use the file tree on the left to navigate through your markdown files
-3. **View Content**: Click on any `.md` or `.markdown` file to view its rendered content
-4. **Internal Links**: Click on internal markdown links to navigate between files
-5. **Settings**: Use the settings icon to customize appearance, behavior, and features
-6. **Export PDF**: Export your markdown files as professional PDFs with embedded diagrams
-7. **Focus Mode**: Toggle fullscreen mode for distraction-free reading
-8. **Language Switch**: Switch between German and English in the settings
+Perfect for presentations, documentation reviews, and screen sharing:
+
+1. **Select a Directory**: Click "Select Folder" to choose your documentation folder
+2. **Browse Files**: Clean file tree navigation on the left
+3. **Present Content**: Click any `.md` file for beautiful, distraction-free viewing
+4. **Navigate Links**: Internal markdown links work seamlessly
+5. **Customize Appearance**: Settings for fonts, themes, and presentation modes
+6. **Export PDFs**: Generate professional PDFs with embedded diagrams
+7. **Focus Mode**: Full-screen for presentations and screen sharing
+8. **Multi-language**: German/English interface
+
+### Perfect For:
+- 📊 **Presenting documentation** during meetings
+- 🖥️ **Screen sharing** technical content  
+- 📚 **Browsing large documentation** projects
+- 🎯 **Distraction-free reading** of markdown files
+- 📄 **Generating PDFs** from markdown content
 
 ## 🛠️ Built With
 
