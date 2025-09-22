@@ -2,6 +2,7 @@ import { marked } from 'marked';
 import hljs from 'highlight.js';
 import mermaid from 'mermaid';
 import { PlantUMLService } from './plantumlService';
+import { ImageService } from './imageService';
 
 export class MarkdownService {
   private static initialized = false;
@@ -74,6 +75,25 @@ export class MarkdownService {
     
     try {
       const html = await marked(content);
+      return html;
+    } catch (error) {
+      console.error('Markdown rendering error:', error);
+      throw new Error('Failed to render markdown content');
+    }
+  }
+
+  static async renderMarkdownWithImages(
+    content: string, 
+    currentFilePath: string, 
+    files: any[], 
+    theme: 'light' | 'dark' = 'light'
+  ): Promise<string> {
+    this.initialize(theme);
+    
+    try {
+      // Resolve image paths before rendering
+      const contentWithResolvedImages = ImageService.resolveImagePaths(content, currentFilePath, files);
+      const html = await marked(contentWithResolvedImages);
       return html;
     } catch (error) {
       console.error('Markdown rendering error:', error);

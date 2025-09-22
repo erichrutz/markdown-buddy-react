@@ -2,8 +2,9 @@ import { useState, useCallback, useEffect } from 'react';
 import { MarkdownFile, FileStats } from '../types';
 import { MarkdownService } from '../services/markdownService';
 import { FileSystemService } from '../services/fileSystemService';
+import { ImageService } from '../services/imageService';
 
-export const useMarkdown = (theme: 'light' | 'dark' = 'light') => {
+export const useMarkdown = (theme: 'light' | 'dark' = 'light', allFiles: MarkdownFile[] = []) => {
   const [currentFile, setCurrentFile] = useState<MarkdownFile | null>(null);
   const [content, setContent] = useState<string>('');
   const [renderedHtml, setRenderedHtml] = useState<string>('');
@@ -18,8 +19,19 @@ export const useMarkdown = (theme: 'light' | 'dark' = 'light') => {
     setError(null);
     
     try {
+      // Only render markdown files, skip image files
+      if (file.type !== 'markdown') {
+        setError('Cannot render non-markdown files');
+        return;
+      }
+
       const fileContent = await FileSystemService.readFileContent(file.file);
-      const html = await MarkdownService.renderMarkdown(fileContent, theme);
+      
+      // Register images for blob URL creation
+      ImageService.registerImages(allFiles);
+      
+      // Use image-aware rendering
+      const html = await MarkdownService.renderMarkdownWithImages(fileContent, file.path, allFiles, theme);
       const fileStats = FileSystemService.getFileStats(fileContent, file);
       
       setCurrentFile(file);
@@ -31,7 +43,7 @@ export const useMarkdown = (theme: 'light' | 'dark' = 'light') => {
     } finally {
       setLoading(false);
     }
-  }, [currentFile, theme]);
+  }, [currentFile, theme, allFiles]);
 
   const processInternalLinks = useCallback((
     container: HTMLElement,

@@ -61,6 +61,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             startIcon={<FolderOpen />}
             onClick={onSelectDirectory}
             disabled={loading}
+            aria-label={t('ui.selectFolder')}
           >
             {t('ui.selectFolder')}
           </Button>
@@ -70,6 +71,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             onClick={onToggleFocusMode}
             size="large"
             title={focusMode ? t('ui.exitFocusMode') : t('ui.focusMode')}
+            aria-label={focusMode ? t('ui.exitFocusMode') : t('ui.focusMode')}
           >
             {focusMode ? <FullscreenExit /> : <Fullscreen />}
           </IconButton>
@@ -81,6 +83,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               onClick={onExportPDF}
               size="large"
               title={t('export.title')}
+              aria-label={t('export.title')}
               disabled={!hasCurrentFile || loading}
             >
               <PictureAsPdf />
@@ -93,6 +96,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               onClick={onRefresh}
               size="large"
               title={hasFileChanged ? t('ui.refreshChanged') : t('ui.refresh')}
+              aria-label={hasFileChanged ? t('ui.refreshChanged') : t('ui.refresh')}
               disabled={!hasCurrentFile || loading}
               sx={{
                 position: 'relative',
@@ -148,6 +152,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               onClick={onShowAbout}
               size="large"
               title={t('about.title')}
+              aria-label={t('about.title')}
             >
               <Info />
             </IconButton>
@@ -159,6 +164,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               onClick={onShowSettings}
               size="large"
               title={t('settings.title', 'Settings')}
+              aria-label={t('settings.title', 'Settings')}
             >
               <Settings />
             </IconButton>

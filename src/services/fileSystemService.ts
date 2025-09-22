@@ -1,4 +1,4 @@
-import { MarkdownFile, DirectoryNode, IGNORED_DIRECTORIES, SUPPORTED_FORMATS } from '../types';
+import { MarkdownFile, DirectoryNode, IGNORED_DIRECTORIES, SUPPORTED_FORMATS, SUPPORTED_IMAGE_FORMATS } from '../types';
 
 export class FileSystemService {
   static async selectDirectory(): Promise<MarkdownFile[]> {
@@ -42,32 +42,37 @@ export class FileSystemService {
 
 
   private static async processFileList(files: File[]): Promise<MarkdownFile[]> {
-    const markdownFiles: MarkdownFile[] = [];
+    const processedFiles: MarkdownFile[] = [];
     
     for (const file of files) {
       const path = (file as any).webkitRelativePath || file.name;
       const isMarkdown = this.isMarkdownFile(file.name);
+      const isImage = this.isImageFile(file.name);
       const isIgnored = this.isInIgnoredDirectory(path);
       
-      if (isMarkdown && !isIgnored) {
-        markdownFiles.push({
+      if ((isMarkdown || isImage) && !isIgnored) {
+        processedFiles.push({
           path,
           name: file.name,
           file,
           size: file.size,
-          lastModified: file.lastModified
+          lastModified: file.lastModified,
+          type: isMarkdown ? 'markdown' : 'image'
         });
       }
     }
     
-    return markdownFiles;
+    return processedFiles;
   }
 
   static buildDirectoryTree(files: MarkdownFile[]): DirectoryNode[] {
     const nodeMap: Map<string, DirectoryNode> = new Map();
     
+    // Filter to only show markdown files in the tree
+    const markdownFiles = files.filter(file => file.type === 'markdown');
+    
     // First pass: create all nodes
-    files.forEach(file => {
+    markdownFiles.forEach(file => {
       const pathParts = file.path.split('/');
       
       // Create all directory nodes in the path
@@ -155,6 +160,11 @@ export class FileSystemService {
   private static isMarkdownFile(filename: string): boolean {
     return SUPPORTED_FORMATS.some(ext => filename.toLowerCase().endsWith(ext));
   }
+
+  private static isImageFile(filename: string): boolean {
+    return SUPPORTED_IMAGE_FORMATS.some(ext => filename.toLowerCase().endsWith(ext));
+  }
+
 
   private static isIgnoredDirectory(dirName: string): boolean {
     return IGNORED_DIRECTORIES.includes(dirName);

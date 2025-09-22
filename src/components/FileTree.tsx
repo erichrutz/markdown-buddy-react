@@ -18,7 +18,8 @@ import {
   UnfoldLess,
   Code,
   Search,
-  Clear
+  Clear,
+  Image
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { DirectoryNode, MarkdownFile } from '../types';
@@ -99,14 +100,27 @@ export const FileTree: React.FC<FileTreeProps> = ({
       return (
         <Box key={node.path}>
           <ListItem
+            role="treeitem"
+            tabIndex={0}
+            aria-expanded={node.type === 'directory' ? isExpanded : undefined}
+            aria-selected={isSelected}
+            aria-level={level + 1}
+            aria-label={node.type === 'directory' ? `${node.name} folder` : `${node.name} file`}
             sx={{
               py: 0.5,
               pl: level * 2 + 1,
-              cursor: 'pointer',
+              cursor: (node.type === 'directory' || node.file?.type === 'markdown') ? 'pointer' : 'default',
+              opacity: (node.type === 'directory' || node.file?.type === 'markdown') ? 1 : 0.6,
               '&:hover': {
-                backgroundColor: 'action.hover'
+                backgroundColor: (node.type === 'directory' || node.file?.type === 'markdown') ? 'action.hover' : 'transparent'
               },
-              backgroundColor: isSelected ? 'action.selected' : 'transparent'
+              backgroundColor: isSelected ? 'action.selected' : 'transparent',
+              '&:focus': {
+                backgroundColor: 'action.focus',
+                outline: '2px solid',
+                outlineColor: 'primary.main',
+                outlineOffset: '-2px'
+              }
             }}
             onClick={() => {
               if (node.type === 'directory') {
@@ -114,8 +128,21 @@ export const FileTree: React.FC<FileTreeProps> = ({
                   ? expandedFolders.filter(id => id !== node.path)
                   : [...expandedFolders, node.path];
                 onExpandedChange(newExpanded);
-              } else if (node.file) {
+              } else if (node.file && node.file.type === 'markdown') {
                 onFileSelect(node.file);
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                if (node.type === 'directory') {
+                  const newExpanded = isExpanded
+                    ? expandedFolders.filter(id => id !== node.path)
+                    : [...expandedFolders, node.path];
+                  onExpandedChange(newExpanded);
+                } else if (node.file && node.file.type === 'markdown') {
+                  onFileSelect(node.file);
+                }
               }
             }}
           >
@@ -126,6 +153,8 @@ export const FileTree: React.FC<FileTreeProps> = ({
                 ) : (
                   <Folder sx={{ mr: 1, fontSize: 18, color: 'action.active' }} />
                 )
+              ) : node.file?.type === 'image' ? (
+                <Image sx={{ mr: 1, fontSize: 18, color: 'text.secondary' }} />
               ) : (
                 <Description sx={{ mr: 1, fontSize: 18, color: 'action.active' }} />
               )}
@@ -162,7 +191,11 @@ export const FileTree: React.FC<FileTreeProps> = ({
   };
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Box 
+      role="navigation"
+      aria-label="File tree navigation"
+      sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+    >
       <Box 
         sx={{ 
           p: 2, 
@@ -178,7 +211,11 @@ export const FileTree: React.FC<FileTreeProps> = ({
         </Typography>
         <Box>
           <Tooltip title={t('ui.collapseAll')}>
-            <IconButton size="small" onClick={onCollapseAll}>
+            <IconButton 
+              size="small" 
+              onClick={onCollapseAll}
+              aria-label={t('ui.collapseAll')}
+            >
               <UnfoldLess />
             </IconButton>
           </Tooltip>
@@ -187,6 +224,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
               size="small" 
               onClick={handleVSCodeOpen}
               disabled={!selectedFile}
+              aria-label={t('ui.openInVSCode')}
             >
               <Code />
             </IconButton>
@@ -210,7 +248,11 @@ export const FileTree: React.FC<FileTreeProps> = ({
             ),
             endAdornment: filter && (
               <InputAdornment position="end">
-                <IconButton size="small" onClick={() => setFilter('')}>
+                <IconButton 
+                  size="small" 
+                  onClick={() => setFilter('')}
+                  aria-label="Clear search"
+                >
                   <Clear sx={{ fontSize: 16 }} />
                 </IconButton>
               </InputAdornment>
@@ -249,7 +291,12 @@ export const FileTree: React.FC<FileTreeProps> = ({
       
       <Box sx={{ flex: 1, overflow: 'auto' }}>
         {directoryTree.length > 0 ? (
-          <List dense sx={{ py: 0 }}>
+          <List 
+            dense 
+            role="tree"
+            aria-label="File and folder tree"
+            sx={{ py: 0 }}
+          >
             {renderTreeItems(filterNodes)}
           </List>
         ) : (

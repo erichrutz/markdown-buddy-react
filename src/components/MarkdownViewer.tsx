@@ -61,7 +61,7 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
         // SVG attributes
         'viewBox', 'xmlns', 'fill', 'stroke', 'stroke-width', 'x', 'y', 'cx', 'cy', 'r', 'rx', 'ry', 'd', 'points', 'x1', 'y1', 'x2', 'y2'
       ],
-      ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp|data):|[^a-z]|[a-z+.-]+(?:[^a-z+.-:]|$))/i,
+      ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp|data|blob):|[^a-z]|[a-z+.-]+(?:[^a-z+.-:]|$))/i,
       ADD_TAGS: ['iframe'], // Allow iframes for embedded content (with restrictions)
       ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling'],
       FORBID_CONTENTS: ['script', 'object', 'embed', 'applet', 'form', 'input', 'textarea', 'select', 'button']
@@ -188,6 +188,8 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
       >
         <div
           ref={contentRef}
+          role="article"
+          aria-label={file ? `Markdown content for ${file.name}` : 'Markdown content'}
           className={`markdown-content ${
             appearanceSettings?.showLineNumbers ? 'show-line-numbers' : ''
           } ${
@@ -217,6 +219,7 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
             zIndex: 1000
           }}
           title={t('ui.exitFocusMode')}
+          aria-label={t('ui.exitFocusMode')}
         >
           <FullscreenExit />
         </Fab>

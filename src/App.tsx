@@ -64,7 +64,7 @@ function App() {
     processInternalLinks,
     processMermaidDiagrams,
     processPlantUMLDiagrams
-  } = useMarkdown(getEffectiveTheme());
+  } = useMarkdown(getEffectiveTheme(), Array.from(files.values()));
 
   // Session management
   const {
@@ -199,11 +199,16 @@ function App() {
           )}
 
           {/* Main Content */}
-          <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+          <Box 
+            component="main" 
+            role="main"
+            sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}
+          >
             {/* File Tree Sidebar - Hide in focus mode or when toggled off */}
             {!focusMode && sidebarVisible && (
               <Drawer
                 variant={isMobile ? 'temporary' : 'permanent'}
+                aria-label="File navigation"
                 sx={{
                   width: DRAWER_WIDTH,
                   flexShrink: 0,
@@ -228,7 +233,9 @@ function App() {
 
             {/* Content Panel */}
             <Box
-              component="main"
+              component="section"
+              role="region"
+              aria-label="Markdown content viewer"
               sx={{
                 flexGrow: 1,
                 overflow: 'hidden',
