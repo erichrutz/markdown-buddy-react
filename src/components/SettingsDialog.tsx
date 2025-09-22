@@ -21,10 +21,7 @@ import {
   Slider,
   Divider,
   Alert,
-  AlertTitle,
-  Chip,
-  Grid,
-  Paper
+  Grid
 } from '@mui/material';
 import {
   Palette as PaletteIcon,

@@ -34,8 +34,8 @@ export class FileSystemService {
         const files = Array.from((event.target as HTMLInputElement).files || []);
         console.log('FileSystemService: Raw files from input:', files.length);
         
-        files.forEach((file, index) => {
-          console.log(`File ${index}:`, {
+        files.forEach((file, _index) => {
+          console.log(`File ${_index}:`, {
             name: file.name,
             path: (file as any).webkitRelativePath,
             size: file.size,
@@ -107,8 +107,8 @@ export class FileSystemService {
       
       // Create all directory nodes in the path
       let currentPath = '';
-      pathParts.forEach((part, index) => {
-        const isLast = index === pathParts.length - 1;
+      pathParts.forEach((part, _index) => {
+        const isLast = _index === pathParts.length - 1;
         currentPath = currentPath ? `${currentPath}/${part}` : part;
         
         if (!nodeMap.has(currentPath)) {
@@ -147,7 +147,7 @@ export class FileSystemService {
     
     const result = this.sortDirectoryTree(rootNodes);
     console.log('FileSystemService: Built directory tree with', result.length, 'root nodes');
-    result.forEach((node, index) => {
+    result.forEach((node, _index) => {
       this.logTreeNode(node, 0);
     });
     return result;

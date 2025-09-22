@@ -11,10 +11,10 @@ const getFontSizeScale = (fontSize: FontSize): number => {
   }
 };
 
-// Spacing scale based on compact mode
-const getSpacingScale = (compactMode: boolean): number => {
-  return compactMode ? 0.75 : 1;
-};
+// Spacing scale based on compact mode (currently unused)
+// const getSpacingScale = (compactMode: boolean): number => {
+//   return compactMode ? 0.75 : 1;
+// };
 
 // Light theme configuration
 const lightThemeOptions: ThemeOptions = {
@@ -226,7 +226,7 @@ export const createAppTheme = (mode: 'light' | 'dark', appearanceSettings?: Part
   }
 
   const fontScale = getFontSizeScale(appearanceSettings.fontSize || 'medium');
-  const spacingScale = getSpacingScale(appearanceSettings.compactMode || false);
+  // const spacingScale = getSpacingScale(appearanceSettings.compactMode || false);
   const baseFontFamily = typeof baseTheme.typography === 'object' && baseTheme.typography ? 
     (baseTheme.typography as any).fontFamily : '"Roboto", "Helvetica", "Arial", sans-serif';
   const customFontFamily = appearanceSettings.fontFamily || baseFontFamily;
