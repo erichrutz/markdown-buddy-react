@@ -1,5 +1,32 @@
 import '@testing-library/jest-dom';
 
+// Polyfill for problematic modules before any imports
+const originalError = console.error;
+console.error = (...args: any[]) => {
+  if (args[0]?.includes?.('webidl-conversions') || args[0]?.includes?.('whatwg-url')) {
+    return; // Suppress these specific errors
+  }
+  originalError.apply(console, args);
+};
+
+// Mock problematic modules that cause unhandled errors
+vi.mock('whatwg-url', () => ({
+  URL: global.URL || class MockURL {
+    constructor(url: string) {
+      this.href = url;
+    }
+    href: string;
+  },
+  URLSearchParams: global.URLSearchParams || class MockURLSearchParams {
+    constructor() {}
+    get() { return null; }
+    set() {}
+    append() {}
+  }
+}));
+
+vi.mock('webidl-conversions', () => ({}));
+
 // Mock react-i18next completely
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({

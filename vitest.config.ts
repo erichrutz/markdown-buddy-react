@@ -14,7 +14,15 @@ export default defineConfig({
       optimizer: {
         web: {
           exclude: ['whatwg-url', 'webidl-conversions']
+        },
+        ssr: {
+          exclude: ['whatwg-url', 'webidl-conversions']
         }
+      }
+    },
+    server: {
+      deps: {
+        external: ['whatwg-url', 'webidl-conversions']
       }
     },
     coverage: {
