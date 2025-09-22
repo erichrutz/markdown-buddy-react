@@ -27,7 +27,6 @@ if (typeof process === 'undefined') {
 }
 
 // Mock global APIs that might be missing in CI
-const mockAPI = () => ({});
 global.showDirectoryPicker = vi.fn();
 global.showOpenFilePicker = vi.fn();
 global.requestIdleCallback = vi.fn();
