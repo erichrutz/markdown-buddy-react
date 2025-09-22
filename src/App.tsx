@@ -27,6 +27,7 @@ function App() {
   // Settings management
   const {
     settings,
+    updateSettings,
     updateAppearanceSettings,
     updateBehaviorSettings,
     updateDiagramSettings,
@@ -273,7 +274,7 @@ function App() {
             open={showSettings}
             onClose={() => setShowSettings(false)}
             settings={settings}
-            onUpdateSettings={() => {}}
+            onUpdateSettings={updateSettings}
             onUpdateAppearanceSettings={updateAppearanceSettings}
             onUpdateBehaviorSettings={updateBehaviorSettings}
             onUpdateDiagramSettings={updateDiagramSettings}
