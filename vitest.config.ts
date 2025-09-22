@@ -10,6 +10,13 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.ts'],
     pool: 'forks',
     isolate: true,
+    deps: {
+      optimizer: {
+        web: {
+          exclude: ['whatwg-url', 'webidl-conversions']
+        }
+      }
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json'],

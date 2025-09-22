@@ -45,6 +45,24 @@ global.ResizeObserver = vi.fn().mockImplementation(() => ({
   disconnect: vi.fn(),
 }));
 
+// Mock URL and URLSearchParams
+global.URL = global.URL || class MockURL {
+  constructor(url: string) {
+    this.href = url;
+  }
+  href: string;
+};
+
+global.URLSearchParams = global.URLSearchParams || class MockURLSearchParams {
+  constructor() {}
+  get() { return null; }
+  set() {}
+  append() {}
+};
+
+// Mock fetch for tests
+global.fetch = vi.fn();
+
 // Mock console methods for cleaner test output
 global.console = {
   ...console,
