@@ -20,8 +20,7 @@ import {
   MenuItem,
   Slider,
   Divider,
-  Alert,
-  Grid
+  Alert
 } from '@mui/material';
 import {
   Palette as PaletteIcon,
@@ -341,8 +340,8 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
                 {t('settings.export', 'Export Settings')}
               </Typography>
 
-              <Grid container spacing={3}>
-                <Grid item xs={6}>
+              <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+                <Box sx={{ flex: '1 1 45%', minWidth: 200 }}>
                   <FormControl fullWidth>
                     <FormLabel>{t('settings.defaultFormat', 'Default Format')}</FormLabel>
                     <Select
@@ -354,9 +353,9 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
                       <MenuItem value="Legal">Legal</MenuItem>
                     </Select>
                   </FormControl>
-                </Grid>
+                </Box>
 
-                <Grid item xs={6}>
+                <Box sx={{ flex: '1 1 45%', minWidth: 200 }}>
                   <FormControl fullWidth>
                     <FormLabel>{t('settings.defaultOrientation', 'Default Orientation')}</FormLabel>
                     <Select
@@ -367,8 +366,8 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
                       <MenuItem value="landscape">{t('settings.landscape', 'Landscape')}</MenuItem>
                     </Select>
                   </FormControl>
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
 
               <FormControlLabel
                 control={
