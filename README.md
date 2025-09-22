@@ -30,13 +30,16 @@ A modern, elegant Markdown viewer and editor with Material-UI components, featur
 > **Note**: Screenshots will be added once the repository is made public and deployed.
 
 ### Light Mode
-*Coming soon - Clean, modern interface with Material Design*
+![alt text](img/MDB-Light-Mode.png)
 
 ### Dark Mode  
-*Coming soon - Eye-friendly dark theme with proper contrast*
+![alt text](img/MDB-Dark-Mode.png)
 
 ### Diagram Support
-*Coming soon - Mermaid and PlantUML diagrams rendered inline*
+
+![alt text](img/MDB-Mermaid-1.png)
+![alt text](img/MDB-Mermaid-2.png)
+![alt text](img/MDB-PlantUML-1.png)
 
 ## ✨ Features
 

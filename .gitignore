@@ -80,3 +80,12 @@ out
 # Temporary folders
 tmp/
 temp/
+
+CLAUDE.md
+.claudeconfig
+.claude
+
+test-markdown-files/
+public/test-markdown-files/
+
+
