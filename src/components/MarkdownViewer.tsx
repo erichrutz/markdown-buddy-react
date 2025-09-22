@@ -1,7 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import { Box, Typography, Paper, Chip, Fab } from '@mui/material';
 import { FullscreenExit } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
+import DOMPurify from 'dompurify';
 import { MarkdownFile, FileStats } from '../types';
 import { AppearanceSettings } from '../types/settings';
 import 'highlight.js/styles/github.css';
@@ -35,6 +36,39 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
 }) => {
   const { t } = useTranslation();
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // Sanitize HTML content to prevent XSS attacks
+  const sanitizedContent = useMemo(() => {
+    if (!content) return '';
+    
+    // Configure DOMPurify to allow safe HTML while preserving markdown features
+    const config = {
+      ALLOWED_TAGS: [
+        'div', 'span', 'p', 'br', 'strong', 'em', 'u', 's', 'del', 'ins',
+        'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+        'ul', 'ol', 'li', 'dl', 'dt', 'dd',
+        'table', 'thead', 'tbody', 'tr', 'th', 'td',
+        'blockquote', 'code', 'pre', 'kbd', 'samp', 'var',
+        'a', 'img', 'figure', 'figcaption',
+        'hr', 'details', 'summary',
+        // Allow SVG for diagrams (Mermaid/PlantUML)
+        'svg', 'g', 'path', 'circle', 'rect', 'line', 'text', 'tspan', 'defs', 'marker', 'polygon', 'polyline', 'ellipse'
+      ],
+      ALLOWED_ATTR: [
+        'class', 'id', 'style', 'title', 'aria-*', 'data-*',
+        'href', 'target', 'rel', 'src', 'alt', 'width', 'height',
+        'colspan', 'rowspan', 'align', 'valign',
+        // SVG attributes
+        'viewBox', 'xmlns', 'fill', 'stroke', 'stroke-width', 'x', 'y', 'cx', 'cy', 'r', 'rx', 'ry', 'd', 'points', 'x1', 'y1', 'x2', 'y2'
+      ],
+      ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp|data):|[^a-z]|[a-z+.-]+(?:[^a-z+.-:]|$))/i,
+      ADD_TAGS: ['iframe'], // Allow iframes for embedded content (with restrictions)
+      ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling'],
+      FORBID_CONTENTS: ['script', 'object', 'embed', 'applet', 'form', 'input', 'textarea', 'select', 'button']
+    };
+    
+    return DOMPurify.sanitize(content, config);
+  }, [content]);
 
   // Calculate font size based on settings
   const getContentFontSize = () => {
@@ -159,7 +193,7 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
           } ${
             appearanceSettings?.wordWrap ? 'word-wrap-enabled' : 'word-wrap-disabled'
           }`.trim()}
-          dangerouslySetInnerHTML={{ __html: content }}
+          dangerouslySetInnerHTML={{ __html: sanitizedContent }}
           style={{
             lineHeight: 1.6,
             fontSize: getContentFontSize(),
