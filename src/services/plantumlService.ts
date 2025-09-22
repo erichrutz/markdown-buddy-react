@@ -134,20 +134,17 @@ export class PlantUMLService {
     
     // Check memory cache first
     if (this.cache.has(codeHash)) {
-      console.log('PlantUMLService: Using memory cache for diagram');
       return this.cache.get(codeHash)!;
     }
     
     // Check localStorage cache
     const cachedSvg = this.getCachedSVG(codeHash);
     if (cachedSvg) {
-      console.log('PlantUMLService: Using localStorage cache for diagram');
       this.cache.set(codeHash, cachedSvg);
       return cachedSvg;
     }
     
     // Render new diagram
-    console.log('PlantUMLService: Rendering new diagram');
     const encoded = plantumlEncoder.encode(cleanCode);
     const imageUrl = `${this.PLANTUML_SERVER}/svg/${encoded}`;
     
@@ -206,7 +203,6 @@ export class PlantUMLService {
       const expiryTime = entry.timestamp + (this.CACHE_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
       
       if (now > expiryTime) {
-        console.log('PlantUMLService: Cache entry expired for hash:', hash);
         delete cache[hash];
         localStorage.setItem(this.CACHE_KEY, JSON.stringify(cache));
         return null;
@@ -237,7 +233,6 @@ export class PlantUMLService {
       };
       
       localStorage.setItem(this.CACHE_KEY, JSON.stringify(cache));
-      console.log('PlantUMLService: Cached diagram with hash:', hash);
     } catch (error) {
       console.warn('PlantUMLService: Error saving to cache:', error);
     }
@@ -301,7 +296,6 @@ export class PlantUMLService {
     try {
       localStorage.removeItem(this.CACHE_KEY);
       this.cache.clear();
-      console.log('PlantUMLService: Cache cleared');
     } catch (error) {
       console.warn('PlantUMLService: Error clearing cache:', error);
     }
@@ -365,7 +359,6 @@ export class PlantUMLService {
 
       if (removedCount > 0) {
         localStorage.setItem(this.CACHE_KEY, JSON.stringify(cache));
-        console.log(`PlantUMLService: Cleaned ${removedCount} expired cache entries`);
       }
 
       return removedCount;

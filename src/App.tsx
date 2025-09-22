@@ -140,7 +140,6 @@ function App() {
         // Reset the change state after successful refresh
         resetChangeState();
         
-        console.log('File refreshed:', currentFile.path);
       } catch (error) {
         console.error('Error refreshing file:', error);
         // Error handling is already done by useMarkdown hook

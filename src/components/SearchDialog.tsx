@@ -80,13 +80,6 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({
   }), []);
   
   const fuse = useMemo(() => {
-    console.log('SearchDialog: Creating Fuse instance with', filesArray.length, 'files');
-    if (filesArray.length > 0) {
-      console.log('SearchDialog: First file example:', {
-        name: filesArray[0].name,
-        path: filesArray[0].path
-      });
-    }
     return new Fuse(filesArray, fuseOptions);
   }, [filesArray, fuseOptions]);
   
@@ -98,15 +91,10 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({
     }
     
     setIsLoading(true);
-    console.log('SearchDialog: Performing search for:', query);
-    console.log('SearchDialog: Available files:', filesArray.length);
-    console.log('SearchDialog: Sample files:', filesArray.slice(0, 3).map(f => ({ name: f.name, path: f.path })));
     
     try {
       // File name search with Fuse.js
       const fuseResults = fuse.search(query);
-      console.log('SearchDialog: Fuse.js results:', fuseResults.length);
-      console.log('SearchDialog: Raw fuse results:', fuseResults.slice(0, 5));
       
       const fileResults = fuseResults.map(result => ({
         type: 'file' as const,
@@ -114,9 +102,6 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({
         matches: result.matches?.map(match => match.key || '') || [],
         score: result.score || 0
       }));
-      
-      console.log('SearchDialog: Processed results:', fileResults.length);
-      console.log('SearchDialog: Sample processed results:', fileResults.slice(0, 3));
       
       setSearchResults(fileResults.slice(0, 50)); // Limit results
       setSelectedIndex(0);

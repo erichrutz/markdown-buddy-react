@@ -9,7 +9,6 @@ export const useFileSystem = () => {
   const [error, setError] = useState<string | null>(null);
 
   const selectDirectory = useCallback(async () => {
-    console.log('useFileSystem: Starting directory selection');
     setLoading(true);
     setError(null);
     
@@ -17,25 +16,18 @@ export const useFileSystem = () => {
       let markdownFiles: MarkdownFile[];
       
       if ('showDirectoryPicker' in window) {
-        console.log('useFileSystem: Using modern API');
         markdownFiles = await FileSystemService.selectDirectory();
       } else {
-        console.log('useFileSystem: Using legacy API');
         markdownFiles = await FileSystemService.selectDirectoryLegacy();
       }
       
-      console.log('useFileSystem: Received', markdownFiles.length, 'markdown files');
-      
       if (markdownFiles.length === 0) {
-        console.log('useFileSystem: No files found');
         setError('No markdown files found in the selected directory');
         return;
       }
       
       const fileMap = new Map(markdownFiles.map(file => [file.path, file]));
       const tree = FileSystemService.buildDirectoryTree(markdownFiles);
-      
-      console.log('useFileSystem: Built tree with', tree.length, 'root nodes');
       
       setFiles(fileMap);
       setDirectoryTree(tree);

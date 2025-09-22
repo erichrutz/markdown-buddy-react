@@ -90,7 +90,6 @@ export const useSearch = (files: Map<string, MarkdownFile>) => {
       }
       
       setContentIndex(newIndex);
-      console.log(`Search index built for ${newIndex.size} files`);
     } catch (error) {
       console.error('Error building search index:', error);
     } finally {
