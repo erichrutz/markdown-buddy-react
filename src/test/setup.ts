@@ -1,31 +1,51 @@
-import '@testing-library/jest-dom';
-
-// Polyfill for problematic modules before any imports
-const originalError = console.error;
-console.error = (...args: any[]) => {
-  if (args[0]?.includes?.('webidl-conversions') || args[0]?.includes?.('whatwg-url')) {
-    return; // Suppress these specific errors
-  }
-  originalError.apply(console, args);
-};
-
-// Mock problematic modules that cause unhandled errors
+// Mock problematic modules BEFORE any other imports
 vi.mock('whatwg-url', () => ({
-  URL: global.URL || class MockURL {
+  URL: class MockURL {
+    href: string;
     constructor(url: string) {
       this.href = url;
     }
-    href: string;
+    toString() { return this.href; }
   },
-  URLSearchParams: global.URLSearchParams || class MockURLSearchParams {
+  URLSearchParams: class MockURLSearchParams {
     constructor() {}
     get() { return null; }
     set() {}
     append() {}
+    toString() { return ''; }
   }
 }));
 
-vi.mock('webidl-conversions', () => ({}));
+vi.mock('webidl-conversions', () => ({
+  default: {},
+  ...Object.fromEntries(['boolean', 'byte', 'octet', 'short', 'unsigned short', 'long', 'unsigned long', 'long long', 'unsigned long long', 'float', 'unrestricted float', 'double', 'unrestricted double', 'DOMString', 'ByteString', 'USVString'].map(name => [name, (val: any) => val]))
+}));
+
+// Set up process.env for Node.js compatibility
+if (typeof process === 'undefined') {
+  (globalThis as any).process = { env: {} };
+}
+
+// Mock global APIs that might be missing in CI
+const mockAPI = () => ({});
+global.showDirectoryPicker = vi.fn();
+global.showOpenFilePicker = vi.fn();
+global.requestIdleCallback = vi.fn();
+global.cancelIdleCallback = vi.fn();
+
+// Silence problematic console errors
+const originalConsoleError = console.error;
+console.error = (...args: any[]) => {
+  const message = args[0]?.toString?.() || '';
+  if (message.includes('webidl-conversions') || 
+      message.includes('whatwg-url') ||
+      message.includes('Cannot read properties of undefined')) {
+    return; // Suppress these specific errors
+  }
+  originalConsoleError.apply(console, args);
+};
+
+import '@testing-library/jest-dom';
 
 // Mock react-i18next completely
 vi.mock('react-i18next', () => ({

@@ -5,24 +5,29 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   test: {
-    environment: 'jsdom',
+    environment: 'happy-dom',
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
-    pool: 'forks',
-    isolate: true,
+    pool: 'threads',
+    isolate: false,
     deps: {
       optimizer: {
         web: {
-          exclude: ['whatwg-url', 'webidl-conversions']
+          exclude: ['whatwg-url', 'webidl-conversions', 'jsdom', '@testing-library/jest-dom']
         },
         ssr: {
-          exclude: ['whatwg-url', 'webidl-conversions']
+          exclude: ['whatwg-url', 'webidl-conversions', 'jsdom', '@testing-library/jest-dom']
         }
       }
     },
     server: {
       deps: {
         external: ['whatwg-url', 'webidl-conversions']
+      }
+    },
+    poolOptions: {
+      threads: {
+        singleThread: true
       }
     },
     coverage: {
