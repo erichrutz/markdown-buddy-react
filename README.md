@@ -1,4 +1,4 @@
-# 📝 MarkDown Buddy React
+# 📝 MarkDown Buddy
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 [![React](https://img.shields.io/badge/React-18.2.0-blue.svg)](https://reactjs.org/)
@@ -19,7 +19,7 @@ As a developer, I constantly work with markdown files - documentation, notes, pr
 
 I wanted something **clean**, **professional**, and **perfect for screen sharing** - a tool that could elegantly browse through markdown directories and display content beautifully without distractions.
 
-So I built **MarkDown Buddy React** - the markdown viewer I wish I had from the beginning.
+So I built **MarkDown Buddy** - the markdown viewer I wish I had from the beginning.
 
 ## What Makes It Special
 
@@ -94,7 +94,7 @@ npm install
 npm run dev
 ```
 
-4. Open your browser to `http://localhost:5173` (default Vite port)
+4. Open your browser to `http://localhost:3002` 
 
 ### Building for Production
 
