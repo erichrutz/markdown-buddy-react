@@ -175,6 +175,8 @@ export const useSettings = () => {
       mediaQuery.addEventListener('change', handleChange);
       return () => mediaQuery.removeEventListener('change', handleChange);
     }
+    
+    return undefined; // Explicit return for no cleanup needed
   }, [settings.appearance.theme]);
 
   // Initialize settings language to match current i18n language on first load

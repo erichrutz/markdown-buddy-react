@@ -8,6 +8,11 @@ export class MarkdownService {
   private static currentTheme: 'light' | 'dark' = 'light';
 
   static initialize(theme: 'light' | 'dark' = 'light') {
+    // Prevent double initialization unless theme changed
+    if (this.initialized && this.currentTheme === theme) {
+      return;
+    }
+    
     this.currentTheme = theme;
     
     mermaid.initialize({

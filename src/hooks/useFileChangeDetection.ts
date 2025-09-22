@@ -60,6 +60,8 @@ export const useFileChangeDetection = (file: MarkdownFile | null) => {
         }
       };
     }
+    
+    return undefined; // Explicit return for no cleanup needed
   }, [file, checkForChanges]);
 
   // Manual check function

@@ -53,6 +53,8 @@ export const useKeyboardShortcuts = ({ shortcuts, enabled = true }: UseKeyboardS
         document.removeEventListener('keydown', handleKeyDown);
       };
     }
+    
+    return undefined; // Explicit return for no cleanup needed
   }, [handleKeyDown, enabled]);
 
   return {

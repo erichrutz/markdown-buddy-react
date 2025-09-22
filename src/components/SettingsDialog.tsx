@@ -89,7 +89,7 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
   const [importText, setImportText] = useState('');
   const [importError, setImportError] = useState('');
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setCurrentTab(newValue);
   };
 

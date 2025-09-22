@@ -351,7 +351,8 @@ export class PlantUMLService {
       
       let removedCount = 0;
       Object.keys(cache).forEach(hash => {
-        if (now > cache[hash].timestamp + expiryTime) {
+        const entry = cache[hash];
+        if (entry && now > entry.timestamp + expiryTime) {
           delete cache[hash];
           removedCount++;
         }
