@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { PDFExportService, PDFExportOptions } from '../services/pdfExportService';
+import { PDFExportServiceV2 } from '../services/pdfExportServiceV2';
 import { MarkdownFile } from '../types';
 
 export const usePDFExport = () => {
@@ -9,9 +10,11 @@ export const usePDFExport = () => {
   const exportToPDF = useCallback(async (
     contentElement: HTMLElement,
     file: MarkdownFile,
-    options: PDFExportOptions
+    options: PDFExportOptions & { useTextBasedExport?: boolean }
   ): Promise<void> => {
-    if (!PDFExportService.isSupported()) {
+    const service = options.useTextBasedExport ? PDFExportServiceV2 : PDFExportService;
+
+    if (!service.isSupported()) {
       throw new Error('PDF export is not supported in this browser');
     }
 
@@ -19,7 +22,7 @@ export const usePDFExport = () => {
     setError(null);
 
     try {
-      await PDFExportService.exportToPDF(contentElement, file, options);
+      await service.exportToPDF(contentElement, file, options);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error during PDF export';
       setError(errorMessage);

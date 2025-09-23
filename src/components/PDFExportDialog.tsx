@@ -24,7 +24,7 @@ import { PDFExportOptions, DEFAULT_PDF_OPTIONS } from '../services/pdfExportServ
 interface PDFExportDialogProps {
   open: boolean;
   onClose: () => void;
-  onExport: (options: PDFExportOptions) => Promise<void>;
+  onExport: (options: PDFExportOptions & { useTextBasedExport?: boolean }) => Promise<void>;
   defaultFilename: string;
 }
 
@@ -35,9 +35,10 @@ export const PDFExportDialog: React.FC<PDFExportDialogProps> = ({
   defaultFilename
 }) => {
   const { t } = useTranslation();
-  const [options, setOptions] = useState<PDFExportOptions>({
+  const [options, setOptions] = useState<PDFExportOptions & { useTextBasedExport?: boolean }>({
     ...DEFAULT_PDF_OPTIONS,
-    filename: defaultFilename
+    filename: defaultFilename,
+    useTextBasedExport: true // Default to the new improved method
   });
   const [isExporting, setIsExporting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -62,7 +63,7 @@ export const PDFExportDialog: React.FC<PDFExportDialogProps> = ({
     }
   };
 
-  const updateOptions = (updates: Partial<PDFExportOptions>) => {
+  const updateOptions = (updates: Partial<PDFExportOptions & { useTextBasedExport?: boolean }>) => {
     setOptions(prev => ({ ...prev, ...updates }));
   };
 
@@ -142,6 +143,37 @@ export const PDFExportDialog: React.FC<PDFExportDialogProps> = ({
               </Select>
             </FormControl>
           </Box>
+
+          {/* Export Method */}
+          <FormControl fullWidth disabled={isExporting}>
+            <InputLabel>Export Method</InputLabel>
+            <Select
+              value={options.useTextBasedExport ? 'text' : 'image'}
+              onChange={(e) => updateOptions({ useTextBasedExport: e.target.value === 'text' })}
+              label="Export Method"
+            >
+              <MenuItem value="text">
+                <Box>
+                  <Typography variant="body2" fontWeight="bold">
+                    Text-based (Recommended)
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Proper page breaks, selectable text, smaller file size
+                  </Typography>
+                </Box>
+              </MenuItem>
+              <MenuItem value="image">
+                <Box>
+                  <Typography variant="body2" fontWeight="bold">
+                    Image-based (Legacy)
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Exact visual appearance, includes diagrams, larger file
+                  </Typography>
+                </Box>
+              </MenuItem>
+            </Select>
+          </FormControl>
 
           {/* Margins */}
           <Box>

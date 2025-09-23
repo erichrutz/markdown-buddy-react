@@ -103,8 +103,8 @@ function App() {
     processInternalLinks(container, files, handleFileSelect);
   }, [processInternalLinks, files, handleFileSelect]);
 
-  const handleMermaidProcess = useCallback((container: HTMLElement) => {
-    processMermaidDiagrams(container);
+  const handleMermaidProcess = useCallback(async (container: HTMLElement) => {
+    await processMermaidDiagrams(container);
   }, [processMermaidDiagrams]);
 
   const handlePlantUMLProcess = useCallback(async (container: HTMLElement) => {
@@ -114,15 +114,22 @@ function App() {
   // PDF Export handlers
   const handlePDFExport = useCallback(async (options: PDFExportOptions) => {
     if (!currentFile) return;
-    
+
     // Find the markdown content element
     const contentElement = document.querySelector('.markdown-content') as HTMLElement;
     if (!contentElement) {
       throw new Error('Content element not found');
     }
 
+    // Ensure diagrams are processed before exporting
+    await handleMermaidProcess(contentElement);
+    await handlePlantUMLProcess(contentElement);
+
+    // Wait longer for diagrams to be fully rendered
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
     await exportToPDF(contentElement, currentFile, options);
-  }, [currentFile, exportToPDF]);
+  }, [currentFile, exportToPDF, handleMermaidProcess, handlePlantUMLProcess]);
 
   const handleShowPDFExport = useCallback(() => {
     if (currentFile) {

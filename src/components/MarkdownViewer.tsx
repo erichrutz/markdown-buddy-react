@@ -16,7 +16,7 @@ interface MarkdownViewerProps {
   focusMode?: boolean;
   appearanceSettings?: AppearanceSettings;
   onInternalLinkClick: (container: HTMLElement) => void;
-  onMermaidProcess: (container: HTMLElement) => void;
+  onMermaidProcess: (container: HTMLElement) => Promise<void>;
   onPlantUMLProcess: (container: HTMLElement) => Promise<void>;
   onExitFocusMode?: () => void;
 }
