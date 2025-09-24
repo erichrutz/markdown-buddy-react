@@ -300,9 +300,14 @@ export const FileTree: React.FC<FileTreeProps> = ({
             {renderTreeItems(filterNodes)}
           </List>
         ) : (
-          <Typography variant="body2" color="text.secondary" sx={{ p: 2, textAlign: 'center' }}>
-            {t('ui.noFileSelected')}
-          </Typography>
+          <Box sx={{ p: 3, textAlign: 'center' }}>
+            <Typography variant="h6" color="text.secondary" gutterBottom>
+              {t('ui.noFolderSelected')}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 300, mx: 'auto', lineHeight: 1.5 }}>
+              {t('ui.noFolderHelp')}
+            </Typography>
+          </Box>
         )}
       </Box>
     </Box>

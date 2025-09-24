@@ -15,6 +15,7 @@ interface MarkdownViewerProps {
   error: string | null;
   focusMode?: boolean;
   appearanceSettings?: AppearanceSettings;
+  hasFolderSelected?: boolean;
   onInternalLinkClick: (container: HTMLElement) => void;
   onMermaidProcess: (container: HTMLElement) => Promise<void>;
   onPlantUMLProcess: (container: HTMLElement) => Promise<void>;
@@ -29,6 +30,7 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
   error,
   focusMode = false,
   appearanceSettings,
+  hasFolderSelected = false,
   onInternalLinkClick,
   onMermaidProcess,
   onPlantUMLProcess,
@@ -119,18 +121,29 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
 
   if (!file) {
     return (
-      <Box 
-        sx={{ 
-          height: '100%', 
-          display: 'flex', 
-          alignItems: 'center', 
+      <Box
+        sx={{
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
           justifyContent: 'center',
           p: 3
         }}
       >
-        <Typography variant="h6" color="text.secondary">
-          {t('ui.noFileSelected')}
-        </Typography>
+        {!hasFolderSelected ? (
+          <Box sx={{ textAlign: 'center' }}>
+            <Typography variant="h6" color="text.secondary" gutterBottom>
+              {t('ui.noFolderSelected')}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 400, mx: 'auto', lineHeight: 1.5 }}>
+              {t('ui.noFolderHelp')}
+            </Typography>
+          </Box>
+        ) : (
+          <Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center', maxWidth: 300, mx: 'auto', lineHeight: 1.5 }}>
+            {t('ui.noFileSelected')}
+          </Typography>
+        )}
       </Box>
     );
   }

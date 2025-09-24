@@ -52,6 +52,8 @@ export interface UITexts {
     currentFile: string;
     fileStats: string;
     noFileSelected: string;
+    noFolderSelected: string;
+    noFolderHelp: string;
     errorLoading: string;
   };
   stats: {

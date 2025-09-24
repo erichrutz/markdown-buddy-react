@@ -257,6 +257,7 @@ function App() {
                 stats={stats}
                 loading={markdownLoading}
                 error={markdownError || fileError}
+                hasFolderSelected={directoryTree.length > 0}
                 focusMode={focusMode}
                 appearanceSettings={settings.appearance}
                 onInternalLinkClick={handleInternalLinkClick}
