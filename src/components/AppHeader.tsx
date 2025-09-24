@@ -9,14 +9,15 @@ import {
 } from '@mui/material';
 import {
   FolderOpen,
-  MenuBook,
   Fullscreen,
   FullscreenExit,
   PictureAsPdf,
   Refresh,
   Warning,
   Settings,
-  Info
+  Info,
+  Article,
+  Code
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 
@@ -48,12 +49,59 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   const { t } = useTranslation();
 
   return (
-    <AppBar position="static" elevation={1}>
-      <Toolbar>
-        <MenuBook sx={{ mr: 2 }} />
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          {t('app.title')}
-        </Typography>
+    <AppBar
+      position="static"
+      elevation={2}
+      sx={{
+        background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
+        minHeight: 68
+      }}
+    >
+      <Toolbar sx={{ minHeight: 68, px: 3 }}>
+        <Box sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1.5,
+          flexGrow: 1,
+          cursor: 'pointer',
+          '&:hover': {
+            opacity: 0.8
+          }
+        }}>
+          <Box sx={{
+            display: 'flex',
+            alignItems: 'center',
+            position: 'relative'
+          }}>
+            <Article sx={{
+              fontSize: 36,
+              color: '#ffffff',
+              filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.3))'
+            }} />
+            <Code sx={{
+              fontSize: 20,
+              color: '#bbdefb',
+              position: 'absolute',
+              bottom: 2,
+              right: -2,
+              filter: 'drop-shadow(1px 1px 2px rgba(0,0,0,0.3))'
+            }} />
+          </Box>
+          <Typography
+            variant="h4"
+            component="div"
+            sx={{
+              fontWeight: 800,
+              fontSize: '1.75rem',
+              letterSpacing: '-0.025em',
+              color: '#ffffff',
+              textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
+              fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif'
+            }}
+          >
+            {t('app.title')}
+          </Typography>
+        </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Button
