@@ -30,7 +30,7 @@ export const DEFAULT_PDF_OPTIONS: PDFExportOptions = {
   includeHeader: true,
   includeFooter: true,
   fontSize: 11,
-  lineHeight: 1.4
+  lineHeight: 1.0
 };
 
 interface ParsedContent {
@@ -45,6 +45,28 @@ interface ParsedContent {
 }
 
 export class PDFExportServiceV2 {
+  /**
+   * Process text to handle Unicode characters properly
+   */
+  private static processUnicodeText(text: string): string {
+    // Remove all emoji and Unicode symbols using regex
+    // This regex matches most emoji ranges and common symbols
+    return text
+      .replace(/[\u{1F600}-\u{1F64F}]/gu, '') // Emoticons
+      .replace(/[\u{1F300}-\u{1F5FF}]/gu, '') // Misc Symbols and Pictographs
+      .replace(/[\u{1F680}-\u{1F6FF}]/gu, '') // Transport and Map
+      .replace(/[\u{1F1E0}-\u{1F1FF}]/gu, '') // Regional indicator symbols
+      .replace(/[\u{2600}-\u{26FF}]/gu, '') // Misc symbols
+      .replace(/[\u{2700}-\u{27BF}]/gu, '') // Dingbats
+      .replace(/[\u{1F900}-\u{1F9FF}]/gu, '') // Supplemental Symbols and Pictographs
+      .replace(/[\u{1FA70}-\u{1FAFF}]/gu, '') // Symbols and Pictographs Extended-A
+      .replace(/[\u{FE00}-\u{FE0F}]/gu, '') // Variation Selectors
+      .replace(/[\u{200D}]/gu, '') // Zero Width Joiner
+      .replace(/∅|Ÿ|Üe/g, '') // Specific problematic characters
+      .replace(/\s+/g, ' ') // Clean up multiple spaces
+      .trim(); // Remove leading/trailing spaces
+  }
+
   /**
    * Export markdown content to PDF using text-based approach
    */
@@ -479,7 +501,7 @@ export class PDFExportServiceV2 {
     pdf.setFont('helvetica', 'bold');
 
     // Add spacing before heading
-    context.currentY += options.fontSize * 0.8;
+    context.currentY += options.fontSize * 0.3;
 
     // Check if heading fits on current page
     const headingHeight = fontSize * 1.2;
@@ -487,14 +509,15 @@ export class PDFExportServiceV2 {
       this.addNewPage(pdf, context, options);
     }
 
-    // Render heading
-    const lines = pdf.splitTextToSize(item.content, context.contentWidth);
+    // Render heading with Unicode processing
+    const processedContent = this.processUnicodeText(item.content);
+    const lines = pdf.splitTextToSize(processedContent, context.contentWidth);
     pdf.text(lines, context.margins.left, context.currentY);
 
     context.currentY += headingHeight;
 
     // Add spacing after heading
-    context.currentY += options.fontSize * 0.4;
+    context.currentY += options.fontSize * 0.2;
   }
 
   /**
@@ -511,8 +534,9 @@ export class PDFExportServiceV2 {
     pdf.setFont('helvetica', item.style === 'bold' ? 'bold' :
                                item.style === 'italic' ? 'italic' : 'normal');
 
-    // Split text into lines that fit within the page width
-    const lines = pdf.splitTextToSize(item.content, context.contentWidth);
+    // Process Unicode characters and split text into lines that fit within the page width
+    const processedContent = this.processUnicodeText(item.content);
+    const lines = pdf.splitTextToSize(processedContent, context.contentWidth);
     const lineHeight = options.fontSize * options.lineHeight;
 
     for (const line of lines) {
@@ -527,7 +551,7 @@ export class PDFExportServiceV2 {
     }
 
     // Add paragraph spacing
-    context.currentY += lineHeight * 0.5;
+    context.currentY += lineHeight * 0.2;
   }
 
   /**
@@ -586,7 +610,8 @@ export class PDFExportServiceV2 {
     pdf.setFontSize(options.fontSize);
     pdf.setFont('helvetica', 'normal');
 
-    const lines = item.content.split('\n');
+    const processedContent = this.processUnicodeText(item.content);
+    const lines = processedContent.split('\n');
     const lineHeight = options.fontSize * options.lineHeight;
 
     for (const line of lines) {
@@ -601,7 +626,7 @@ export class PDFExportServiceV2 {
     }
 
     // Add spacing after list
-    context.currentY += lineHeight * 0.3;
+    context.currentY += lineHeight * 0.1;
   }
 
   /**
@@ -617,7 +642,8 @@ export class PDFExportServiceV2 {
     pdf.setFontSize(options.fontSize - 1);
     pdf.setFont('helvetica', 'normal');
 
-    const lines = item.content.split('\n');
+    const processedContent = this.processUnicodeText(item.content);
+    const lines = processedContent.split('\n');
     const lineHeight = (options.fontSize - 1) * 1.3;
 
     for (const line of lines) {
@@ -632,7 +658,7 @@ export class PDFExportServiceV2 {
     }
 
     // Add spacing after table
-    context.currentY += lineHeight * 0.5;
+    context.currentY += lineHeight * 0.2;
   }
 
   /**
@@ -660,8 +686,9 @@ export class PDFExportServiceV2 {
         this.addNewPage(pdf, context, options);
       }
 
-      // Render placeholder
-      pdf.text(item.content, context.margins.left, context.currentY);
+      // Render placeholder with Unicode processing
+      const processedContent = this.processUnicodeText(item.content);
+      pdf.text(processedContent, context.margins.left, context.currentY);
       context.currentY += lineHeight * 1.5;
     }
   }
@@ -752,7 +779,8 @@ export class PDFExportServiceV2 {
   ): void {
     pdf.setFontSize(12);
     pdf.setFont('helvetica', 'bold');
-    pdf.text(file.name, options.margins.left, options.margins.top + 5);
+    const processedFileName = this.processUnicodeText(file.name);
+    pdf.text(processedFileName, options.margins.left, options.margins.top + 5);
 
     pdf.setFontSize(10);
     pdf.setFont('helvetica', 'normal');
