@@ -53,7 +53,6 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       position="static"
       elevation={2}
       sx={{
-        background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
         minHeight: 68
       }}
     >
@@ -62,11 +61,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           display: 'flex',
           alignItems: 'center',
           gap: 1.5,
-          flexGrow: 1,
-          cursor: 'pointer',
-          '&:hover': {
-            opacity: 0.8
-          }
+          flexGrow: 1
         }}>
           <Box sx={{
             display: 'flex',
@@ -75,16 +70,15 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           }}>
             <Article sx={{
               fontSize: 36,
-              color: '#ffffff',
-              filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.3))'
+              color: 'inherit'
             }} />
             <Code sx={{
               fontSize: 20,
-              color: '#bbdefb',
+              color: 'inherit',
               position: 'absolute',
               bottom: 2,
               right: -2,
-              filter: 'drop-shadow(1px 1px 2px rgba(0,0,0,0.3))'
+              opacity: 0.8
             }} />
           </Box>
           <Typography
@@ -94,8 +88,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
               fontWeight: 800,
               fontSize: '1.75rem',
               letterSpacing: '-0.025em',
-              color: '#ffffff',
-              textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
+              color: 'inherit',
               fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif'
             }}
           >
