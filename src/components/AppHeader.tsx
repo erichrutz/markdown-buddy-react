@@ -5,7 +5,8 @@ import {
   Typography,
   Button,
   IconButton,
-  Box
+  Box,
+  Tooltip
 } from '@mui/material';
 import {
   FolderOpen,
@@ -17,7 +18,8 @@ import {
   Settings,
   Info,
   Article,
-  Code
+  Code,
+  InfoOutlined
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 
@@ -97,15 +99,30 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
         </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Button
-            color="inherit"
-            startIcon={<FolderOpen />}
-            onClick={onSelectDirectory}
-            disabled={loading}
-            aria-label={t('ui.selectFolder')}
-          >
-            {t('ui.selectFolder')}
-          </Button>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Button
+              color="inherit"
+              startIcon={<FolderOpen />}
+              onClick={onSelectDirectory}
+              disabled={loading}
+              aria-label={t('ui.selectFolder')}
+            >
+              {t('ui.selectFolder')}
+            </Button>
+            <Tooltip
+              title={t('ui.selectFolderInfo')}
+              placement="bottom"
+              arrow
+            >
+              <InfoOutlined
+                sx={{
+                  fontSize: 16,
+                  opacity: 0.7,
+                  '&:hover': { opacity: 1 }
+                }}
+              />
+            </Tooltip>
+          </Box>
 
           <IconButton
             color="inherit"

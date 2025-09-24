@@ -5,6 +5,7 @@ export const translations = {
     },
     ui: {
       selectFolder: 'Verzeichnis auswählen',
+      selectFolderInfo: 'Ihr Browser fragt nach Zugriff, aber alle Dateien bleiben vollständig auf Ihrem Gerät und werden nur lokal verarbeitet. Nichts wird hochgeladen oder an Server gesendet.',
       openInVSCode: 'In VS Code öffnen',
       collapseAll: 'Alle einklappen',
       language: 'Sprache',
@@ -12,7 +13,7 @@ export const translations = {
       fileStats: 'Datei-Statistiken',
       noFileSelected: 'Wählen Sie eine Markdown-Datei aus der Seitenleiste aus, um sie hier anzuzeigen.',
       noFolderSelected: 'Noch kein Verzeichnis ausgewählt',
-      noFolderHelp: 'Wählen Sie ein Verzeichnis aus, um Ihre Markdown-Dateien zu durchsuchen und zu bearbeiten. Klicken Sie auf "Verzeichnis auswählen" oben links.',
+      noFolderHelp: 'Wählen Sie ein lokales Verzeichnis aus, um Ihre Markdown-Dateien zu durchsuchen und zu bearbeiten. Klicken Sie auf "Verzeichnis auswählen" oben links. Ihre Dateien bleiben privat auf Ihrem Gerät.',
       errorLoading: 'Fehler beim Laden der Datei',
       markdownFiles: 'Markdown-Dateien',
       focusMode: 'Focus-Modus',
@@ -100,6 +101,7 @@ export const translations = {
     },
     ui: {
       selectFolder: 'Select Folder',
+      selectFolderInfo: 'Your browser asks for access, but all files remain completely on your device and are processed locally only. Nothing is uploaded or sent to servers.',
       openInVSCode: 'Open in VS Code',
       collapseAll: 'Collapse All',
       language: 'Language',
@@ -107,7 +109,7 @@ export const translations = {
       fileStats: 'File Statistics',
       noFileSelected: 'Select a Markdown file from the sidebar to display it here.',
       noFolderSelected: 'No folder selected yet',
-      noFolderHelp: 'Choose a folder to browse and edit your Markdown files. Click "Select Folder" in the top left corner.',
+      noFolderHelp: 'Choose a local folder to browse and edit your Markdown files. Click "Select Folder" in the top left corner. Your files remain private on your device.',
       errorLoading: 'Error loading file',
       markdownFiles: 'Markdown Files',
       focusMode: 'Focus Mode',
