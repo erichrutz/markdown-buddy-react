@@ -151,7 +151,7 @@ export class PDFExportServiceV2 {
             });
             break;
 
-          case 'p':
+          case 'p': {
             const textContent = element.textContent?.trim();
             if (textContent) {
               parsed.push({
@@ -161,6 +161,7 @@ export class PDFExportServiceV2 {
               });
             }
             break;
+          }
 
           case 'pre':
           case 'code':
@@ -205,7 +206,7 @@ export class PDFExportServiceV2 {
             break;
 
           case 'ul':
-          case 'ol':
+          case 'ol': {
             const listItems = Array.from(element.querySelectorAll('li'))
               .map((li, index) => {
                 const prefix = tagName === 'ul' ? '• ' : `${index + 1}. `;
@@ -219,6 +220,7 @@ export class PDFExportServiceV2 {
               style: 'normal'
             });
             break;
+          }
 
           case 'table':
             parsed.push({
@@ -228,7 +230,7 @@ export class PDFExportServiceV2 {
             });
             break;
 
-          case 'img':
+          case 'img': {
             const imgElement = element as HTMLImageElement;
             parsed.push({
               type: 'image',
@@ -240,6 +242,7 @@ export class PDFExportServiceV2 {
               }
             });
             break;
+          }
 
           case 'strong':
           case 'b':
