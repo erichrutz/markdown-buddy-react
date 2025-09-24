@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useMemo } from 'react';
-import { Box, Typography, Paper, Chip, Fab } from '@mui/material';
-import { FullscreenExit } from '@mui/icons-material';
+import React, { useEffect, useRef, useMemo, useState } from 'react';
+import { Box, Typography, Paper, Chip, Fab, IconButton, ButtonGroup } from '@mui/material';
+import { FullscreenExit, ZoomIn, ZoomOut, CenterFocusStrong } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import DOMPurify from 'dompurify';
 import { MarkdownFile, FileStats } from '../types';
@@ -38,6 +38,25 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
 }) => {
   const { t } = useTranslation();
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // Zoom state management
+  const [zoomLevel, setZoomLevel] = useState(100);
+  const minZoom = 50;
+  const maxZoom = 200;
+  const zoomStep = 10;
+
+  // Zoom control functions
+  const zoomIn = () => {
+    setZoomLevel(prev => Math.min(prev + zoomStep, maxZoom));
+  };
+
+  const zoomOut = () => {
+    setZoomLevel(prev => Math.max(prev - zoomStep, minZoom));
+  };
+
+  const resetZoom = () => {
+    setZoomLevel(100);
+  };
 
   // Sanitize HTML content to prevent XSS attacks
   const sanitizedContent = useMemo(() => {
@@ -91,9 +110,35 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
         await onPlantUMLProcess(contentRef.current);
       }
     };
-    
+
     processContent();
   }, [content, loading, onInternalLinkClick, onMermaidProcess, onPlantUMLProcess]);
+
+  // Keyboard shortcuts for zoom
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.ctrlKey || event.metaKey) {
+        switch (event.key) {
+          case '+':
+          case '=':
+            event.preventDefault();
+            zoomIn();
+            break;
+          case '-':
+            event.preventDefault();
+            zoomOut();
+            break;
+          case '0':
+            event.preventDefault();
+            resetZoom();
+            break;
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [zoomLevel]);
 
 
   if (loading) {
@@ -161,31 +206,67 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
             borderColor: 'divider'
           }}
         >
-          <Typography variant="h6" gutterBottom sx={{ fontSize: '1.1rem' }}>
-            {file.name}
-          </Typography>
-          
-          {stats && (
-            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-              <Chip 
-                label={`${t('stats.size')}: ${stats.size}`} 
-                size="small" 
-                variant="outlined" 
-              />
-              <Chip 
-                label={`${t('stats.lines')}: ${stats.lines}`} 
-                size="small" 
-                variant="outlined" 
-              />
-              <Chip 
-                label={`${t('stats.characters')}: ${stats.characters}`} 
-                size="small" 
-                variant="outlined" 
-              />
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Typography variant="h6" sx={{ fontSize: '1.1rem' }}>
+                {file.name}
+              </Typography>
+
+              {stats && (
+                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                  <Chip
+                    label={`${t('stats.size')}: ${stats.size}`}
+                    size="small"
+                    variant="outlined"
+                  />
+                  <Chip
+                    label={`${t('stats.lines')}: ${stats.lines}`}
+                    size="small"
+                    variant="outlined"
+                  />
+                  <Chip
+                    label={`${t('stats.characters')}: ${stats.characters}`}
+                    size="small"
+                    variant="outlined"
+                  />
+                </Box>
+              )}
             </Box>
-          )}
-          
-          <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+
+            {/* Zoom Controls */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <ButtonGroup variant="outlined" size="small">
+                <IconButton
+                  onClick={zoomOut}
+                  disabled={zoomLevel <= minZoom}
+                  title="Zoom out"
+                  aria-label="Zoom out"
+                >
+                  <ZoomOut fontSize="small" />
+                </IconButton>
+                <IconButton
+                  onClick={resetZoom}
+                  title="Reset zoom"
+                  aria-label="Reset zoom to 100%"
+                >
+                  <CenterFocusStrong fontSize="small" />
+                </IconButton>
+                <IconButton
+                  onClick={zoomIn}
+                  disabled={zoomLevel >= maxZoom}
+                  title="Zoom in"
+                  aria-label="Zoom in"
+                >
+                  <ZoomIn fontSize="small" />
+                </IconButton>
+              </ButtonGroup>
+              <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
+                {zoomLevel}%
+              </Typography>
+            </Box>
+          </Box>
+
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
             {t('stats.path')}: {file.path}
           </Typography>
         </Paper>
@@ -214,7 +295,10 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
             fontSize: getContentFontSize(),
             maxWidth: focusMode ? '800px' : 'none',
             margin: focusMode ? '0 auto' : '0',
-            fontFamily: appearanceSettings?.fontFamily || 'inherit'
+            fontFamily: appearanceSettings?.fontFamily || 'inherit',
+            transform: `scale(${zoomLevel / 100})`,
+            transformOrigin: 'top left',
+            width: `${100 / (zoomLevel / 100)}%`
           }}
         />
       </Box>
