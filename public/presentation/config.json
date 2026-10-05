@@ -1,0 +1,22 @@
+{
+  "defaults": { "team": "" },
+  "activeHeader": "default",
+  "activeFooter": "standard",
+  "headers": {
+    "default": {
+      "left": [
+        { "type": "text", "value": "{sectionTitle}{continuation}", "variant": "title" }
+      ],
+      "right": [
+        { "type": "text", "value": "{sectionNumber} / {sectionCount}", "variant": "meta" }
+      ]
+    }
+  },
+  "footers": {
+    "standard": {
+      "left": [{ "type": "icon", "src": "icons/logo.svg", "height": 18 }],
+      "center": [{ "type": "text", "value": "{documentTitle}", "variant": "meta" }],
+      "right": [{ "type": "text", "value": "{date}", "variant": "meta" }]
+    }
+  }
+}

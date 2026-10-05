@@ -29,7 +29,7 @@ export const KeyboardShortcutsHelp: React.FC<KeyboardShortcutsHelpProps> = ({
   const { t } = useTranslation();
 
   // Group shortcuts by category
-  const groupedShortcuts = shortcuts.reduce((groups, shortcut) => {
+  const groupedShortcuts = shortcuts.filter(s => !s.hidden).reduce((groups, shortcut) => {
     const category = shortcut.category;
     if (!groups[category]) {
       groups[category] = [];

@@ -9,6 +9,8 @@ export interface KeyboardShortcut {
   action: () => void;
   description: string;
   category: 'navigation' | 'view' | 'file' | 'custom';
+  /** Alternative binding for an action that is already listed; omitted from the help dialog. */
+  hidden?: boolean;
 }
 
 interface UseKeyboardShortcutsProps {
@@ -116,6 +118,9 @@ export const createDefaultShortcuts = (actions: {
   exportPDF?: () => void;
   refresh?: () => void;
   showSettings?: () => void;
+  zoomIn?: () => void;
+  zoomOut?: () => void;
+  zoomReset?: () => void;
 }): KeyboardShortcut[] => {
   const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
   const shortcuts: KeyboardShortcut[] = [];
@@ -190,6 +195,25 @@ export const createDefaultShortcuts = (actions: {
     });
   }
 
+
+  const mod = isMac ? 'metaKey' : 'ctrlKey';
+
+  if (actions.zoomIn) {
+    // '+' is shifted on US layouts and unshifted on German ones; '=' covers Cmd/Ctrl+= on US.
+    shortcuts.push(
+      { key: '+', [mod]: true, action: actions.zoomIn, description: 'Zoom in', category: 'view' },
+      { key: '+', [mod]: true, shiftKey: true, action: actions.zoomIn, description: 'Zoom in', category: 'view', hidden: true },
+      { key: '=', [mod]: true, action: actions.zoomIn, description: 'Zoom in', category: 'view', hidden: true }
+    );
+  }
+
+  if (actions.zoomOut) {
+    shortcuts.push({ key: '-', [mod]: true, action: actions.zoomOut, description: 'Zoom out', category: 'view' });
+  }
+
+  if (actions.zoomReset) {
+    shortcuts.push({ key: '0', [mod]: true, action: actions.zoomReset, description: 'Reset zoom', category: 'view' });
+  }
 
   // Focus mode exit shortcut (separate action for clarity)
   if (actions.exitFocusMode) {

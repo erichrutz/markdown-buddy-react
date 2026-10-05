@@ -62,9 +62,9 @@ export class PlantUMLService {
       // Create container for the diagram
       const diagramContainer = document.createElement('div');
       diagramContainer.className = 'plantuml-diagram';
-      const borderColor = this.currentTheme === 'dark' ? '#404040' : '#e0e0e0';
-      const backgroundColor = this.currentTheme === 'dark' ? '#2d2d2d' : 'white';
-      const textColor = this.currentTheme === 'dark' ? '#ffffff' : '#666';
+      const borderColor = this.currentTheme === 'dark' ? '#6b7280' : '#d1d5db';
+      const backgroundColor = this.currentTheme === 'dark' ? '#1f2937' : '#ffffff';
+      const textColor = this.currentTheme === 'dark' ? '#ffffff' : '#6b7280';
       
       diagramContainer.style.cssText = `
         margin: 16px 0;
@@ -157,7 +157,21 @@ export class PlantUMLService {
       
       const svgContent = await response.text();
       
-      // Cache the result
+      // Check if the SVG contains error messages or is a description error diagram
+      const isError = svgContent.includes('Syntax Error') || 
+                     svgContent.includes('error') ||
+                     svgContent.includes('Cannot') ||
+                     svgContent.includes('Unknown') ||
+                     svgContent.includes('data-diagram-type="DESCRIPTION"') ||
+                     svgContent.includes('<?plantuml') ||
+                     svgContent.toLowerCase().includes('malformed');
+      
+      if (isError) {
+        console.error('PlantUMLService: Server returned error SVG:', svgContent.substring(0, 200));
+        throw new Error('PlantUML server returned an error. The diagram may have syntax issues or external dependencies (like C4-PlantUML includes) that cannot be fetched.');
+      }
+      
+      // Cache the result only if it's valid
       this.cacheSVG(codeHash, svgContent);
       this.cache.set(codeHash, svgContent);
       
@@ -244,7 +258,7 @@ export class PlantUMLService {
   private static showError(container: HTMLElement, message: string): void {
     if (container.tagName === 'DIV' && container.classList.contains('plantuml-diagram')) {
       container.innerHTML = `
-        <div style="color: #f44336; padding: 16px; text-align: center;">
+        <div style="color: #dc2626; padding: 16px; text-align: center;">
           <strong>PlantUML Diagram Error</strong><br>
           ${message}
         </div>
@@ -255,10 +269,10 @@ export class PlantUMLService {
       errorDiv.style.cssText = `
         margin: 16px 0;
         padding: 16px;
-        border: 1px solid #f44336;
+        border: 1px solid #dc2626;
         border-radius: 4px;
-        background-color: #ffebee;
-        color: #c62828;
+        background-color: #fee2e2;
+        color: #b91c1c;
         text-align: center;
       `;
       errorDiv.innerHTML = `

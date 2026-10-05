@@ -19,6 +19,7 @@ export const useSettings = () => {
           ...parsed,
           appearance: { ...DEFAULT_SETTINGS.appearance, ...parsed.appearance },
           behavior: { ...DEFAULT_SETTINGS.behavior, ...parsed.behavior },
+          view: { ...DEFAULT_SETTINGS.view, ...parsed.view },
           diagrams: { ...DEFAULT_SETTINGS.diagrams, ...parsed.diagrams },
           export: { ...DEFAULT_SETTINGS.export, ...parsed.export },
           keyboard: { ...DEFAULT_SETTINGS.keyboard, ...parsed.keyboard },
@@ -78,6 +79,17 @@ export const useSettings = () => {
       i18n.changeLanguage(updates.language);
     }
   }, [i18n]);
+
+  const updateViewSettings = useCallback((updates: Partial<ApplicationSettings['view']>) => {
+    setSettings(current => ({
+      ...current,
+      view: {
+        ...current.view,
+        ...updates
+      },
+      lastModified: new Date()
+    }));
+  }, []);
 
   const updateDiagramSettings = useCallback((updates: Partial<ApplicationSettings['diagrams']>) => {
     setSettings(current => ({
@@ -179,21 +191,23 @@ export const useSettings = () => {
     return undefined; // Explicit return for no cleanup needed
   }, [settings.appearance.theme]);
 
-  // Initialize settings language to match current i18n language on first load
+  // Initialize settings language to match the detected i18n language on first load.
+  // Detection may yield region variants like "en-US"; settings only know "en" | "de".
   useEffect(() => {
-    if (!initializedRef.current && settings.behavior.language !== i18n.language) {
-      // Update settings to match current i18n language instead of changing the language
+    if (initializedRef.current) return;
+    initializedRef.current = true;
+    const detected: 'en' | 'de' = i18n.language?.toLowerCase().startsWith('de') ? 'de' : 'en';
+    if (settings.behavior.language !== detected) {
       setSettings(current => ({
         ...current,
         behavior: {
           ...current.behavior,
-          language: i18n.language as 'en' | 'de'
+          language: detected
         },
         lastModified: new Date()
       }));
-      initializedRef.current = true;
     }
-  }, [settings.behavior.language, i18n.language]); // Run when either changes
+  }, [settings.behavior.language, i18n.language]);
 
   // Sync i18n language with settings when settings change (only after initialization)
   useEffect(() => {
@@ -215,6 +229,7 @@ export const useSettings = () => {
     updateSettings,
     updateAppearanceSettings,
     updateBehaviorSettings,
+    updateViewSettings,
     updateDiagramSettings,
     updateExportSettings,
     updateKeyboardSettings,

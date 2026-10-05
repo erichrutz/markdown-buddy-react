@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -14,12 +14,12 @@ import {
   Switch,
   Box,
   Typography,
-  LinearProgress,
   Alert
 } from '@mui/material';
 import { PictureAsPdf } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { PDFExportOptions, DEFAULT_PDF_OPTIONS } from '../services/pdfExportService';
+import { ProgressSteps } from './LoadingIndicator';
 
 interface PDFExportDialogProps {
   open: boolean;
@@ -41,19 +41,49 @@ export const PDFExportDialog: React.FC<PDFExportDialogProps> = ({
     useTextBasedExport: true // Default to the new improved method
   });
   const [isExporting, setIsExporting] = useState(false);
+  const [exportStep, setExportStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
+
+  // Update filename when defaultFilename prop changes
+  useEffect(() => {
+    setOptions(prevOptions => ({
+      ...prevOptions,
+      filename: defaultFilename
+    }));
+  }, [defaultFilename]);
+
+  const exportSteps = [
+    t('export.step.preparing', { defaultValue: 'Preparing content...' }),
+    t('export.step.processing', { defaultValue: 'Processing markdown...' }),
+    t('export.step.generating', { defaultValue: 'Generating PDF...' }),
+    t('export.step.downloading', { defaultValue: 'Downloading file...' })
+  ];
 
   const handleExport = async () => {
     setIsExporting(true);
+    setExportStep(0);
     setError(null);
     
     try {
+      // Simulate step progress for better UX
+      setExportStep(0);
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      setExportStep(1);
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      setExportStep(2);
       await onExport(options);
+      
+      setExportStep(3);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : t('export.unknownError'));
     } finally {
       setIsExporting(false);
+      setExportStep(0);
     }
   };
 
@@ -98,10 +128,11 @@ export const PDFExportDialog: React.FC<PDFExportDialogProps> = ({
 
         {isExporting && (
           <Box sx={{ mb: 2 }}>
-            <Typography variant="body2" gutterBottom>
-              {t('export.generating')}
-            </Typography>
-            <LinearProgress />
+            <ProgressSteps
+              steps={exportSteps}
+              currentStep={exportStep}
+              completedSteps={Array.from({ length: exportStep }, (_, i) => i)}
+            />
           </Box>
         )}
 
@@ -249,6 +280,60 @@ export const PDFExportDialog: React.FC<PDFExportDialogProps> = ({
               }
               label={t('export.includeFooter')}
             />
+          </Box>
+
+          {/* Image Quality Settings */}
+          <Box>
+            <Typography variant="subtitle2" gutterBottom>
+              {t('export.imageSettings', { defaultValue: 'Image Settings' })}
+            </Typography>
+            
+            <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+              <FormControl fullWidth disabled={isExporting}>
+                <InputLabel>{t('export.imageFormat', { defaultValue: 'Image Format' })}</InputLabel>
+                <Select
+                  value={options.imageFormat || 'jpeg'}
+                  onChange={(e) => updateOptions({ imageFormat: e.target.value as 'png' | 'jpeg' })}
+                  label={t('export.imageFormat', { defaultValue: 'Image Format' })}
+                >
+                  <MenuItem value="jpeg">JPEG (Smaller file size)</MenuItem>
+                  <MenuItem value="png">PNG (Better quality, larger size)</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+
+            {(options.imageFormat === 'jpeg' || !options.imageFormat) && (
+              <Box>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
+                  {t('export.imageQuality', { defaultValue: 'Image Quality' })}: {Math.round((options.imageQuality || 0.7) * 100)}%
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Typography variant="caption" color="text.secondary">
+                    {t('export.smallerSize', { defaultValue: 'Smaller' })}
+                  </Typography>
+                  <TextField
+                    type="range"
+                    value={Math.round((options.imageQuality || 0.7) * 100)}
+                    onChange={(e) => updateOptions({ imageQuality: Number(e.target.value) / 100 })}
+                    disabled={isExporting}
+                    inputProps={{
+                      min: 10,
+                      max: 100,
+                      step: 10
+                    }}
+                    sx={{ flex: 1 }}
+                  />
+                  <Typography variant="caption" color="text.secondary">
+                    {t('export.betterQuality', { defaultValue: 'Better Quality' })}
+                  </Typography>
+                </Box>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+                  {t('export.imageQualityHelp', { 
+                    defaultValue: 'Lower quality reduces file size. 70% is recommended for most documents.' 
+                  })}
+                </Typography>
+              </Box>
+            )}
           </Box>
 
           {/* Info */}

@@ -13,11 +13,8 @@ export const useSession = () => {
     setExpandedFolders(session.expandedFolders);
     setFocusMode(session.focusMode || false);
     setSidebarVisible(session.sidebarVisible !== false); // Default to true
-    
-    if (session.language && session.language !== i18n.language) {
-      i18n.changeLanguage(session.language);
-    }
-  }, [i18n]);
+    // Language is owned by useSettings; the session must not override it on load.
+  }, []);
 
   const saveExpandedFolders = useCallback((folders: string[]) => {
     setExpandedFolders(folders);

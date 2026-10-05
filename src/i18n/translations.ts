@@ -11,10 +11,10 @@ export const translations = {
       language: 'Sprache',
       currentFile: 'Aktuelle Datei',
       fileStats: 'Datei-Statistiken',
-      noFileSelected: 'Wählen Sie eine Markdown-Datei aus der Seitenleiste aus, um sie hier anzuzeigen.',
-      noFolderSelected: 'Noch kein Verzeichnis ausgewählt',
-      noFolderHelp: 'Wählen Sie ein lokales Verzeichnis aus, um Ihre Markdown-Dateien zu durchsuchen und zu bearbeiten. Klicken Sie auf "Verzeichnis auswählen" oben links. Ihre Dateien bleiben privat auf Ihrem Gerät.',
+      noFileSelected: 'Keine Datei ausgewählt',
+      noFileInstructions: 'Wählen Sie ein Verzeichnis mit Markdown-Dateien aus, um zu beginnen. Klicken Sie auf "Verzeichnis auswählen" in der oberen Leiste oder verwenden Sie die Tastenkombination Strg+O.',
       errorLoading: 'Fehler beim Laden der Datei',
+      errorStaleFile: 'Datei konnte nicht gelesen werden – bitte Ordner erneut auswählen.',
       markdownFiles: 'Markdown-Dateien',
       focusMode: 'Focus-Modus',
       exitFocusMode: 'Focus-Modus beenden',
@@ -68,7 +68,13 @@ export const translations = {
       generating: 'PDF wird erstellt...',
       info: 'Diagramme und Syntax-Highlighting werden als Bilder eingebettet. Der Export kann bei großen Dokumenten etwas dauern.',
       noHeaderFooterWarning: 'Ohne Kopf- und Fußzeile wird der gesamte Inhalt automatisch auf mehrere Seiten aufgeteilt.',
-      unknownError: 'Unbekannter Fehler beim PDF-Export'
+      unknownError: 'Unbekannter Fehler beim PDF-Export',
+      imageSettings: 'Bildeinstellungen',
+      imageFormat: 'Bildformat',
+      imageQuality: 'Bildqualität',
+      smallerSize: 'Kleiner',
+      betterQuality: 'Bessere Qualität',
+      imageQualityHelp: 'Niedrigere Qualität reduziert die Dateigröße. 70% wird für die meisten Dokumente empfohlen.'
     },
     stats: {
       size: 'Größe',
@@ -91,6 +97,84 @@ export const translations = {
         description: 'Diese Anwendung verwendet folgende Open-Source-Bibliotheken:'
       }
     },
+    header: {
+      openFolder: 'Ordner öffnen',
+      openFolderPlaceholder: 'Ordner öffnen…',
+      reload: 'Datei neu laden',
+      exportPdf: 'Als PDF exportieren',
+      toggleTheme: 'Farbschema wechseln',
+      about: 'Über',
+      settings: 'Einstellungen',
+      present: 'Präsentieren'
+    },
+    tree: {
+      sort: 'Sortieren',
+      loading: 'Laden…',
+      fileCount: '{{count}} Markdown-Dateien'
+    },
+    viewer: {
+      errorLoading: 'Fehler beim Laden',
+      noFile: 'Keine Datei ausgewählt',
+      noFileHelp: 'Wählen Sie einen Ordner aus und klicken Sie auf eine Markdown-Datei.',
+      outline: 'Gliederung'
+    },
+    doc: {
+      document: 'Dokument',
+      sections: 'Abschnitte',
+      zoomOut: 'Verkleinern',
+      zoomIn: 'Vergrößern',
+      textWidth: 'Textbreite anpassen',
+      fullWidth: 'Voll',
+      pointerHint: 'Zeiger für Bildschirmfreigabe',
+      pointer: 'Zeiger',
+      clearMarks: 'Alle Markierungen entfernen',
+      markOne: 'Markierung',
+      markMany: 'Markierungen',
+      statsLines: '{{count}} Zeilen',
+      statsCharacters: '{{formatted}} Zeichen',
+      statsSections_one: '{{count}} Abschnitt',
+      statsSections_other: '{{count}} Abschnitte'
+    },
+    sections: {
+      title: 'Abschnitte für die Präsentation',
+      intro: 'Beim Präsentieren wird jeweils ein Abschnitt hervorgehoben, der Rest des Dokuments tritt zurück. Reihenfolge und Umfang entsprechen den Überschriften der Datei.',
+      skipped: 'Beim Präsentieren übersprungen',
+      show: 'Einblenden',
+      skip: 'Überspringen',
+      presentFromHere: 'Ab hier präsentieren',
+      paragraphs_one: '{{count}} Absatz',
+      paragraphs_other: '{{count}} Absätze',
+      lists_one: '{{count}} Liste',
+      lists_other: '{{count}} Listen',
+      codeBlocks_one: '{{count}} Codeblock',
+      codeBlocks_other: '{{count}} Codeblöcke',
+      durationSeconds: 'ca. {{count}} Sekunden',
+      durationMinutes_one: 'ca. {{count}} Minute',
+      durationMinutes_other: 'ca. {{count}} Minuten'
+    },
+    presentation: {
+      outline: 'Gliederung',
+      helpPage: 'Weiterblättern',
+      helpSection: 'Abschnitt wechseln',
+      helpBuild: 'Aufbau ein/aus',
+      helpPointer: 'Zeiger ein/aus',
+      helpTheme: 'Hell/Dunkel',
+      helpControls: 'Steuerung ein/aus',
+      exit: 'Beenden',
+      prevSection: 'Vorheriger Abschnitt',
+      nextSection: 'Nächster Abschnitt',
+      build: 'Aufbau',
+      buildTitle: 'Aufbau (B)',
+      pointer: 'Zeiger',
+      pointerTitle: 'Zeiger (P)',
+      screenUsage: 'Bildschirmnutzung',
+      themeTitle: 'Hell/Dunkel (D)',
+      continues: 'Abschnitt geht weiter',
+      clickToJump: 'Klicken zum Springen',
+      controlsHint: 'Die Steuerung blendet sich aus. Taste S oder Maus an den linken bzw. oberen Bildschirmrand.',
+      sectionOf: 'Abschnitt {{current}} von {{total}}',
+      continuation: 'Fortsetzung'
+    },
     settings: {
       title: 'Einstellungen'
     }
@@ -107,10 +191,10 @@ export const translations = {
       language: 'Language',
       currentFile: 'Current File',
       fileStats: 'File Statistics',
-      noFileSelected: 'Select a Markdown file from the sidebar to display it here.',
-      noFolderSelected: 'No folder selected yet',
-      noFolderHelp: 'Choose a local folder to browse and edit your Markdown files. Click "Select Folder" in the top left corner. Your files remain private on your device.',
+      noFileSelected: 'No file selected',
+      noFileInstructions: 'Select a directory containing Markdown files to get started. Click "Select Folder" in the top bar or use Ctrl+O.',
       errorLoading: 'Error loading file',
+      errorStaleFile: 'File could not be read — please reselect the folder.',
       markdownFiles: 'Markdown Files',
       focusMode: 'Focus Mode',
       exitFocusMode: 'Exit Focus Mode',
@@ -164,7 +248,13 @@ export const translations = {
       generating: 'Generating PDF...',
       info: 'Diagrams and syntax highlighting will be embedded as images. Large documents may take a moment to export.',
       noHeaderFooterWarning: 'Without headers and footers, content will be automatically split across multiple pages.',
-      unknownError: 'Unknown error during PDF export'
+      unknownError: 'Unknown error during PDF export',
+      imageSettings: 'Image Settings',
+      imageFormat: 'Image Format',
+      imageQuality: 'Image Quality',
+      smallerSize: 'Smaller Size',
+      betterQuality: 'Better Quality',
+      imageQualityHelp: 'Lower quality reduces file size. 70% is recommended for most documents.'
     },
     stats: {
       size: 'Size',
@@ -186,6 +276,84 @@ export const translations = {
         title: 'Dependencies',
         description: 'This application uses the following open-source libraries:'
       }
+    },
+    header: {
+      openFolder: 'Open folder',
+      openFolderPlaceholder: 'Open folder…',
+      reload: 'Reload file',
+      exportPdf: 'Export as PDF',
+      toggleTheme: 'Toggle color scheme',
+      about: 'About',
+      settings: 'Settings',
+      present: 'Present'
+    },
+    tree: {
+      sort: 'Sort',
+      loading: 'Loading…',
+      fileCount: '{{count}} Markdown files'
+    },
+    viewer: {
+      errorLoading: 'Error while loading',
+      noFile: 'No file selected',
+      noFileHelp: 'Choose a folder and click on a Markdown file.',
+      outline: 'Outline'
+    },
+    doc: {
+      document: 'Document',
+      sections: 'Sections',
+      zoomOut: 'Zoom out',
+      zoomIn: 'Zoom in',
+      textWidth: 'Adjust text width',
+      fullWidth: 'Full',
+      pointerHint: 'Pointer for screen sharing',
+      pointer: 'Pointer',
+      clearMarks: 'Remove all highlights',
+      markOne: 'highlight',
+      markMany: 'highlights',
+      statsLines: '{{count}} lines',
+      statsCharacters: '{{formatted}} characters',
+      statsSections_one: '{{count}} section',
+      statsSections_other: '{{count}} sections'
+    },
+    sections: {
+      title: 'Sections for the presentation',
+      intro: 'While presenting, one section at a time is highlighted and the rest of the document recedes. Order and scope follow the headings of the file.',
+      skipped: 'Skipped when presenting',
+      show: 'Show',
+      skip: 'Skip',
+      presentFromHere: 'Present from here',
+      paragraphs_one: '{{count}} paragraph',
+      paragraphs_other: '{{count}} paragraphs',
+      lists_one: '{{count}} list',
+      lists_other: '{{count}} lists',
+      codeBlocks_one: '{{count}} code block',
+      codeBlocks_other: '{{count}} code blocks',
+      durationSeconds: 'about {{count}} seconds',
+      durationMinutes_one: 'about {{count}} minute',
+      durationMinutes_other: 'about {{count}} minutes'
+    },
+    presentation: {
+      outline: 'Outline',
+      helpPage: 'Next/previous page',
+      helpSection: 'Change section',
+      helpBuild: 'Build on/off',
+      helpPointer: 'Pointer on/off',
+      helpTheme: 'Light/Dark',
+      helpControls: 'Controls on/off',
+      exit: 'Exit',
+      prevSection: 'Previous section',
+      nextSection: 'Next section',
+      build: 'Build',
+      buildTitle: 'Build (B)',
+      pointer: 'Pointer',
+      pointerTitle: 'Pointer (P)',
+      screenUsage: 'Screen usage',
+      themeTitle: 'Light/Dark (D)',
+      continues: 'Section continues',
+      clickToJump: 'Click to jump',
+      controlsHint: 'Controls hide automatically. Press S or move the mouse to the left or top screen edge.',
+      sectionOf: 'Section {{current}} of {{total}}',
+      continuation: 'continued'
     },
     settings: {
       title: 'Settings'

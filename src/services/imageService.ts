@@ -1,15 +1,30 @@
+/**
+ * ImageService - Handles image file loading, blob URL management, and path resolution
+ * for embedded images in markdown content
+ * 
+ * Based on the original implementation for cross-folder image support
+ */
+
+import { MarkdownFile } from '../types';
+
 export class ImageService {
   private static imageCache: Map<string, string> = new Map();
 
   /**
    * Register image files and create blob URLs for them
    */
-  static registerImages(files: any[]): void {
+  static registerImages(files: MarkdownFile[]): void {
     // Clear previous cache
     this.clearCache();
     
+    // Ensure files is an array
+    if (!Array.isArray(files)) {
+      console.warn('ImageService.registerImages: files is not an array:', files);
+      return;
+    }
+    
     files.forEach(fileData => {
-      if (fileData.type === 'image') {
+      if (fileData && fileData.type === 'image') {
         const blobUrl = URL.createObjectURL(fileData.file);
         this.imageCache.set(fileData.path, blobUrl);
       }
@@ -26,14 +41,20 @@ export class ImageService {
   /**
    * Resolve relative image paths in markdown content
    */
-  static resolveImagePaths(content: string, currentFilePath: string, files: any[]): string {
+  static resolveImagePaths(content: string, currentFilePath: string, files: MarkdownFile[]): string {
     if (!content) return content;
-
+    
+    // Ensure files is an array
+    if (!Array.isArray(files)) {
+      console.warn('ImageService.resolveImagePaths: files is not an array:', files);
+      return content;
+    }
+    
     // Create a map of relative paths to blob URLs
     const pathMap = new Map<string, string>();
     
     files.forEach(fileData => {
-      if (fileData.type === 'image') {
+      if (fileData && fileData.type === 'image') {
         const blobUrl = this.getImageUrl(fileData.path);
         if (blobUrl) {
           // Map the full path
@@ -56,18 +77,16 @@ export class ImageService {
       }
     });
 
+    // Replace HTML img src attributes
+    let resolvedContent = content.replace(
+      /<img([^>]*?)src=["']([^"']+)["']([^>]*?)>/g,
+      (_match, before, src, after) => {
+        const resolvedSrc = this.resolveImageSrc(src, pathMap);
+        return `<img${before}src="${resolvedSrc}"${after}>`;
+      }
+    );
 
-    // Replace image src attributes in the content
-    let resolvedContent = content;
-    
-    // Match img tags with src attributes
-    const imgRegex = /<img([^>]*?)src=["']([^"']+)["']([^>]*?)>/gi;
-    resolvedContent = resolvedContent.replace(imgRegex, (_match, before, src, after) => {
-      const resolvedSrc = this.resolveImageSrc(src, pathMap);
-      return `<img${before}src="${resolvedSrc}"${after}>`;
-    });
-
-    // Match markdown image syntax ![alt](src)
+    // Replace markdown image syntax ![alt](src)
     const markdownImgRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
     resolvedContent = resolvedContent.replace(markdownImgRegex, (_match, alt, src) => {
       const resolvedSrc = this.resolveImageSrc(src, pathMap);
@@ -144,10 +163,10 @@ export class ImageService {
   /**
    * Get cache statistics
    */
-  static getCacheInfo(): { count: number; paths: string[] } {
+  static getCacheStats() {
     return {
-      count: this.imageCache.size,
-      paths: Array.from(this.imageCache.keys())
+      size: this.imageCache.size,
+      urls: Array.from(this.imageCache.keys())
     };
   }
 }

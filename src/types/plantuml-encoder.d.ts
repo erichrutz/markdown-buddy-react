@@ -1,9 +1,7 @@
 declare module 'plantuml-encoder' {
-  export function encode(plantuml: string): string;
-  export function decode(encoded: string): string;
-  const encoder: {
-    encode: typeof encode;
-    decode: typeof decode;
-  };
-  export default encoder;
+  function encode(plantumlCode: string): string;
+  function decode(encodedCode: string): string;
+  
+  export { encode, decode };
+  export default { encode, decode };
 }
