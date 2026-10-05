@@ -48,6 +48,7 @@ export interface UITexts {
   };
   ui: {
     selectFolder: string;
+    selectFolderInfo: string;
     openInVSCode: string;
     collapseAll: string;
     language: string;

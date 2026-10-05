@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Box, Slider } from '@mui/material';
 import {
   ChevronLeft,
@@ -73,6 +74,7 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({
   onMermaidProcess,
   onPlantUMLProcess,
 }) => {
+  const { t } = useTranslation();
   const slideRef = useRef<HTMLDivElement>(null);
   const contentWrapRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -811,7 +813,7 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({
         }}
       >
         <Box sx={{ px: '24px', pt: '26px', pb: '4px', fontSize: 10.5, fontWeight: 600, letterSpacing: '.1em', textTransform: 'uppercase', color: pc.dim, whiteSpace: 'nowrap' }}>
-          Gliederung
+          {t('presentation.outline')}
         </Box>
         <Box sx={{ px: '24px', pb: '18px', fontSize: 12, color: pc.dim, whiteSpace: 'nowrap' }}>
           Klicken zum Springen
@@ -848,13 +850,13 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({
 
         {/* Keyboard legend */}
         <Box sx={{ padding: '16px 24px 20px', borderTop: `1px solid ${pc.line}`, fontSize: 11.5, lineHeight: 1.7, color: pc.dim, whiteSpace: 'nowrap' }}>
-          <div>↓ ↑&nbsp;&nbsp;Weiterblättern</div>
-          <div>← →&nbsp;&nbsp;Abschnitt wechseln</div>
-          <div>B&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Aufbau ein/aus</div>
-          <div>P&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Zeiger ein/aus</div>
-          <div>D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Hell/Dunkel</div>
-          <div>S&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Steuerung ein/aus</div>
-          <div>Esc&nbsp;&nbsp;Beenden</div>
+          <div>↓ ↑&nbsp;&nbsp;{t('presentation.helpPage')}</div>
+          <div>← →&nbsp;&nbsp;{t('presentation.helpSection')}</div>
+          <div>B&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{t('presentation.helpBuild')}</div>
+          <div>P&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{t('presentation.helpPointer')}</div>
+          <div>D&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{t('presentation.helpTheme')}</div>
+          <div>S&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{t('presentation.helpControls')}</div>
+          <div>Esc&nbsp;&nbsp;{t('presentation.exit')}</div>
           <Box sx={{ mt: '8px', fontSize: 10.5, opacity: 0.7 }}>
             Die Steuerung blendet sich aus. Taste S oder Maus an den linken bzw. oberen Bildschirmrand.
           </Box>
@@ -894,10 +896,10 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({
             Abschnitt {currentActiveIndex + 1} von {totalSlides}
           </Box>
 
-          <Box component="button" type="button" onClick={() => goTo(currentActiveIndex - 1)} title="Vorheriger Abschnitt" sx={navBtnSx}>
+          <Box component="button" type="button" onClick={() => goTo(currentActiveIndex - 1)} title={t('presentation.prevSection')} sx={navBtnSx}>
             <ChevronLeft sx={{ fontSize: 18 }} />
           </Box>
-          <Box component="button" type="button" onClick={() => goTo(currentActiveIndex + 1)} title="Nächster Abschnitt" sx={navBtnSx}>
+          <Box component="button" type="button" onClick={() => goTo(currentActiveIndex + 1)} title={t('presentation.nextSection')} sx={navBtnSx}>
             <ChevronRight sx={{ fontSize: 18 }} />
           </Box>
 
@@ -908,7 +910,7 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({
             component="button"
             type="button"
             onClick={() => { setBuildActive(b => !b); setBuildRevealed(0); }}
-            title="Aufbau (B)"
+            title={t('presentation.buildTitle')}
             sx={{
               display: 'flex',
               alignItems: 'center',
@@ -923,7 +925,7 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({
             }}
           >
             <FormatListBulleted sx={{ fontSize: 17 }} />
-            Aufbau
+            {t('presentation.build')}
           </Box>
 
           {/* Pointer toggle */}
@@ -931,7 +933,7 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({
             component="button"
             type="button"
             onClick={onTogglePointer}
-            title="Zeiger (P)"
+            title={t('presentation.pointerTitle')}
             sx={{
               display: 'flex',
               alignItems: 'center',
@@ -946,13 +948,13 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({
             }}
           >
             <MyLocation sx={{ fontSize: 17 }} />
-            Zeiger
+            {t('presentation.pointer')}
           </Box>
 
           <Box sx={{ width: 1, height: 20, background: pc.line }} />
 
           {/* Slide fill width */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }} title="Bildschirmnutzung">
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }} title={t('presentation.screenUsage')}>
             <AspectRatio sx={{ fontSize: 16, color: pc.dim }} />
             <Slider
               value={stageWidth}
@@ -961,7 +963,7 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({
               max={STAGE_WIDTH_MAX}
               step={STAGE_WIDTH_STEP}
               size="small"
-              title="Bildschirmnutzung"
+              title={t('presentation.screenUsage')}
               sx={{ width: 90, color: BRAND.ACCENT, '& .MuiSlider-thumb': { width: 12, height: 12 } }}
             />
           </Box>
@@ -969,7 +971,7 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({
           <Box sx={{ width: 1, height: 20, background: pc.line }} />
 
           {/* Theme toggle */}
-          <Box component="button" type="button" onClick={onTogglePresTheme} title="Hell/Dunkel (D)" sx={navBtnSx}>
+          <Box component="button" type="button" onClick={onTogglePresTheme} title={t('presentation.themeTitle')} sx={navBtnSx}>
             {presTheme === 'dark' ? <LightMode sx={{ fontSize: 17 }} /> : <DarkMode sx={{ fontSize: 17 }} />}
           </Box>
 
@@ -993,7 +995,7 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({
             }}
           >
             <Close sx={{ fontSize: 16 }} />
-            Beenden
+            {t('presentation.exit')}
           </Box>
         </Box>
 
@@ -1157,7 +1159,7 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({
                   }}
                 >
                   <South sx={{ fontSize: 16 }} />
-                  Abschnitt geht weiter
+                  {t('presentation.continues')}
                 </Box>
               )}
             </Box>

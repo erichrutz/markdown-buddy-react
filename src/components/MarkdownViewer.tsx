@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Box, Typography } from '@mui/material';
 import DOMPurify from 'dompurify';
 import { MarkdownFile } from '../types';
@@ -42,6 +43,7 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
   onPlantUMLProcess,
   onDocMouseUp,
 }) => {
+  const { t } = useTranslation();
   const contentRef = useRef<HTMLDivElement>(null);
   const [activeOutline, setActiveOutline] = useState<string>(outline[0]?.id || '');
   const { width: outlineWidth, onMouseDown: onOutlineResize } = useResizableWidth(236, 160, 420, 'left');
@@ -103,7 +105,7 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
   if (error) {
     return (
       <Box sx={{ p: 3 }}>
-        <Typography variant="h6" color="error" gutterBottom>Fehler beim Laden</Typography>
+        <Typography variant="h6" color="error" gutterBottom>{t('viewer.errorLoading')}</Typography>
         <Typography variant="body2" color="text.secondary">{error}</Typography>
       </Box>
     );
@@ -114,10 +116,10 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
       <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', p: 4, textAlign: 'center', maxWidth: 600, margin: '0 auto' }}>
         <Box component="img" src={appLogo} alt="MarkDown Buddy Logo" sx={{ height: 80, width: 'auto', mb: 3, opacity: 0.7 }} />
         <Typography variant="h5" color="text.primary" sx={{ mb: 2, fontWeight: 600 }}>
-          Keine Datei ausgewählt
+          {t('viewer.noFile')}
         </Typography>
         <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.6 }}>
-          Wählen Sie einen Ordner aus und klicken Sie auf eine Markdown-Datei.
+          {t('viewer.noFileHelp')}
         </Typography>
       </Box>
     );
@@ -177,7 +179,7 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
             }}
           />
           <Box sx={{ fontSize: 11, fontWeight: 600, letterSpacing: '.09em', textTransform: 'uppercase', color: tokens.fg3, pl: '24px', mb: '12px' }}>
-            Gliederung
+            {t('viewer.outline')}
           </Box>
           {outline.map((o, idx) => {
             const active = activeOutline === o.id;

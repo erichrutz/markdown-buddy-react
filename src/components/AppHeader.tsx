@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Box } from '@mui/material';
 import {
   Refresh,
@@ -41,12 +42,13 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   onStartPresent,
   hasCurrentFile = false,
 }) => {
+  const { t } = useTranslation();
   const toolButtons = [
-    { icon: <Refresh sx={{ fontSize: 19, color: 'inherit' }} />, title: 'Datei neu laden', onClick: onRefresh, disabled: !hasCurrentFile },
-    { icon: <PictureAsPdf sx={{ fontSize: 19, color: 'inherit' }} />, title: 'Als PDF exportieren', onClick: onExportPDF, disabled: !hasCurrentFile },
-    { icon: isDark ? <LightMode sx={{ fontSize: 19, color: 'inherit' }} /> : <DarkMode sx={{ fontSize: 19, color: 'inherit' }} />, title: 'Farbschema wechseln', onClick: onToggleTheme },
-    { icon: <InfoOutlined sx={{ fontSize: 19, color: 'inherit' }} />, title: 'Über', onClick: onShowAbout },
-    { icon: <Settings sx={{ fontSize: 19, color: 'inherit' }} />, title: 'Einstellungen', onClick: onShowSettings },
+    { icon: <Refresh sx={{ fontSize: 19, color: 'inherit' }} />, title: t('header.reload'), onClick: onRefresh, disabled: !hasCurrentFile },
+    { icon: <PictureAsPdf sx={{ fontSize: 19, color: 'inherit' }} />, title: t('header.exportPdf'), onClick: onExportPDF, disabled: !hasCurrentFile },
+    { icon: isDark ? <LightMode sx={{ fontSize: 19, color: 'inherit' }} /> : <DarkMode sx={{ fontSize: 19, color: 'inherit' }} />, title: t('header.toggleTheme'), onClick: onToggleTheme },
+    { icon: <InfoOutlined sx={{ fontSize: 19, color: 'inherit' }} />, title: t('header.about'), onClick: onShowAbout },
+    { icon: <Settings sx={{ fontSize: 19, color: 'inherit' }} />, title: t('header.settings'), onClick: onShowSettings },
   ];
 
   return (
@@ -85,12 +87,12 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       {/* Store display — click to open folder */}
       <span
         role="button"
-        title="Ordner öffnen"
+        title={`${t('header.openFolder')} – ${t('ui.selectFolderInfo')}`}
         onClick={onSelectDirectory}
         style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, color: tokens.fg2, whiteSpace: 'nowrap', flexShrink: 0, cursor: 'pointer' }}
       >
         <FolderOpen sx={{ fontSize: 16, color: 'inherit' }} />
-        {folderName || 'Ordner öffnen…'}
+        {folderName || t('header.openFolderPlaceholder')}
       </span>
 
       {/* Spacer */}
@@ -163,7 +165,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
         onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = BRAND.ACCENT; }}
       >
         <PlayArrow sx={{ fontSize: 18, color: 'inherit' }} />
-        Präsentieren
+        {t('header.present')}
       </span>
     </Box>
   );

@@ -5,6 +5,7 @@ export const translations = {
     },
     ui: {
       selectFolder: 'Verzeichnis auswählen',
+      selectFolderInfo: 'Ihr Browser fragt nach Zugriff, aber alle Dateien bleiben vollständig auf Ihrem Gerät und werden nur lokal verarbeitet. Nichts wird hochgeladen oder an Server gesendet.',
       openInVSCode: 'In VS Code öffnen',
       collapseAll: 'Alle einklappen',
       language: 'Sprache',
@@ -96,6 +97,66 @@ export const translations = {
         description: 'Diese Anwendung verwendet folgende Open-Source-Bibliotheken:'
       }
     },
+    header: {
+      openFolder: 'Ordner öffnen',
+      openFolderPlaceholder: 'Ordner öffnen…',
+      reload: 'Datei neu laden',
+      exportPdf: 'Als PDF exportieren',
+      toggleTheme: 'Farbschema wechseln',
+      about: 'Über',
+      settings: 'Einstellungen',
+      present: 'Präsentieren'
+    },
+    tree: {
+      sort: 'Sortieren',
+      loading: 'Laden…'
+    },
+    viewer: {
+      errorLoading: 'Fehler beim Laden',
+      noFile: 'Keine Datei ausgewählt',
+      noFileHelp: 'Wählen Sie einen Ordner aus und klicken Sie auf eine Markdown-Datei.',
+      outline: 'Gliederung'
+    },
+    doc: {
+      document: 'Dokument',
+      sections: 'Abschnitte',
+      zoomOut: 'Verkleinern',
+      zoomIn: 'Vergrößern',
+      textWidth: 'Textbreite anpassen',
+      fullWidth: 'Voll',
+      pointerHint: 'Zeiger für Bildschirmfreigabe',
+      pointer: 'Zeiger',
+      clearMarks: 'Alle Markierungen entfernen',
+      markOne: 'Markierung',
+      markMany: 'Markierungen'
+    },
+    sections: {
+      title: 'Abschnitte für die Präsentation',
+      intro: 'Beim Präsentieren wird jeweils ein Abschnitt hervorgehoben, der Rest des Dokuments tritt zurück. Reihenfolge und Umfang entsprechen den Überschriften der Datei.',
+      skipped: 'Beim Präsentieren übersprungen',
+      show: 'Einblenden',
+      skip: 'Überspringen',
+      presentFromHere: 'Ab hier präsentieren'
+    },
+    presentation: {
+      outline: 'Gliederung',
+      helpPage: 'Weiterblättern',
+      helpSection: 'Abschnitt wechseln',
+      helpBuild: 'Aufbau ein/aus',
+      helpPointer: 'Zeiger ein/aus',
+      helpTheme: 'Hell/Dunkel',
+      helpControls: 'Steuerung ein/aus',
+      exit: 'Beenden',
+      prevSection: 'Vorheriger Abschnitt',
+      nextSection: 'Nächster Abschnitt',
+      build: 'Aufbau',
+      buildTitle: 'Aufbau (B)',
+      pointer: 'Zeiger',
+      pointerTitle: 'Zeiger (P)',
+      screenUsage: 'Bildschirmnutzung',
+      themeTitle: 'Hell/Dunkel (D)',
+      continues: 'Abschnitt geht weiter'
+    },
     settings: {
       title: 'Einstellungen'
     }
@@ -106,6 +167,7 @@ export const translations = {
     },
     ui: {
       selectFolder: 'Select Folder',
+      selectFolderInfo: 'Your browser asks for access, but all files remain completely on your device and are processed locally only. Nothing is uploaded or sent to servers.',
       openInVSCode: 'Open in VS Code',
       collapseAll: 'Collapse All',
       language: 'Language',
@@ -196,6 +258,66 @@ export const translations = {
         title: 'Dependencies',
         description: 'This application uses the following open-source libraries:'
       }
+    },
+    header: {
+      openFolder: 'Open folder',
+      openFolderPlaceholder: 'Open folder…',
+      reload: 'Reload file',
+      exportPdf: 'Export as PDF',
+      toggleTheme: 'Toggle color scheme',
+      about: 'About',
+      settings: 'Settings',
+      present: 'Present'
+    },
+    tree: {
+      sort: 'Sort',
+      loading: 'Loading…'
+    },
+    viewer: {
+      errorLoading: 'Error while loading',
+      noFile: 'No file selected',
+      noFileHelp: 'Choose a folder and click on a Markdown file.',
+      outline: 'Outline'
+    },
+    doc: {
+      document: 'Document',
+      sections: 'Sections',
+      zoomOut: 'Zoom out',
+      zoomIn: 'Zoom in',
+      textWidth: 'Adjust text width',
+      fullWidth: 'Full',
+      pointerHint: 'Pointer for screen sharing',
+      pointer: 'Pointer',
+      clearMarks: 'Remove all highlights',
+      markOne: 'highlight',
+      markMany: 'highlights'
+    },
+    sections: {
+      title: 'Sections for the presentation',
+      intro: 'While presenting, one section at a time is highlighted and the rest of the document recedes. Order and scope follow the headings of the file.',
+      skipped: 'Skipped when presenting',
+      show: 'Show',
+      skip: 'Skip',
+      presentFromHere: 'Present from here'
+    },
+    presentation: {
+      outline: 'Outline',
+      helpPage: 'Next/previous page',
+      helpSection: 'Change section',
+      helpBuild: 'Build on/off',
+      helpPointer: 'Pointer on/off',
+      helpTheme: 'Light/Dark',
+      helpControls: 'Controls on/off',
+      exit: 'Exit',
+      prevSection: 'Previous section',
+      nextSection: 'Next section',
+      build: 'Build',
+      buildTitle: 'Build (B)',
+      pointer: 'Pointer',
+      pointerTitle: 'Pointer (P)',
+      screenUsage: 'Screen usage',
+      themeTitle: 'Light/Dark (D)',
+      continues: 'Section continues'
     },
     settings: {
       title: 'Settings'

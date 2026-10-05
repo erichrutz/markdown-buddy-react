@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Box, Slider } from '@mui/material';
 import { Remove, Add, MyLocation, FormatColorReset, AspectRatio } from '@mui/icons-material';
 import { SurfaceTokens, BRAND, DOC_WIDTH_MIN, DOC_WIDTH_MAX, DOC_WIDTH_STEP } from '../theme/designTokens';
@@ -42,6 +43,7 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   markCount,
   onClearMarks,
 }) => {
+  const { t } = useTranslation();
   const [widthOpen, setWidthOpen] = useState(false);
   const tabBtnSx = (active: boolean) => ({
     height: 30,
@@ -98,7 +100,7 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
         {/* View switcher */}
         <Box sx={{ display: 'flex', alignItems: 'center', border: `1px solid ${tokens.border}` }}>
           <Box component="button" type="button" onClick={() => onViewChange('doc')} sx={tabBtnSx(view === 'doc')}>
-            Dokument
+            {t('doc.document')}
           </Box>
           <Box
             component="button"
@@ -106,13 +108,13 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
             onClick={() => onViewChange('slides')}
             sx={{ ...tabBtnSx(view === 'slides'), borderLeft: `1px solid ${tokens.border}` }}
           >
-            Abschnitte
+            {t('doc.sections')}
           </Box>
         </Box>
 
         {/* Zoom */}
         <Box sx={{ display: 'flex', alignItems: 'center', border: `1px solid ${tokens.border}` }}>
-          <Box component="button" type="button" onClick={onZoomOut} title="Verkleinern" sx={zoomBtnSx}>
+          <Box component="button" type="button" onClick={onZoomOut} title={t('doc.zoomOut')} sx={zoomBtnSx}>
             <Remove sx={{ fontSize: 17 }} />
           </Box>
           <Box
@@ -129,7 +131,7 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
           >
             {zoom} %
           </Box>
-          <Box component="button" type="button" onClick={onZoomIn} title="Vergrößern" sx={zoomBtnSx}>
+          <Box component="button" type="button" onClick={onZoomIn} title={t('doc.zoomIn')} sx={zoomBtnSx}>
             <Add sx={{ fontSize: 17 }} />
           </Box>
         </Box>
@@ -148,7 +150,7 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
             component="button"
             type="button"
             onClick={() => setWidthOpen(o => !o)}
-            title="Textbreite anpassen"
+            title={t('doc.textWidth')}
             sx={{ ...zoomBtnSx, color: widthOpen ? BRAND.ACCENT : tokens.fg2 }}
           >
             <AspectRatio sx={{ fontSize: 16 }} />
@@ -162,11 +164,11 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
                 max={DOC_WIDTH_MAX}
                 step={DOC_WIDTH_STEP}
                 size="small"
-                title="Textbreite anpassen"
+                title={t('doc.textWidth')}
                 sx={{ width: 90, color: BRAND.ACCENT, '& .MuiSlider-thumb': { width: 12, height: 12 } }}
               />
               <Box sx={{ minWidth: 46, fontSize: 11, fontVariantNumeric: 'tabular-nums', color: tokens.fg2, userSelect: 'none' }}>
-                {docWidth >= DOC_WIDTH_MAX ? 'Voll' : `${docWidth}px`}
+                {docWidth >= DOC_WIDTH_MAX ? t('doc.fullWidth') : `${docWidth}px`}
               </Box>
             </>
           )}
@@ -177,7 +179,7 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
           component="button"
           type="button"
           onClick={onToggleDocPointer}
-          title="Zeiger für Bildschirmfreigabe"
+          title={t('doc.pointerHint')}
           sx={{
             display: 'flex',
             alignItems: 'center',
@@ -192,7 +194,7 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
           }}
         >
           <MyLocation sx={{ fontSize: 17 }} />
-          Zeiger
+          {t('doc.pointer')}
         </Box>
 
         {/* Markers clear button */}
@@ -201,7 +203,7 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
             component="button"
             type="button"
             onClick={onClearMarks}
-            title="Alle Markierungen entfernen"
+            title={t('doc.clearMarks')}
             sx={{
               display: 'flex',
               alignItems: 'center',
@@ -217,7 +219,7 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
             }}
           >
             <FormatColorReset sx={{ fontSize: 16 }} />
-            {markCount} {markCount === 1 ? 'Markierung' : 'Markierungen'}
+            {markCount} {markCount === 1 ? t('doc.markOne') : t('doc.markMany')}
           </Box>
         )}
       </Box>

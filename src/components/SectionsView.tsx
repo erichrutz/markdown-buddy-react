@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Box } from '@mui/material';
 import { PlayArrow } from '@mui/icons-material';
 import { SurfaceTokens, BRAND } from '../theme/designTokens';
@@ -19,11 +20,12 @@ export const SectionsView: React.FC<SectionsViewProps> = ({
   onToggleSkip,
   onPresentFrom,
 }) => {
+  const { t } = useTranslation();
   return (
     <Box sx={{ flex: 1, overflow: 'auto', padding: '32px 40px 56px', background: tokens.paper }}>
       <Box sx={{ maxWidth: 760, margin: '0 auto' }}>
         <Box sx={{ mb: '8px', fontSize: 17, fontWeight: 600, letterSpacing: '-0.01em' }}>
-          Abschnitte für die Präsentation
+          {t('sections.title')}
         </Box>
         <Box
           sx={{
@@ -34,8 +36,7 @@ export const SectionsView: React.FC<SectionsViewProps> = ({
             maxWidth: '62ch',
           }}
         >
-          Beim Präsentieren wird jeweils ein Abschnitt hervorgehoben, der Rest des Dokuments tritt
-          zurück. Reihenfolge und Umfang entsprechen den Überschriften der Datei.
+          {t('sections.intro')}
         </Box>
 
         {sections.map((section, i) => {
@@ -82,7 +83,7 @@ export const SectionsView: React.FC<SectionsViewProps> = ({
                   {section.title}
                 </Box>
                 <Box sx={{ fontSize: 12, lineHeight: 1.55, color: tokens.fg3 }}>
-                  {isSkipped ? 'Beim Präsentieren übersprungen' : section.meta}
+                  {isSkipped ? t('sections.skipped') : section.meta}
                 </Box>
               </Box>
 
@@ -102,7 +103,7 @@ export const SectionsView: React.FC<SectionsViewProps> = ({
                   color: isSkipped ? BRAND.ACCENT : tokens.fg2,
                 }}
               >
-                {isSkipped ? 'Einblenden' : 'Überspringen'}
+                {isSkipped ? t('sections.show') : t('sections.skip')}
               </Box>
 
               {/* Present from here */}
@@ -110,7 +111,7 @@ export const SectionsView: React.FC<SectionsViewProps> = ({
                 component="button"
                 type="button"
                 onClick={() => onPresentFrom(i)}
-                title="Ab hier präsentieren"
+                title={t('sections.presentFromHere')}
                 sx={{
                   flexShrink: 0,
                   display: 'flex',

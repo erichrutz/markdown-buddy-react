@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Box } from '@mui/material';
 import {
   ExpandMore,
@@ -60,6 +61,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
   onExpandedChange,
   onCollapseAll,
 }) => {
+  const { t } = useTranslation();
   const [filter, setFilter] = useState('');
   const { width, onMouseDown } = useResizableWidth(288, 220, 520, 'right');
 
@@ -190,13 +192,13 @@ export const FileTree: React.FC<FileTreeProps> = ({
             color: tokens.fg3,
           }}
         >
-          Markdown-Dateien
+          {t('ui.markdownFiles')}
         </Box>
         <Box sx={{ display: 'flex' }}>
           {[
-            { icon: <Sort sx={{ fontSize: 17 }} />, title: 'Sortieren' },
-            { icon: <UnfoldLess sx={{ fontSize: 17 }} />, title: 'Alle einklappen', onClick: onCollapseAll },
-            { icon: <Code sx={{ fontSize: 17 }} />, title: 'In VS Code öffnen', onClick: handleVSCodeOpen },
+            { icon: <Sort sx={{ fontSize: 17 }} />, title: t('tree.sort') },
+            { icon: <UnfoldLess sx={{ fontSize: 17 }} />, title: t('ui.collapseAll'), onClick: onCollapseAll },
+            { icon: <Code sx={{ fontSize: 17 }} />, title: t('ui.openInVSCode'), onClick: handleVSCodeOpen },
           ].map((btn, i) => (
             <Box
               key={i}
@@ -259,7 +261,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
       {/* Tree */}
       <Box sx={{ flex: 1, overflow: 'auto', pb: '12px' }}>
         {loading ? (
-          <Box sx={{ p: 3, textAlign: 'center', color: tokens.fg3, fontSize: 13 }}>Laden…</Box>
+          <Box sx={{ p: 3, textAlign: 'center', color: tokens.fg3, fontSize: 13 }}>{t('tree.loading')}</Box>
         ) : (
           visibleNodes.map((node) => renderNode(node, node.type === 'directory' && !node.path.includes('/') ? 0 : 0))
         )}
