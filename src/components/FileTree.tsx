@@ -83,18 +83,31 @@ export const FileTree: React.FC<FileTreeProps> = ({
 
     const padLeft = level * 14 + 9;
 
+    const activate = () => {
+      if (isDir) {
+        onExpandedChange(
+          isExpanded
+            ? expandedFolders.filter((id) => id !== node.path)
+            : [...expandedFolders, node.path],
+        );
+      } else if (node.file) {
+        onFileSelect(node.file);
+      }
+    };
+
     return (
       <React.Fragment key={node.path}>
         <Box
-          onClick={() => {
-            if (isDir) {
-              onExpandedChange(
-                isExpanded
-                  ? expandedFolders.filter((id) => id !== node.path)
-                  : [...expandedFolders, node.path],
-              );
-            } else if (node.file) {
-              onFileSelect(node.file);
+          role="treeitem"
+          tabIndex={0}
+          aria-level={level + 1}
+          aria-expanded={isDir ? isExpanded : undefined}
+          aria-selected={isSelected}
+          onClick={activate}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              activate();
             }
           }}
           sx={{
@@ -111,6 +124,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
             color: isSelected ? tokens.selFg : tokens.fg1,
             fontWeight: isSelected ? 600 : 400,
             '&:hover': { background: tokens.hover },
+            '&:focus-visible': { outline: `2px solid ${BRAND.ACCENT}`, outlineOffset: '-2px' },
           }}
         >
           {/* Chevron */}
@@ -259,7 +273,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
       </Box>
 
       {/* Tree */}
-      <Box sx={{ flex: 1, overflow: 'auto', pb: '12px' }}>
+      <Box role="tree" aria-label={t('ui.markdownFiles')} sx={{ flex: 1, overflow: 'auto', pb: '12px' }}>
         {loading ? (
           <Box sx={{ p: 3, textAlign: 'center', color: tokens.fg3, fontSize: 13 }}>{t('tree.loading')}</Box>
         ) : (

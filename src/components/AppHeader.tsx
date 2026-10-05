@@ -15,6 +15,14 @@ import { SurfaceTokens, BRAND } from '../theme/designTokens';
 
 import appLogo from '../img/logo.svg';
 
+// Lets span-based buttons be triggered with Enter/Space like native buttons.
+const activateOnKey = (handler?: () => void) => (e: React.KeyboardEvent) => {
+  if (handler && (e.key === 'Enter' || e.key === ' ')) {
+    e.preventDefault();
+    handler();
+  }
+};
+
 interface AppHeaderProps {
   tokens: SurfaceTokens;
   isDark: boolean;
@@ -87,6 +95,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       {/* Store display — click to open folder */}
       <span
         role="button"
+        tabIndex={0}
+        aria-label={t('header.openFolder')}
+        onKeyDown={activateOnKey(onSelectDirectory)}
         title={`${t('header.openFolder')} – ${t('ui.selectFolderInfo')}`}
         onClick={onSelectDirectory}
         style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, color: tokens.fg2, whiteSpace: 'nowrap', flexShrink: 0, cursor: 'pointer' }}
@@ -104,8 +115,12 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           <span
             key={i}
             role="button"
+            tabIndex={btn.disabled ? -1 : 0}
+            aria-label={btn.title}
+            aria-disabled={btn.disabled || undefined}
             title={btn.title}
             onClick={btn.disabled ? undefined : btn.onClick}
+            onKeyDown={btn.disabled ? undefined : activateOnKey(btn.onClick)}
             className="header-tool-btn"
             style={{
               display: 'inline-flex',
@@ -140,7 +155,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       {/* Present button */}
       <span
         role="button"
+        tabIndex={0}
         onClick={onStartPresent}
+        onKeyDown={activateOnKey(onStartPresent)}
         style={{
           display: 'inline-flex',
           alignItems: 'center',
