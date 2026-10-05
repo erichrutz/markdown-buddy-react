@@ -256,7 +256,10 @@ function App() {
     showHelp: () => setShowShortcutsHelp(true),
     exportPDF: handleShowPDFExport,
     refresh: handleRefresh,
-    showSettings: () => setShowSettings(true)
+    showSettings: () => setShowSettings(true),
+    zoomIn,
+    zoomOut,
+    zoomReset
   });
 
   const { formatShortcut } = useKeyboardShortcuts({ shortcuts, enabled: !presenting });
