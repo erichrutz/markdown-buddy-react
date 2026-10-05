@@ -11,7 +11,9 @@ export const translations = {
       currentFile: 'Aktuelle Datei',
       fileStats: 'Datei-Statistiken',
       noFileSelected: 'Keine Datei ausgewählt',
+      noFileInstructions: 'Wählen Sie ein Verzeichnis mit Markdown-Dateien aus, um zu beginnen. Klicken Sie auf "Verzeichnis auswählen" in der oberen Leiste oder verwenden Sie die Tastenkombination Strg+O.',
       errorLoading: 'Fehler beim Laden der Datei',
+      errorStaleFile: 'Datei konnte nicht gelesen werden – bitte Ordner erneut auswählen.',
       markdownFiles: 'Markdown-Dateien',
       focusMode: 'Focus-Modus',
       exitFocusMode: 'Focus-Modus beenden',
@@ -65,7 +67,13 @@ export const translations = {
       generating: 'PDF wird erstellt...',
       info: 'Diagramme und Syntax-Highlighting werden als Bilder eingebettet. Der Export kann bei großen Dokumenten etwas dauern.',
       noHeaderFooterWarning: 'Ohne Kopf- und Fußzeile wird der gesamte Inhalt automatisch auf mehrere Seiten aufgeteilt.',
-      unknownError: 'Unbekannter Fehler beim PDF-Export'
+      unknownError: 'Unbekannter Fehler beim PDF-Export',
+      imageSettings: 'Bildeinstellungen',
+      imageFormat: 'Bildformat',
+      imageQuality: 'Bildqualität',
+      smallerSize: 'Kleiner',
+      betterQuality: 'Bessere Qualität',
+      imageQualityHelp: 'Niedrigere Qualität reduziert die Dateigröße. 70% wird für die meisten Dokumente empfohlen.'
     },
     stats: {
       size: 'Größe',
@@ -104,7 +112,9 @@ export const translations = {
       currentFile: 'Current File',
       fileStats: 'File Statistics',
       noFileSelected: 'No file selected',
+      noFileInstructions: 'Select a directory containing Markdown files to get started. Click "Select Folder" in the top bar or use Ctrl+O.',
       errorLoading: 'Error loading file',
+      errorStaleFile: 'File could not be read — please reselect the folder.',
       markdownFiles: 'Markdown Files',
       focusMode: 'Focus Mode',
       exitFocusMode: 'Exit Focus Mode',
@@ -158,7 +168,13 @@ export const translations = {
       generating: 'Generating PDF...',
       info: 'Diagrams and syntax highlighting will be embedded as images. Large documents may take a moment to export.',
       noHeaderFooterWarning: 'Without headers and footers, content will be automatically split across multiple pages.',
-      unknownError: 'Unknown error during PDF export'
+      unknownError: 'Unknown error during PDF export',
+      imageSettings: 'Image Settings',
+      imageFormat: 'Image Format',
+      imageQuality: 'Image Quality',
+      smallerSize: 'Smaller Size',
+      betterQuality: 'Better Quality',
+      imageQualityHelp: 'Lower quality reduces file size. 70% is recommended for most documents.'
     },
     stats: {
       size: 'Size',

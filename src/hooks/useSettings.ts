@@ -19,6 +19,7 @@ export const useSettings = () => {
           ...parsed,
           appearance: { ...DEFAULT_SETTINGS.appearance, ...parsed.appearance },
           behavior: { ...DEFAULT_SETTINGS.behavior, ...parsed.behavior },
+          view: { ...DEFAULT_SETTINGS.view, ...parsed.view },
           diagrams: { ...DEFAULT_SETTINGS.diagrams, ...parsed.diagrams },
           export: { ...DEFAULT_SETTINGS.export, ...parsed.export },
           keyboard: { ...DEFAULT_SETTINGS.keyboard, ...parsed.keyboard },
@@ -78,6 +79,17 @@ export const useSettings = () => {
       i18n.changeLanguage(updates.language);
     }
   }, [i18n]);
+
+  const updateViewSettings = useCallback((updates: Partial<ApplicationSettings['view']>) => {
+    setSettings(current => ({
+      ...current,
+      view: {
+        ...current.view,
+        ...updates
+      },
+      lastModified: new Date()
+    }));
+  }, []);
 
   const updateDiagramSettings = useCallback((updates: Partial<ApplicationSettings['diagrams']>) => {
     setSettings(current => ({
@@ -213,6 +225,7 @@ export const useSettings = () => {
     updateSettings,
     updateAppearanceSettings,
     updateBehaviorSettings,
+    updateViewSettings,
     updateDiagramSettings,
     updateExportSettings,
     updateKeyboardSettings,
