@@ -10,7 +10,8 @@ import {
   resolveConfig,
 } from '../utils/presentationConfig';
 
-const CONFIG_URL = '/presentation/config.json';
+// Respect Vite's base path so the config also loads when deployed under a subpath (GitHub Pages).
+const CONFIG_URL = `${import.meta.env.BASE_URL}presentation/config.json`;
 
 export const usePresentationConfig = (): ResolvedPresentationConfig => {
   const [resolved, setResolved] = useState<ResolvedPresentationConfig>(() =>

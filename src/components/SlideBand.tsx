@@ -47,7 +47,7 @@ const renderElement = (
       <Box
         key={i}
         component="img"
-        src={`/presentation/${el.src}`}
+        src={`${import.meta.env.BASE_URL}presentation/${el.src}`}
         alt=""
         sx={{ height: el.height ?? 20, width: 'auto', display: 'block' }}
       />
