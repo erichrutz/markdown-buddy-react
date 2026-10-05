@@ -11,5 +11,16 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true
+  },
+  optimizeDeps: {
+    include: ['mermaid'],
+    exclude: []
+  },
+  ssr: {
+    noExternal: ['mermaid']
+  },
+  define: {
+    // This helps with mermaid's dynamic imports in development
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
   }
 })
