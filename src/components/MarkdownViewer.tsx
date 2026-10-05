@@ -1,107 +1,82 @@
 import React, { useEffect, useRef, useMemo, useState } from 'react';
-import { Box, Typography, Paper, Chip, Fab, IconButton, ButtonGroup } from '@mui/material';
-import { FullscreenExit, ZoomIn, ZoomOut, CenterFocusStrong } from '@mui/icons-material';
-import { useTranslation } from 'react-i18next';
+import { Box, Typography } from '@mui/material';
 import DOMPurify from 'dompurify';
-import { MarkdownFile, FileStats } from '../types';
-import { AppearanceSettings } from '../types/settings';
+import { MarkdownFile } from '../types';
+import { SurfaceTokens, BRAND, DOC_WIDTH_MAX } from '../theme/designTokens';
+import { LoadingIndicator } from './LoadingIndicator';
+import { OutlineEntry } from '../utils/sectionParser';
+import { useResizableWidth } from '../hooks/useResizableWidth';
 import 'highlight.js/styles/github.css';
+
+import appLogo from '../img/logo.svg';
 
 interface MarkdownViewerProps {
   file: MarkdownFile | null;
   content: string;
-  stats: FileStats | null;
   loading: boolean;
   error: string | null;
-  focusMode?: boolean;
-  appearanceSettings?: AppearanceSettings;
-  hasFolderSelected?: boolean;
+  tokens: SurfaceTokens;
+  isDark: boolean;
+  zoom: number;
+  docWidth: number;
+  docPointer: boolean;
+  outline: OutlineEntry[];
   onInternalLinkClick: (container: HTMLElement) => void;
-  onMermaidProcess: (container: HTMLElement) => Promise<void>;
+  onMermaidProcess: (container: HTMLElement) => void;
   onPlantUMLProcess: (container: HTMLElement) => Promise<void>;
-  onExitFocusMode?: () => void;
+  onDocMouseUp?: (x: number, y: number) => void;
 }
 
 export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
   file,
   content,
-  stats,
   loading,
   error,
-  focusMode = false,
-  appearanceSettings,
-  hasFolderSelected = false,
+  tokens,
+  zoom,
+  docWidth,
+  docPointer,
+  outline,
   onInternalLinkClick,
   onMermaidProcess,
   onPlantUMLProcess,
-  onExitFocusMode
+  onDocMouseUp,
 }) => {
-  const { t } = useTranslation();
   const contentRef = useRef<HTMLDivElement>(null);
+  const [activeOutline, setActiveOutline] = useState<string>(outline[0]?.id || '');
+  const { width: outlineWidth, onMouseDown: onOutlineResize } = useResizableWidth(236, 160, 420, 'left');
 
-  // Zoom state management
-  const [zoomLevel, setZoomLevel] = useState(100);
-  const minZoom = 50;
-  const maxZoom = 200;
-  const zoomStep = 10;
-
-  // Zoom control functions
-  const zoomIn = () => {
-    setZoomLevel(prev => Math.min(prev + zoomStep, maxZoom));
-  };
-
-  const zoomOut = () => {
-    setZoomLevel(prev => Math.max(prev - zoomStep, minZoom));
-  };
-
-  const resetZoom = () => {
-    setZoomLevel(100);
-  };
-
-  // Sanitize HTML content to prevent XSS attacks
+  // Sanitize HTML
   const sanitizedContent = useMemo(() => {
     if (!content) return '';
-    
-    // Configure DOMPurify to allow safe HTML while preserving markdown features
-    const config = {
+    return DOMPurify.sanitize(content, {
       ALLOWED_TAGS: [
         'div', 'span', 'p', 'br', 'strong', 'em', 'u', 's', 'del', 'ins',
         'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
         'ul', 'ol', 'li', 'dl', 'dt', 'dd',
-        'table', 'thead', 'tbody', 'tr', 'th', 'td',
-        'blockquote', 'code', 'pre', 'kbd', 'samp', 'var',
-        'a', 'img', 'figure', 'figcaption',
-        'hr', 'details', 'summary',
-        // Allow SVG for diagrams (Mermaid/PlantUML)
-        'svg', 'g', 'path', 'circle', 'rect', 'line', 'text', 'tspan', 'defs', 'marker', 'polygon', 'polyline', 'ellipse'
+        'blockquote', 'pre', 'code', 'kbd', 'samp', 'var', 'sub', 'sup',
+        'table', 'thead', 'tbody', 'tfoot', 'tr', 'td', 'th', 'caption',
+        'a', 'img', 'hr',
+        'svg', 'g', 'path', 'rect', 'circle', 'line', 'text', 'tspan',
+        'marker', 'polygon', 'polyline', 'ellipse',
       ],
       ALLOWED_ATTR: [
         'class', 'id', 'style', 'title', 'aria-*', 'data-*',
         'href', 'target', 'rel', 'src', 'alt', 'width', 'height',
         'colspan', 'rowspan', 'align', 'valign',
-        // SVG attributes
-        'viewBox', 'xmlns', 'fill', 'stroke', 'stroke-width', 'x', 'y', 'cx', 'cy', 'r', 'rx', 'ry', 'd', 'points', 'x1', 'y1', 'x2', 'y2'
+        'viewBox', 'xmlns', 'fill', 'stroke', 'stroke-width', 'stroke-dasharray',
+        'x', 'y', 'cx', 'cy', 'r', 'rx', 'ry', 'd', 'points', 'x1', 'y1', 'x2', 'y2',
       ],
-      ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp|data|blob):|[^a-z]|[a-z+.-]+(?:[^a-z+.-:]|$))/i,
-      ADD_TAGS: ['iframe'], // Allow iframes for embedded content (with restrictions)
+      ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp|xxx|data|blob):|[^a-z]|[a-z+.-]+(?:[^a-z+.:-]|$))/i,
+      ADD_TAGS: ['iframe'],
       ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling'],
-      FORBID_CONTENTS: ['script', 'object', 'embed', 'applet', 'form', 'input', 'textarea', 'select', 'button']
-    };
-    
-    return DOMPurify.sanitize(content, config);
+      FORBID_CONTENTS: ['script', 'object', 'embed', 'applet', 'form', 'input', 'textarea', 'select', 'button'],
+    });
   }, [content]);
 
-  // Calculate font size based on settings
-  const getContentFontSize = () => {
-    const baseSize = 16; // 16px base
-    switch (appearanceSettings?.fontSize) {
-      case 'small': return `${baseSize * 0.875}px`;
-      case 'large': return `${baseSize * 1.125}px`;
-      case 'medium':
-      default: return `${baseSize}px`;
-    }
-  };
+  const fontPx = Math.round(16 * zoom / 100);
 
+  // Process content after render
   useEffect(() => {
     const processContent = async () => {
       if (contentRef.current && content && !loading) {
@@ -110,216 +85,133 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
         await onPlantUMLProcess(contentRef.current);
       }
     };
-
     processContent();
   }, [content, loading, onInternalLinkClick, onMermaidProcess, onPlantUMLProcess]);
 
-  // Keyboard shortcuts for zoom
+  // Set active outline to first entry when outline changes
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.ctrlKey || event.metaKey) {
-        switch (event.key) {
-          case '+':
-          case '=':
-            event.preventDefault();
-            zoomIn();
-            break;
-          case '-':
-            event.preventDefault();
-            zoomOut();
-            break;
-          case '0':
-            event.preventDefault();
-            resetZoom();
-            break;
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [zoomLevel]);
-
+    const first = outline[0];
+    if (first && !outline.find(o => o.id === activeOutline)) {
+      setActiveOutline(first.id);
+    }
+  }, [outline, activeOutline]);
 
   if (loading) {
-    return (
-      <Box sx={{ p: 3, textAlign: 'center' }}>
-        <Typography variant="body1" color="text.secondary">
-          Loading...
-        </Typography>
-      </Box>
-    );
+    return <LoadingIndicator variant="markdown" size="medium" type="circular" />;
   }
 
   if (error) {
     return (
       <Box sx={{ p: 3 }}>
-        <Typography variant="h6" color="error" gutterBottom>
-          {t('ui.errorLoading')}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {error}
-        </Typography>
+        <Typography variant="h6" color="error" gutterBottom>Fehler beim Laden</Typography>
+        <Typography variant="body2" color="text.secondary">{error}</Typography>
       </Box>
     );
   }
 
   if (!file) {
     return (
-      <Box
-        sx={{
-          height: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          p: 3
-        }}
-      >
-        {!hasFolderSelected ? (
-          <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="h6" color="text.secondary" gutterBottom>
-              {t('ui.noFolderSelected')}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 400, mx: 'auto', lineHeight: 1.5 }}>
-              {t('ui.noFolderHelp')}
-            </Typography>
-          </Box>
-        ) : (
-          <Typography variant="body1" color="text.secondary" sx={{ textAlign: 'center', maxWidth: 300, mx: 'auto', lineHeight: 1.5 }}>
-            {t('ui.noFileSelected')}
-          </Typography>
-        )}
+      <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', p: 4, textAlign: 'center', maxWidth: 600, margin: '0 auto' }}>
+        <Box component="img" src={appLogo} alt="MarkDown Buddy Logo" sx={{ height: 80, width: 'auto', mb: 3, opacity: 0.7 }} />
+        <Typography variant="h5" color="text.primary" sx={{ mb: 2, fontWeight: 600 }}>
+          Keine Datei ausgewählt
+        </Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.6 }}>
+          Wählen Sie einen Ordner aus und klicken Sie auf eine Markdown-Datei.
+        </Typography>
       </Box>
     );
   }
 
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
-      {/* Toolbar - Hide in focus mode */}
-      {!focusMode && (
-        <Paper
-          elevation={1}
-          sx={{
-            p: 2,
-            borderRadius: 0,
-            borderBottom: 1,
-            borderColor: 'divider'
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <Typography variant="h6" sx={{ fontSize: '1.1rem' }}>
-                {file.name}
-              </Typography>
-
-              {stats && (
-                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                  <Chip
-                    label={`${t('stats.size')}: ${stats.size}`}
-                    size="small"
-                    variant="outlined"
-                  />
-                  <Chip
-                    label={`${t('stats.lines')}: ${stats.lines}`}
-                    size="small"
-                    variant="outlined"
-                  />
-                  <Chip
-                    label={`${t('stats.characters')}: ${stats.characters}`}
-                    size="small"
-                    variant="outlined"
-                  />
-                </Box>
-              )}
-            </Box>
-
-            {/* Zoom Controls */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <ButtonGroup variant="outlined" size="small">
-                <IconButton
-                  onClick={zoomOut}
-                  disabled={zoomLevel <= minZoom}
-                  title="Zoom out"
-                  aria-label="Zoom out"
-                >
-                  <ZoomOut fontSize="small" />
-                </IconButton>
-                <IconButton
-                  onClick={resetZoom}
-                  title="Reset zoom"
-                  aria-label="Reset zoom to 100%"
-                >
-                  <CenterFocusStrong fontSize="small" />
-                </IconButton>
-                <IconButton
-                  onClick={zoomIn}
-                  disabled={zoomLevel >= maxZoom}
-                  title="Zoom in"
-                  aria-label="Zoom in"
-                >
-                  <ZoomIn fontSize="small" />
-                </IconButton>
-              </ButtonGroup>
-              <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
-                {zoomLevel}%
-              </Typography>
-            </Box>
-          </Box>
-
-          <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-            {t('stats.path')}: {file.path}
-          </Typography>
-        </Paper>
-      )}
-
-      {/* Content */}
-      <Box 
-        sx={{ 
-          flex: 1, 
+    <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+      {/* Document body */}
+      <Box
+        onMouseUp={(e) => onDocMouseUp?.(e.clientX, e.clientY)}
+        sx={{
+          flex: 1,
+          minWidth: 0,
           overflow: 'auto',
-          p: focusMode ? 4 : 3
+          background: tokens.paper,
+          cursor: docPointer ? 'none' : 'auto',
         }}
       >
-        <div
+        <Box
           ref={contentRef}
-          role="article"
-          aria-label={file ? `Markdown content for ${file.name}` : 'Markdown content'}
-          className={`markdown-content ${
-            appearanceSettings?.showLineNumbers ? 'show-line-numbers' : ''
-          } ${
-            appearanceSettings?.wordWrap ? 'word-wrap-enabled' : 'word-wrap-disabled'
-          }`.trim()}
+          className="markdown-content"
           dangerouslySetInnerHTML={{ __html: sanitizedContent }}
-          style={{
-            lineHeight: 1.6,
-            fontSize: getContentFontSize(),
-            maxWidth: focusMode ? '800px' : 'none',
-            margin: focusMode ? '0 auto' : '0',
-            fontFamily: appearanceSettings?.fontFamily || 'inherit',
-            transform: `scale(${zoomLevel / 100})`,
-            transformOrigin: 'top left',
-            width: `${100 / (zoomLevel / 100)}%`
+          sx={{
+            maxWidth: docWidth >= DOC_WIDTH_MAX ? 'none' : docWidth,
+            margin: '0 auto',
+            padding: '56px 40px 96px',
+            fontSize: `${fontPx}px`,
           }}
         />
       </Box>
 
-      {/* Floating exit button in focus mode */}
-      {focusMode && onExitFocusMode && (
-        <Fab
-          color="primary"
-          size="medium"
-          onClick={onExitFocusMode}
+      {/* Outline panel */}
+      {outline.length > 0 && (
+        <Box
           sx={{
-            position: 'fixed',
-            top: 16,
-            right: 16,
-            zIndex: 1000
+            position: 'relative',
+            width: outlineWidth,
+            flexShrink: 0,
+            overflow: 'auto',
+            padding: '56px 24px 40px 0',
+            borderLeft: `1px solid ${tokens.border}`,
+            background: tokens.paper,
           }}
-          title={t('ui.exitFocusMode')}
-          aria-label={t('ui.exitFocusMode')}
         >
-          <FullscreenExit />
-        </Fab>
+          {/* Resize handle */}
+          <Box
+            onMouseDown={onOutlineResize}
+            sx={{
+              position: 'absolute',
+              top: 0,
+              left: -3,
+              width: 6,
+              height: '100%',
+              cursor: 'col-resize',
+              zIndex: 1,
+              '&:hover': { background: BRAND.ACCENT },
+            }}
+          />
+          <Box sx={{ fontSize: 11, fontWeight: 600, letterSpacing: '.09em', textTransform: 'uppercase', color: tokens.fg3, pl: '24px', mb: '12px' }}>
+            Gliederung
+          </Box>
+          {outline.map((o, idx) => {
+            const active = activeOutline === o.id;
+            return (
+              <Box
+                key={o.id}
+                onClick={() => {
+                  setActiveOutline(o.id);
+                  // Scroll to the matching heading. Outline entries are in
+                  // document order, so the Nth entry maps to the Nth heading.
+                  const root = contentRef.current;
+                  if (!root) return;
+                  const headings = root.querySelectorAll('h1, h2, h3');
+                  const target = headings[idx] as HTMLElement | undefined;
+                  target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+                sx={{
+                  fontSize: 15,
+                  lineHeight: 1.45,
+                  padding: '6px 0 6px 21px',
+                  cursor: 'pointer',
+                  borderLeft: `3px solid ${active ? BRAND.ACCENT : 'transparent'}`,
+                  ml: 0,
+                  color: active ? tokens.fg1 : tokens.fg3,
+                  fontWeight: active ? 600 : 400,
+                  pl: o.level === 3 ? '36px' : '21px',
+                  '&:hover': { color: BRAND.ACCENT },
+                }}
+              >
+                {o.label}
+              </Box>
+            );
+          })}
+        </Box>
       )}
     </Box>
   );

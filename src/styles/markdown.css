@@ -1,107 +1,161 @@
 /* CSS Variables for theming */
 :root {
-  --md-text-color: #333;
-  --md-heading-border: #eaecef;
-  --md-secondary-text: #6a737d;
-  --md-border-color: #dfe2e5;
-  --md-table-header-bg: #f6f8fa;
-  --md-code-bg: rgba(27, 31, 35, 0.05);
-  --md-pre-bg: #f6f8fa;
-  --md-link-color: #0366d6;
-  --md-hr-color: #e1e4e8;
-  --md-syntax-bg: #f6f8fa;
-  --md-syntax-color: #24292e;
-  --md-line-number-color: #999;
-  --md-line-number-bg: #f8f8f8;
-  --md-font-size-base: 16px;
+  --md-text-color: #111827;
+  --md-heading-border: #e5e7eb;
+  --md-secondary-text: #6b7280;
+  --md-border-color: #d1d5db;
+  --md-table-header-bg: #f3f4f6;
+  --md-code-bg: #f3f4f6;
+  --md-pre-bg: #f3f4f6;
+  --md-link-color: #0369a1;
+  --md-hr-color: #e5e7eb;
+  --md-syntax-bg: #f3f4f6;
+  --md-syntax-color: #111827;
+  --md-line-number-color: #6b7280;
+  --md-line-number-bg: #f3f4f6;
+  --md-body-color: #1f2937;
+  --md-fg2: #6b7280;
+  --md-border2: #d1d5db;
 }
 
-/* Dark theme variables */
 [data-theme="dark"] {
-  --md-text-color: #e0e0e0;
-  --md-heading-border: #404040;
-  --md-secondary-text: #b3b3b3;
-  --md-border-color: #404040;
-  --md-table-header-bg: #383838;
-  --md-code-bg: rgba(255, 255, 255, 0.1);
-  --md-pre-bg: #2d2d2d;
-  --md-link-color: #5dade2;
-  --md-hr-color: #404040;
-  --md-syntax-bg: #2d2d2d;
-  --md-syntax-color: #e0e0e0;
-  --md-line-number-color: #666;
-  --md-line-number-bg: #1a1a1a;
+  --md-text-color: #ffffff;
+  --md-heading-border: #1f2937;
+  --md-secondary-text: #d1d5db;
+  --md-border-color: #374151;
+  --md-table-header-bg: #1f2937;
+  --md-code-bg: #1f2937;
+  --md-pre-bg: #1b212b;
+  --md-link-color: #38bdf8;
+  --md-hr-color: #1f2937;
+  --md-syntax-bg: #1f2937;
+  --md-syntax-color: #f3f4f6;
+  --md-line-number-color: #6b7280;
+  --md-line-number-bg: #111827;
+  --md-body-color: #e5e7eb;
+  --md-fg2: #d1d5db;
+  --md-border2: #374151;
 }
 
-/* Markdown Content Styling */
+/* Text marker highlight (CSS Custom Highlight API) */
+::highlight(md-marker) {
+  background: #ffe14d;
+  color: #111827;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: #d1d5db; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* Markdown Content Styling – Redesign A "Klare Werkbank" */
 .markdown-content {
   max-width: 100%;
-  line-height: 1.6;
   color: var(--md-text-color);
+  font-family: 'Noto Sans', Arial, sans-serif;
 }
 
-.markdown-content h1,
-.markdown-content h2,
-.markdown-content h3,
-.markdown-content h4,
-.markdown-content h5,
-.markdown-content h6 {
-  margin-top: 24px;
-  margin-bottom: 16px;
-  font-weight: 600;
-  line-height: 1.25;
-}
-
+/* Headings */
 .markdown-content h1 {
+  margin: 0 0 28px;
   font-size: 2em;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  padding-bottom: 14px;
   border-bottom: 1px solid var(--md-heading-border);
-  padding-bottom: 10px;
 }
 
 .markdown-content h2 {
-  font-size: 1.5em;
-  border-bottom: 1px solid var(--md-heading-border);
-  padding-bottom: 8px;
+  margin: 40px 0 14px;
+  font-size: 1.35em;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .markdown-content h3 {
-  font-size: 1.25em;
+  margin: 28px 0 12px;
+  font-size: 1.05em;
+  font-weight: 600;
 }
 
-.markdown-content h4 {
-  font-size: 1em;
-}
-
-.markdown-content h5 {
-  font-size: 0.875em;
-}
-
+.markdown-content h4,
+.markdown-content h5,
 .markdown-content h6 {
-  font-size: 0.85em;
-  color: var(--md-secondary-text);
+  margin: 24px 0 10px;
+  font-weight: 600;
 }
 
+.markdown-content h4 { font-size: 1em; }
+.markdown-content h5 { font-size: 0.875em; }
+.markdown-content h6 { font-size: 0.85em; color: var(--md-secondary-text); }
+
+/* Body text */
 .markdown-content p {
-  margin-bottom: 16px;
+  margin: 0 0 18px;
+  line-height: 1.7;
+  color: var(--md-body-color);
+  text-wrap: pretty;
 }
 
-.markdown-content blockquote {
-  padding: 0 16px;
-  color: var(--md-secondary-text);
-  border-left: 4px solid var(--md-border-color);
-  margin: 0 0 16px 0;
-}
-
+/* Lists */
 .markdown-content ul,
 .markdown-content ol {
-  padding-left: 2em;
-  margin-bottom: 16px;
+  padding-left: 20px;
+  margin: 0 0 18px;
+  line-height: 1.7;
+  color: var(--md-body-color);
 }
 
 .markdown-content li {
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
+/* Blockquote */
+.markdown-content blockquote {
+  padding: 2px 0 2px 18px;
+  border-left: 3px solid var(--md-border2);
+  color: var(--md-fg2);
+  line-height: 1.7;
+  margin: 0 0 18px;
+}
+
+/* Code */
+.markdown-content code {
+  font-family: 'Noto Sans Mono', monospace;
+  font-size: 0.85em;
+  padding: 2px 5px;
+  background-color: var(--md-code-bg);
+  border-radius: 0;
+}
+
+.markdown-content pre {
+  margin: 0 0 18px;
+  padding: 16px 18px;
+  background-color: var(--md-pre-bg);
+  border-left: 3px solid #0284c7;
+  border-radius: 0;
+  font: 400 0.85em/1.6 'Noto Sans Mono', monospace;
+  overflow: auto;
+}
+
+.markdown-content pre code {
+  background-color: transparent;
+  border: 0;
+  display: inline;
+  font-size: 100%;
+  margin: 0;
+  overflow: visible;
+  padding: 0;
+  white-space: pre;
+  word-break: normal;
+  word-wrap: normal;
+}
+
+/* Tables */
 .markdown-content table {
   border-collapse: collapse;
   width: 100%;
@@ -120,36 +174,27 @@
   font-weight: 600;
 }
 
-.markdown-content code {
-  background-color: var(--md-code-bg);
-  border-radius: 3px;
-  font-size: 85%;
-  margin: 0;
-  padding: 0.2em 0.4em;
-  font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+/* Frontmatter table (agent skill / YAML metadata) */
+.markdown-content .frontmatter-table {
+  margin-bottom: 28px;
 }
 
-.markdown-content pre {
-  background-color: var(--md-pre-bg);
-  border-radius: 6px;
-  font-size: 85%;
-  line-height: 1.45;
-  overflow: auto;
-  padding: 16px;
-  margin-bottom: 16px;
+.markdown-content .frontmatter-table th[scope="row"] {
+  width: 1%;
+  white-space: nowrap;
+  vertical-align: top;
+  font-family: 'Noto Sans Mono', monospace;
+  font-size: 0.85em;
 }
 
-.markdown-content pre code {
-  background-color: transparent;
-  border: 0;
-  display: inline;
-  font-size: 100%;
-  margin: 0;
-  overflow: visible;
-  padding: 0;
-  white-space: pre;
-  word-break: normal;
-  word-wrap: normal;
+/* Links */
+.markdown-content a {
+  color: var(--md-link-color);
+  text-decoration: none;
+}
+
+.markdown-content a:hover {
+  text-decoration: underline;
 }
 
 /* Internal Links */
@@ -163,16 +208,37 @@
   text-decoration: underline;
 }
 
+/* Images */
+.markdown-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Horizontal rules */
+.markdown-content hr {
+  height: 1px;
+  margin: 24px 0;
+  background-color: var(--md-hr-color);
+  border: 0;
+}
+
 /* Mermaid Diagrams */
 .mermaid-diagram {
   text-align: center;
   margin: 20px 0;
+  /* Never clip diagram content; let it scroll if wider than the column. */
+  overflow: visible;
 }
 
+/* Do NOT force width/height on the SVG. Mermaid emits width="100%" plus an
+   inline style="max-width:<computed>px". Overriding with height:auto +
+   max-width:100% rescales the whole SVG when the column is narrower than the
+   diagram; HTML inside <foreignObject> then clips at the fractional scale,
+   cutting the last line of multi-line node labels. Leave mermaid's sizing. */
 .mermaid-error {
   background-color: #ffeaa7;
   border: 1px solid #fdcb6e;
-  border-radius: 4px;
+  border-radius: 0;
   padding: 16px;
   margin: 16px 0;
 }
@@ -188,55 +254,13 @@
   margin: 0;
   padding: 8px;
   font-size: 12px;
+  border-left: none;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .markdown-content {
-    font-size: 14px;
-  }
-  
-  .markdown-content h1 {
-    font-size: 1.6em;
-  }
-  
-  .markdown-content h2 {
-    font-size: 1.3em;
-  }
-  
-  .markdown-content pre {
-    padding: 12px;
-    font-size: 12px;
-  }
-  
-  .markdown-content table {
-    font-size: 12px;
-  }
-  
-  .markdown-content th,
-  .markdown-content td {
-    padding: 6px 8px;
-  }
-}
-
-/* Syntax Highlighting Adjustments */
+/* Syntax Highlighting */
 .hljs {
   background: var(--md-syntax-bg) !important;
   color: var(--md-syntax-color) !important;
-}
-
-/* Image responsiveness */
-.markdown-content img {
-  max-width: 100%;
-  height: auto;
-}
-
-/* Horizontal rules */
-.markdown-content hr {
-  height: 1px;
-  margin: 24px 0;
-  background-color: var(--md-hr-color);
-  border: 0;
 }
 
 /* Word wrap settings */
@@ -255,6 +279,8 @@
 /* Line numbers */
 .markdown-content.show-line-numbers {
   counter-reset: line-number;
+  margin-left: 40px;
+  position: relative;
 }
 
 .markdown-content.show-line-numbers p,
@@ -288,9 +314,4 @@
   padding: 0 5px;
   border-right: 1px solid var(--md-border-color);
   user-select: none;
-}
-
-.markdown-content.show-line-numbers {
-  margin-left: 40px;
-  position: relative;
 }

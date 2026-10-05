@@ -1,314 +1,281 @@
 import React, { useState, useMemo } from 'react';
-import { 
-  Box, 
-  Typography, 
-  IconButton, 
-  Tooltip, 
-  Collapse, 
-  List, 
-  ListItem, 
-  TextField,
-  InputAdornment,
-  Chip
-} from '@mui/material';
-import { 
-  Folder, 
-  FolderOpen, 
+import { Box } from '@mui/material';
+import {
+  ExpandMore,
+  ChevronRight,
+  FolderOpen,
+  Folder,
   Description,
+  Sort,
   UnfoldLess,
   Code,
   Search,
-  Clear,
-  Image
 } from '@mui/icons-material';
-import { useTranslation } from 'react-i18next';
 import { DirectoryNode, MarkdownFile } from '../types';
+import { SurfaceTokens, BRAND } from '../theme/designTokens';
 import { VSCodeService } from '../services/vscodeService';
+import { useResizableWidth } from '../hooks/useResizableWidth';
 
 interface FileTreeProps {
   directoryTree: DirectoryNode[];
   selectedFile: MarkdownFile | null;
   expandedFolders: string[];
+  loading?: boolean;
+  tokens: SurfaceTokens;
   onFileSelect: (file: MarkdownFile) => void;
   onExpandedChange: (expandedIds: string[]) => void;
   onCollapseAll: () => void;
+}
+
+function countFiles(nodes: DirectoryNode[]): number {
+  return nodes.reduce(
+    (a, n) => a + (n.type === 'file' ? 1 : countFiles(n.children || [])),
+    0,
+  );
+}
+
+function filterNodes(nodes: DirectoryNode[], query: string): DirectoryNode[] {
+  const q = query.toLowerCase();
+  return nodes.reduce<DirectoryNode[]>((out, node) => {
+    const nameMatch = node.name.toLowerCase().includes(q);
+    if (node.type === 'file') {
+      if (nameMatch) out.push(node);
+    } else {
+      const filteredChildren = filterNodes(node.children || [], query);
+      if (filteredChildren.length > 0 || nameMatch) {
+        out.push({ ...node, children: filteredChildren });
+      }
+    }
+    return out;
+  }, []);
 }
 
 export const FileTree: React.FC<FileTreeProps> = ({
   directoryTree,
   selectedFile,
   expandedFolders,
+  loading = false,
+  tokens,
   onFileSelect,
   onExpandedChange,
-  onCollapseAll
+  onCollapseAll,
 }) => {
-  const { t } = useTranslation();
   const [filter, setFilter] = useState('');
+  const { width, onMouseDown } = useResizableWidth(288, 220, 520, 'right');
 
-  // Filter nodes recursively based on filter text
-  const filterNodes = useMemo(() => {
-    if (!filter.trim()) return directoryTree;
-
-    const filterText = filter.toLowerCase();
-    
-    const filterNodeRecursive = (nodes: DirectoryNode[]): DirectoryNode[] => {
-      return nodes.reduce((filtered: DirectoryNode[], node) => {
-        const nameMatches = node.name.toLowerCase().includes(filterText);
-        const pathMatches = node.path.toLowerCase().includes(filterText);
-        
-        if (node.type === 'file') {
-          // Include file if name or path matches
-          if (nameMatches || pathMatches) {
-            filtered.push(node);
-          }
-        } else {
-          // For directories, check if they contain matching files
-          const filteredChildren = filterNodeRecursive(node.children || []);
-          if (filteredChildren.length > 0 || nameMatches) {
-            filtered.push({
-              ...node,
-              children: filteredChildren
-            });
-          }
-        }
-        
-        return filtered;
-      }, []);
-    };
-
-    return filterNodeRecursive(directoryTree);
+  const visibleNodes = useMemo(() => {
+    const nodes = filter.trim() ? filterNodes(directoryTree, filter.trim()) : directoryTree;
+    return nodes;
   }, [directoryTree, filter]);
 
-  // Count filtered results
-  const countFilteredFiles = (nodes: DirectoryNode[]): number => {
-    return nodes.reduce((count, node) => {
-      if (node.type === 'file') {
-        return count + 1;
-      }
-      return count + countFilteredFiles(node.children || []);
-    }, 0);
-  };
-
-  const filteredFileCount = useMemo(() => countFilteredFiles(filterNodes), [filterNodes]);
-  const totalFileCount = useMemo(() => countFilteredFiles(directoryTree), [directoryTree]);
-
-  const renderTreeItems = (nodes: DirectoryNode[], level = 0) => {
-    return nodes.map((node) => {
-      const isExpanded = expandedFolders.includes(node.path);
-      const isSelected = selectedFile?.path === node.path;
-      
-      return (
-        <Box key={node.path}>
-          <ListItem
-            role="treeitem"
-            tabIndex={0}
-            aria-expanded={node.type === 'directory' ? isExpanded : undefined}
-            aria-selected={isSelected}
-            aria-level={level + 1}
-            aria-label={node.type === 'directory' ? `${node.name} folder` : `${node.name} file`}
-            sx={{
-              py: 0.5,
-              pl: level * 2 + 1,
-              cursor: (node.type === 'directory' || node.file?.type === 'markdown') ? 'pointer' : 'default',
-              opacity: (node.type === 'directory' || node.file?.type === 'markdown') ? 1 : 0.6,
-              '&:hover': {
-                backgroundColor: (node.type === 'directory' || node.file?.type === 'markdown') ? 'action.hover' : 'transparent'
-              },
-              backgroundColor: isSelected ? 'action.selected' : 'transparent',
-              '&:focus': {
-                backgroundColor: 'action.focus',
-                outline: '2px solid',
-                outlineColor: 'primary.main',
-                outlineOffset: '-2px'
-              }
-            }}
-            onClick={() => {
-              if (node.type === 'directory') {
-                const newExpanded = isExpanded
-                  ? expandedFolders.filter(id => id !== node.path)
-                  : [...expandedFolders, node.path];
-                onExpandedChange(newExpanded);
-              } else if (node.file && node.file.type === 'markdown') {
-                onFileSelect(node.file);
-              }
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                if (node.type === 'directory') {
-                  const newExpanded = isExpanded
-                    ? expandedFolders.filter(id => id !== node.path)
-                    : [...expandedFolders, node.path];
-                  onExpandedChange(newExpanded);
-                } else if (node.file && node.file.type === 'markdown') {
-                  onFileSelect(node.file);
-                }
-              }
-            }}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-              {node.type === 'directory' ? (
-                isExpanded ? (
-                  <FolderOpen sx={{ mr: 1, fontSize: 18, color: 'primary.main' }} />
-                ) : (
-                  <Folder sx={{ mr: 1, fontSize: 18, color: 'action.active' }} />
-                )
-              ) : node.file?.type === 'image' ? (
-                <Image sx={{ mr: 1, fontSize: 18, color: 'text.secondary' }} />
-              ) : (
-                <Description sx={{ mr: 1, fontSize: 18, color: 'action.active' }} />
-              )}
-              <Typography
-                variant="body2"
-                sx={{
-                  fontWeight: isSelected ? 600 : 400,
-                  color: isSelected ? 'primary.main' : 'text.primary',
-                  userSelect: 'none',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                {node.name}
-              </Typography>
-            </Box>
-          </ListItem>
-          
-          {node.type === 'directory' && node.children && (
-            <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-              {renderTreeItems(node.children, level + 1)}
-            </Collapse>
-          )}
-        </Box>
-      );
-    });
-  };
+  const totalFiles = useMemo(() => countFiles(directoryTree), [directoryTree]);
 
   const handleVSCodeOpen = () => {
-    if (selectedFile) {
-      VSCodeService.openInVSCode(selectedFile.path);
-    }
+    if (selectedFile) VSCodeService.openInVSCode(selectedFile.path);
+  };
+
+  const renderNode = (node: DirectoryNode, level: number) => {
+    const isDir = node.type === 'directory';
+    const isExpanded = expandedFolders.includes(node.path);
+    const isSelected = selectedFile?.path === node.path;
+
+    const padLeft = level * 14 + 9;
+
+    return (
+      <React.Fragment key={node.path}>
+        <Box
+          onClick={() => {
+            if (isDir) {
+              onExpandedChange(
+                isExpanded
+                  ? expandedFolders.filter((id) => id !== node.path)
+                  : [...expandedFolders, node.path],
+              );
+            } else if (node.file) {
+              onFileSelect(node.file);
+            }
+          }}
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            height: 30,
+            pr: '12px',
+            pl: `${padLeft}px`,
+            cursor: 'pointer',
+            fontSize: 15,
+            borderLeft: `3px solid ${isSelected ? BRAND.ACCENT : 'transparent'}`,
+            background: isSelected ? tokens.selBg : 'transparent',
+            color: isSelected ? tokens.selFg : tokens.fg1,
+            fontWeight: isSelected ? 600 : 400,
+            '&:hover': { background: tokens.hover },
+          }}
+        >
+          {/* Chevron */}
+          <Box sx={{ fontSize: 15, flexShrink: 0, color: tokens.fg3, display: 'flex', alignItems: 'center', width: 15 }}>
+            {isDir ? (isExpanded ? <ExpandMore sx={{ fontSize: 15 }} /> : <ChevronRight sx={{ fontSize: 15 }} />) : null}
+          </Box>
+
+          {/* Type icon */}
+          <Box sx={{ flexShrink: 0, display: 'flex', alignItems: 'center', color: isSelected ? BRAND.ACCENT : isDir ? tokens.folder : tokens.file }}>
+            {isDir ? (
+              isExpanded ? <FolderOpen sx={{ fontSize: 16 }} /> : <Folder sx={{ fontSize: 16 }} />
+            ) : (
+              <Description sx={{ fontSize: 16 }} />
+            )}
+          </Box>
+
+          {/* Name */}
+          <Box
+            sx={{
+              flex: 1,
+              minWidth: 0,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {node.name}
+          </Box>
+        </Box>
+
+        {/* Children */}
+        {isDir && isExpanded && node.children?.map((child) => renderNode(child, level + 1))}
+      </React.Fragment>
+    );
   };
 
   return (
-    <Box 
-      role="navigation"
-      aria-label="File tree navigation"
-      sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+    <Box
+      sx={{
+        position: 'relative',
+        width,
+        flexShrink: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        background: tokens.chrome,
+        borderRight: `1px solid ${tokens.border}`,
+        height: '100%',
+      }}
     >
-      <Box 
-        sx={{ 
-          p: 2, 
-          borderBottom: 1, 
-          borderColor: 'divider',
+      {/* Resize handle */}
+      <Box
+        onMouseDown={onMouseDown}
+        sx={{
+          position: 'absolute',
+          top: 0,
+          right: -3,
+          width: 6,
+          height: '100%',
+          cursor: 'col-resize',
+          zIndex: 1,
+          '&:hover': { background: BRAND.ACCENT },
+        }}
+      />
+      {/* Header */}
+      <Box
+        sx={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          padding: '14px 8px 10px 20px',
         }}
       >
-        <Typography variant="h6" sx={{ fontSize: '1rem', fontWeight: 600 }}>
-          {t('ui.markdownFiles')}
-        </Typography>
-        <Box>
-          <Tooltip title={t('ui.collapseAll')}>
-            <IconButton 
-              size="small" 
-              onClick={onCollapseAll}
-              aria-label={t('ui.collapseAll')}
+        <Box
+          sx={{
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: '.09em',
+            textTransform: 'uppercase',
+            color: tokens.fg3,
+          }}
+        >
+          Markdown-Dateien
+        </Box>
+        <Box sx={{ display: 'flex' }}>
+          {[
+            { icon: <Sort sx={{ fontSize: 17 }} />, title: 'Sortieren' },
+            { icon: <UnfoldLess sx={{ fontSize: 17 }} />, title: 'Alle einklappen', onClick: onCollapseAll },
+            { icon: <Code sx={{ fontSize: 17 }} />, title: 'In VS Code öffnen', onClick: handleVSCodeOpen },
+          ].map((btn, i) => (
+            <Box
+              key={i}
+              component="button"
+              type="button"
+              title={btn.title}
+              onClick={btn.onClick}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 28,
+                height: 28,
+                background: 'transparent',
+                border: 0,
+                cursor: 'pointer',
+                color: tokens.fg3,
+                '&:hover': { background: tokens.hover, color: tokens.fg1 },
+              }}
             >
-              <UnfoldLess />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title={t('ui.openInVSCode')}>
-            <IconButton 
-              size="small" 
-              onClick={handleVSCodeOpen}
-              disabled={!selectedFile}
-              aria-label={t('ui.openInVSCode')}
-            >
-              <Code />
-            </IconButton>
-          </Tooltip>
+              {btn.icon}
+            </Box>
+          ))}
         </Box>
       </Box>
 
-      {/* Filter Input */}
-      <Box sx={{ p: 1.5, borderBottom: 1, borderColor: 'divider' }}>
-        <TextField
-          fullWidth
-          size="small"
-          placeholder={t('search.placeholder', 'Search files...')}
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <Search sx={{ fontSize: 18, color: 'text.secondary' }} />
-              </InputAdornment>
-            ),
-            endAdornment: filter && (
-              <InputAdornment position="end">
-                <IconButton 
-                  size="small" 
-                  onClick={() => setFilter('')}
-                  aria-label="Clear search"
-                >
-                  <Clear sx={{ fontSize: 16 }} />
-                </IconButton>
-              </InputAdornment>
-            )
-          }}
+      {/* Filter field */}
+      <Box sx={{ px: '16px', pb: '12px' }}>
+        <Box
           sx={{
-            '& .MuiOutlinedInput-root': {
-              fontSize: '0.875rem',
-              '& fieldset': {
-                borderColor: 'divider'
-              },
-              '&:hover fieldset': {
-                borderColor: 'primary.main'
-              }
-            }
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            height: 32,
+            px: '10px',
+            border: `1px solid ${tokens.border}`,
+            background: tokens.field,
           }}
-        />
-        
-        {/* Filter Results Count */}
-        {filter && (
-          <Box sx={{ mt: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Chip
-              label={`${filteredFileCount} of ${totalFileCount} files`}
-              size="small"
-              variant="outlined"
-              sx={{ fontSize: '0.75rem', height: 24 }}
-            />
-            {filteredFileCount === 0 && (
-              <Typography variant="caption" color="text.secondary">
-                {t('search.noResults', 'No files found')}
-              </Typography>
-            )}
-          </Box>
+        >
+          <Search sx={{ fontSize: 16, color: tokens.fg3 }} />
+          <Box
+            component="input"
+            value={filter}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFilter(e.target.value)}
+            placeholder="Nach Dateien suchen…"
+            sx={{
+              flex: 1,
+              minWidth: 0,
+              border: 0,
+              outline: 'none',
+              background: 'transparent',
+              font: "400 13px 'Noto Sans', Arial, sans-serif",
+              color: tokens.fg1,
+              '&::placeholder': { color: tokens.fg3 },
+            }}
+          />
+        </Box>
+      </Box>
+
+      {/* Tree */}
+      <Box sx={{ flex: 1, overflow: 'auto', pb: '12px' }}>
+        {loading ? (
+          <Box sx={{ p: 3, textAlign: 'center', color: tokens.fg3, fontSize: 13 }}>Laden…</Box>
+        ) : (
+          visibleNodes.map((node) => renderNode(node, node.type === 'directory' && !node.path.includes('/') ? 0 : 0))
         )}
       </Box>
-      
-      <Box sx={{ flex: 1, overflow: 'auto' }}>
-        {directoryTree.length > 0 ? (
-          <List 
-            dense 
-            role="tree"
-            aria-label="File and folder tree"
-            sx={{ py: 0 }}
-          >
-            {renderTreeItems(filterNodes)}
-          </List>
-        ) : (
-          <Box sx={{ p: 3, textAlign: 'center' }}>
-            <Typography variant="h6" color="text.secondary" gutterBottom>
-              {t('ui.noFolderSelected')}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 300, mx: 'auto', lineHeight: 1.5 }}>
-              {t('ui.noFolderHelp')}
-            </Typography>
-          </Box>
-        )}
+
+      {/* Footer */}
+      <Box
+        sx={{
+          flexShrink: 0,
+          padding: '10px 20px',
+          borderTop: `1px solid ${tokens.border}`,
+          fontSize: 11,
+          color: tokens.fg3,
+        }}
+      >
+        {totalFiles} Markdown-Dateien
       </Box>
     </Box>
   );

@@ -1,5 +1,6 @@
 import { createTheme, Theme, ThemeOptions } from '@mui/material/styles';
 import { AppearanceSettings, FontSize } from '../types/settings';
+import { SEMANTIC_COLORS } from './palette';
 
 // Font size scale based on setting
 const getFontSizeScale = (fontSize: FontSize): number => {
@@ -11,39 +12,51 @@ const getFontSizeScale = (fontSize: FontSize): number => {
   }
 };
 
-// Spacing scale based on compact mode (currently unused)
-// const getSpacingScale = (compactMode: boolean): number => {
-//   return compactMode ? 0.75 : 1;
-// };
-
 // Light theme configuration
 const lightThemeOptions: ThemeOptions = {
   palette: {
     primary: {
-      main: '#2c3e50',
-      light: '#34495e',
-      dark: '#1a252f'
+      main: SEMANTIC_COLORS.PRIMARY,
+      light: SEMANTIC_COLORS.PRIMARY_LIGHT,
+      dark: SEMANTIC_COLORS.PRIMARY_DARK
     },
     secondary: {
-      main: '#3498db',
-      light: '#5dade2',
-      dark: '#2980b9'
+      main: SEMANTIC_COLORS.SECONDARY,
+      light: SEMANTIC_COLORS.SECONDARY_LIGHT,
+      dark: SEMANTIC_COLORS.SECONDARY_DARK
     },
     background: {
-      default: '#f5f5f5',
-      paper: '#ffffff'
+      default: SEMANTIC_COLORS.BACKGROUND_LIGHT_PAPER,
+      paper: SEMANTIC_COLORS.BACKGROUND_LIGHT
+    },
+    text: {
+      primary: SEMANTIC_COLORS.TEXT_PRIMARY_LIGHT,
+      secondary: SEMANTIC_COLORS.TEXT_SECONDARY_LIGHT,
+      disabled: SEMANTIC_COLORS.TEXT_DISABLED_LIGHT
     },
     grey: {
-      50: '#f8fafc',
-      100: '#f1f5f9',
-      200: '#e2e8f0',
-      300: '#cbd5e1',
-      400: '#94a3b8',
-      500: '#64748b'
+      50: '#f3f4f6',
+      100: '#e5e7eb',
+      200: '#d1d5db',
+      300: '#9ca3af',
+      400: '#6b7280',
+      500: '#374151'
+    },
+    success: {
+      main: SEMANTIC_COLORS.SUCCESS
+    },
+    warning: {
+      main: SEMANTIC_COLORS.WARNING
+    },
+    error: {
+      main: SEMANTIC_COLORS.ERROR
+    },
+    info: {
+      main: SEMANTIC_COLORS.INFO
     }
   },
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Roboto", "Helvetica Neue", "Helvetica", "Arial", sans-serif',
     h1: {
       fontSize: '2rem',
       fontWeight: 600
@@ -78,15 +91,15 @@ const lightThemeOptions: ThemeOptions = {
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: '#2c3e50'
+          backgroundColor: SEMANTIC_COLORS.SECONDARY
         }
       }
     },
     MuiDrawer: {
       styleOverrides: {
         paper: {
-          backgroundColor: '#f8fafc',
-          borderRight: '1px solid #e2e8f0'
+          backgroundColor: SEMANTIC_COLORS.BACKGROUND_LIGHT_SIDEBAR,
+          borderRight: `1px solid ${SEMANTIC_COLORS.BORDER_LIGHT}`
         }
       }
     },
@@ -105,77 +118,85 @@ const darkThemeOptions: ThemeOptions = {
   palette: {
     mode: 'dark',
     primary: {
-      main: '#3498db',
-      light: '#5dade2',
-      dark: '#2980b9'
+      main: SEMANTIC_COLORS.PRIMARY_DARK_MODE,
+      light: SEMANTIC_COLORS.PRIMARY_LIGHT_DARK_MODE,
+      dark: SEMANTIC_COLORS.PRIMARY_DARK_DARK_MODE
     },
     secondary: {
-      main: '#e74c3c',
-      light: '#ec7063',
-      dark: '#c0392b'
+      main: SEMANTIC_COLORS.SECONDARY,
+      light: SEMANTIC_COLORS.SECONDARY_LIGHT,
+      dark: SEMANTIC_COLORS.SECONDARY_DARK
     },
     background: {
-      default: '#1e1e1e',
-      paper: '#2d2d2d'
+      default: SEMANTIC_COLORS.BACKGROUND_DARK,
+      paper: SEMANTIC_COLORS.BACKGROUND_DARK_PAPER
     },
     text: {
-      primary: '#ffffff',
-      secondary: '#e0e0e0'
+      primary: SEMANTIC_COLORS.TEXT_PRIMARY_DARK,
+      secondary: SEMANTIC_COLORS.TEXT_SECONDARY_DARK,
+      disabled: SEMANTIC_COLORS.TEXT_DISABLED_DARK
     },
     grey: {
-      50: '#fafafa',
-      100: '#f5f5f5',
-      200: '#eeeeee',
-      300: '#e0e0e0',
-      400: '#bdbdbd',
-      500: '#9e9e9e',
-      600: '#757575',
-      700: '#616161',
-      800: '#424242',
-      900: '#212121'
+      50: '#f3f4f6',
+      100: '#e5e7eb',
+      200: '#d1d5db',
+      300: '#9ca3af',
+      400: '#6b7280',
+      500: '#374151',
+      600: '#1f2937',
+      700: '#111827',
+      800: '#0a0b0f',
+      900: '#050506'
+    },
+    success: {
+      main: SEMANTIC_COLORS.SUCCESS_DARK
+    },
+    warning: {
+      main: SEMANTIC_COLORS.WARNING_DARK
+    },
+    error: {
+      main: SEMANTIC_COLORS.ERROR_DARK
+    },
+    info: {
+      main: SEMANTIC_COLORS.INFO_DARK
     }
   },
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Roboto", "Helvetica Neue", "Helvetica", "Arial", sans-serif',
     h1: {
       fontSize: '2rem',
-      fontWeight: 600,
-      color: '#ffffff'
+      fontWeight: 600
     },
     h2: {
       fontSize: '1.5rem',
-      fontWeight: 600,
-      color: '#ffffff'
+      fontWeight: 600
     },
     h3: {
       fontSize: '1.25rem',
-      fontWeight: 600,
-      color: '#ffffff'
+      fontWeight: 600
     },
     body1: {
       fontSize: '1rem',
-      lineHeight: 1.6,
-      color: '#ffffff'
+      lineHeight: 1.6
     },
     body2: {
       fontSize: '0.875rem',
-      lineHeight: 1.5,
-      color: '#e0e0e0'
+      lineHeight: 1.5
     }
   },
   components: {
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: '#1a1a1a'
+          backgroundColor: SEMANTIC_COLORS.SECONDARY
         }
       }
     },
     MuiDrawer: {
       styleOverrides: {
         paper: {
-          backgroundColor: '#2d2d2d',
-          borderRight: '1px solid #404040'
+          backgroundColor: SEMANTIC_COLORS.BACKGROUND_DARK_SIDEBAR,
+          borderRight: `1px solid ${SEMANTIC_COLORS.BORDER_DARK}`
         }
       }
     },
@@ -189,7 +210,29 @@ const darkThemeOptions: ThemeOptions = {
     MuiPaper: {
       styleOverrides: {
         root: {
-          backgroundColor: '#2d2d2d'
+          backgroundColor: SEMANTIC_COLORS.BACKGROUND_DARK_PAPER
+        }
+      }
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          color: SEMANTIC_COLORS.TEXT_SECONDARY_DARK,
+          '&.Mui-selected': {
+            color: SEMANTIC_COLORS.PRIMARY_DARK_MODE
+          }
+        }
+      }
+    },
+    MuiSwitch: {
+      styleOverrides: {
+        switchBase: {
+          '&.Mui-checked': {
+            color: SEMANTIC_COLORS.PRIMARY_DARK_MODE,
+            '& + .MuiSwitch-track': {
+              backgroundColor: SEMANTIC_COLORS.PRIMARY_DARK_MODE
+            }
+          }
         }
       }
     },
@@ -198,13 +241,13 @@ const darkThemeOptions: ThemeOptions = {
         root: {
           '& .MuiOutlinedInput-root': {
             '& fieldset': {
-              borderColor: '#404040'
+              borderColor: SEMANTIC_COLORS.BORDER_DARK
             },
             '&:hover fieldset': {
-              borderColor: '#3498db'
+              borderColor: SEMANTIC_COLORS.PRIMARY_LIGHT_DARK_MODE
             },
             '&.Mui-focused fieldset': {
-              borderColor: '#3498db'
+              borderColor: SEMANTIC_COLORS.PRIMARY_DARK_MODE
             }
           }
         }
@@ -226,9 +269,8 @@ export const createAppTheme = (mode: 'light' | 'dark', appearanceSettings?: Part
   }
 
   const fontScale = getFontSizeScale(appearanceSettings.fontSize || 'medium');
-  // const spacingScale = getSpacingScale(appearanceSettings.compactMode || false);
   const baseFontFamily = typeof baseTheme.typography === 'object' && baseTheme.typography ? 
-    (baseTheme.typography as any).fontFamily : '"Roboto", "Helvetica", "Arial", sans-serif';
+    (baseTheme.typography as any).fontFamily : '"Roboto", "Helvetica Neue", "Helvetica", "Arial", sans-serif';
   const customFontFamily = appearanceSettings.fontFamily || baseFontFamily;
 
   const enhancedThemeOptions: ThemeOptions = {

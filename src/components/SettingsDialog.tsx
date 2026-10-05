@@ -20,7 +20,8 @@ import {
   MenuItem,
   Slider,
   Divider,
-  Alert
+  Alert,
+  Stack
 } from '@mui/material';
 import {
   Palette as PaletteIcon,
@@ -33,6 +34,7 @@ import {
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { ApplicationSettings, ThemeMode, FontSize, Language } from '../types/settings';
+import packageJson from '../../package.json';
 
 interface SettingsDialogProps {
   open: boolean;
@@ -340,34 +342,36 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
                 {t('settings.export', 'Export Settings')}
               </Typography>
 
-              <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-                <Box sx={{ flex: '1 1 45%', minWidth: 200 }}>
-                  <FormControl fullWidth>
-                    <FormLabel>{t('settings.defaultFormat', 'Default Format')}</FormLabel>
-                    <Select
-                      value={settings.export.defaultFormat}
-                      onChange={(e) => onUpdateExportSettings({ defaultFormat: e.target.value as any })}
-                    >
-                      <MenuItem value="A4">A4</MenuItem>
-                      <MenuItem value="Letter">Letter</MenuItem>
-                      <MenuItem value="Legal">Legal</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Box>
+              <Stack spacing={3}>
+                <Stack direction="row" spacing={3}>
+                  <Box sx={{ flex: 1 }}>
+                    <FormControl fullWidth>
+                      <FormLabel>{t('settings.defaultFormat', 'Default Format')}</FormLabel>
+                      <Select
+                        value={settings.export.defaultFormat}
+                        onChange={(e) => onUpdateExportSettings({ defaultFormat: e.target.value as any })}
+                      >
+                        <MenuItem value="A4">A4</MenuItem>
+                        <MenuItem value="Letter">Letter</MenuItem>
+                        <MenuItem value="Legal">Legal</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Box>
 
-                <Box sx={{ flex: '1 1 45%', minWidth: 200 }}>
-                  <FormControl fullWidth>
-                    <FormLabel>{t('settings.defaultOrientation', 'Default Orientation')}</FormLabel>
-                    <Select
-                      value={settings.export.defaultOrientation}
-                      onChange={(e) => onUpdateExportSettings({ defaultOrientation: e.target.value as any })}
-                    >
-                      <MenuItem value="portrait">{t('settings.portrait', 'Portrait')}</MenuItem>
-                      <MenuItem value="landscape">{t('settings.landscape', 'Landscape')}</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Box>
-              </Box>
+                  <Box sx={{ flex: 1 }}>
+                    <FormControl fullWidth>
+                      <FormLabel>{t('settings.defaultOrientation', 'Default Orientation')}</FormLabel>
+                      <Select
+                        value={settings.export.defaultOrientation}
+                        onChange={(e) => onUpdateExportSettings({ defaultOrientation: e.target.value as any })}
+                      >
+                        <MenuItem value="portrait">{t('settings.portrait', 'Portrait')}</MenuItem>
+                        <MenuItem value="landscape">{t('settings.landscape', 'Landscape')}</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Box>
+                </Stack>
+              </Stack>
 
               <FormControlLabel
                 control={
@@ -460,6 +464,28 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
                 }
                 label={t('settings.lazyLoading', 'Lazy Loading')}
               />
+
+              <Divider sx={{ my: 3 }} />
+
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="subtitle1" gutterBottom>
+                  {t('settings.cacheManagement', 'Cache Management')}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                  {t('settings.cacheDescription', 'Clear cached PlantUML diagrams to free up storage or force diagrams to re-render.')}
+                </Typography>
+                <Button
+                  variant="outlined"
+                  color="warning"
+                  onClick={() => {
+                    localStorage.removeItem('plantuml-diagram-cache');
+                    // Show feedback - you could add a snackbar here
+                    alert(t('settings.cacheCleared', 'PlantUML cache cleared successfully!'));
+                  }}
+                >
+                  {t('settings.clearCache', 'Clear PlantUML Cache')}
+                </Button>
+              </Box>
             </TabPanel>
           </Box>
         </Box>
@@ -506,7 +532,10 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
         </Box>
       </DialogContent>
 
-      <DialogActions>
+      <DialogActions sx={{ justifyContent: 'space-between', px: 3, py: 2 }}>
+        <Typography variant="caption" color="text.secondary">
+          {t('app.name', 'Markdown Buddy')} v{packageJson.version}
+        </Typography>
         <Button onClick={onClose} startIcon={<CloseIcon />}>
           {t('ui.close', 'Close')}
         </Button>

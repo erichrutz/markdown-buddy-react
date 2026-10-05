@@ -2,6 +2,8 @@ export interface MarkdownFile {
   path: string;
   name: string;
   file: File;
+  /** Present when picked via the File System Access API; lets us re-read the file fresh instead of a stale snapshot. */
+  handle?: FileSystemFileHandle;
   content?: string;
   size: number;
   lastModified: number;
@@ -46,16 +48,15 @@ export interface UITexts {
   };
   ui: {
     selectFolder: string;
-    selectFolderInfo: string;
     openInVSCode: string;
     collapseAll: string;
     language: string;
     currentFile: string;
     fileStats: string;
     noFileSelected: string;
-    noFolderSelected: string;
-    noFolderHelp: string;
+    noFileInstructions: string;
     errorLoading: string;
+    errorStaleFile: string;
   };
   stats: {
     size: string;
@@ -82,9 +83,5 @@ export const IGNORED_DIRECTORIES = [
 ];
 
 export const SUPPORTED_FORMATS = ['.md', '.markdown'];
-
-export const SUPPORTED_IMAGE_FORMATS = [
-  '.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp', '.svg'
-];
-
-export const ALL_SUPPORTED_FORMATS = [...SUPPORTED_FORMATS, ...SUPPORTED_IMAGE_FORMATS];
+export const IMAGE_FORMATS = ['.jpg', '.jpeg', '.png', '.gif', '.svg', '.bmp', '.webp'];
+export const ALL_SUPPORTED_FORMATS = [...SUPPORTED_FORMATS, ...IMAGE_FORMATS];

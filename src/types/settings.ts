@@ -54,9 +54,18 @@ export interface PerformanceSettings {
   enableAnalytics: boolean;
 }
 
+export interface ViewSettings {
+  zoom: number; // document text zoom in percent
+  docWidth: number; // document content width in px
+  docPointer: boolean; // cursor overlay in document view
+  presPointer: boolean; // laser pointer active in presentation
+  presTheme: 'light' | 'dark'; // presentation stage theme
+}
+
 export interface ApplicationSettings {
   appearance: AppearanceSettings;
   behavior: BehaviorSettings;
+  view: ViewSettings;
   diagrams: DiagramSettings;
   export: ExportSettings;
   keyboard: KeyboardSettings;
@@ -82,6 +91,13 @@ export const DEFAULT_SETTINGS: ApplicationSettings = {
     confirmBeforeExit: true,
     rememberLastFolder: true,
     openLinksInNewTab: false
+  },
+  view: {
+    zoom: 100,
+    docWidth: 900, // matches DOC_WIDTH_DEFAULT in theme/designTokens.ts
+    docPointer: false,
+    presPointer: true,
+    presTheme: 'light'
   },
   diagrams: {
     enableMermaid: true,

@@ -1,234 +1,170 @@
 import React from 'react';
+import { Box } from '@mui/material';
 import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Button,
-  IconButton,
-  Box,
-  Tooltip
-} from '@mui/material';
-import {
-  FolderOpen,
-  Fullscreen,
-  FullscreenExit,
-  PictureAsPdf,
   Refresh,
-  Warning,
+  PictureAsPdf,
+  DarkMode,
+  LightMode,
+  InfoOutlined,
   Settings,
-  Info,
-  Article,
-  Code,
-  InfoOutlined
+  PlayArrow,
+  FolderOpen,
 } from '@mui/icons-material';
-import { useTranslation } from 'react-i18next';
+import { SurfaceTokens, BRAND } from '../theme/designTokens';
+
+import appLogo from '../img/logo.svg';
 
 interface AppHeaderProps {
-  onSelectDirectory: () => void;
-  loading: boolean;
-  focusMode: boolean;
-  onToggleFocusMode: () => void;
-  onExportPDF?: () => void;
+  tokens: SurfaceTokens;
+  isDark: boolean;
+  folderName?: string | null;
+  onSelectDirectory?: () => void;
   onRefresh?: () => void;
-  onShowSettings?: () => void;
+  onExportPDF?: () => void;
+  onToggleTheme?: () => void;
   onShowAbout?: () => void;
+  onShowSettings?: () => void;
+  onStartPresent?: () => void;
   hasCurrentFile?: boolean;
-  hasFileChanged?: boolean;
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({
+  tokens,
+  isDark,
+  folderName,
   onSelectDirectory,
-  loading,
-  focusMode,
-  onToggleFocusMode,
-  onExportPDF,
   onRefresh,
-  onShowSettings,
+  onExportPDF,
+  onToggleTheme,
   onShowAbout,
+  onShowSettings,
+  onStartPresent,
   hasCurrentFile = false,
-  hasFileChanged = false
 }) => {
-  const { t } = useTranslation();
+  const toolButtons = [
+    { icon: <Refresh sx={{ fontSize: 19, color: 'inherit' }} />, title: 'Datei neu laden', onClick: onRefresh, disabled: !hasCurrentFile },
+    { icon: <PictureAsPdf sx={{ fontSize: 19, color: 'inherit' }} />, title: 'Als PDF exportieren', onClick: onExportPDF, disabled: !hasCurrentFile },
+    { icon: isDark ? <LightMode sx={{ fontSize: 19, color: 'inherit' }} /> : <DarkMode sx={{ fontSize: 19, color: 'inherit' }} />, title: 'Farbschema wechseln', onClick: onToggleTheme },
+    { icon: <InfoOutlined sx={{ fontSize: 19, color: 'inherit' }} />, title: 'Über', onClick: onShowAbout },
+    { icon: <Settings sx={{ fontSize: 19, color: 'inherit' }} />, title: 'Einstellungen', onClick: onShowSettings },
+  ];
 
   return (
-    <AppBar
-      position="static"
-      elevation={2}
+    <Box
+      component="header"
       sx={{
-        minHeight: 68
+        display: 'flex',
+        alignItems: 'center',
+        gap: '16px',
+        height: '56px',
+        minHeight: '56px',
+        paddingLeft: '20px',
+        paddingRight: '16px',
+        backgroundColor: tokens.chrome,
+        borderBottom: `1px solid ${tokens.border}`,
+        flexShrink: 0,
+        overflow: 'visible',
+        boxSizing: 'border-box',
       }}
     >
-      <Toolbar sx={{ minHeight: 68, px: 3 }}>
-        <Box sx={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 1.5,
-          flexGrow: 1
-        }}>
-          <Box sx={{
-            display: 'flex',
-            alignItems: 'center',
-            position: 'relative'
-          }}>
-            <Article sx={{
-              fontSize: 36,
-              color: 'inherit'
-            }} />
-            <Code sx={{
-              fontSize: 20,
-              color: 'inherit',
-              position: 'absolute',
-              bottom: 2,
-              right: -2,
-              opacity: 0.8
-            }} />
-          </Box>
-          <Typography
-            variant="h4"
-            component="div"
-            sx={{
-              fontWeight: 800,
-              fontSize: '1.75rem',
-              letterSpacing: '-0.025em',
-              color: 'inherit',
-              fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif'
+      {/* App logo */}
+      <img
+        src={appLogo}
+        alt="MarkDown Buddy"
+        style={{ height: 24, width: 'auto', display: 'block', flexShrink: 0 }}
+      />
+
+      {/* Product name */}
+      <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em', color: tokens.fg1, whiteSpace: 'nowrap', flexShrink: 0 }}>
+        MarkDown Buddy
+      </span>
+
+      {/* Separator */}
+      <span style={{ width: 1, height: 20, backgroundColor: tokens.border, flexShrink: 0, display: 'inline-block' }} />
+
+      {/* Store display — click to open folder */}
+      <span
+        role="button"
+        title="Ordner öffnen"
+        onClick={onSelectDirectory}
+        style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, color: tokens.fg2, whiteSpace: 'nowrap', flexShrink: 0, cursor: 'pointer' }}
+      >
+        <FolderOpen sx={{ fontSize: 16, color: 'inherit' }} />
+        {folderName || 'Ordner öffnen…'}
+      </span>
+
+      {/* Spacer */}
+      <span style={{ flex: 1 }} />
+
+      {/* Tool icon buttons */}
+      <span style={{ display: 'inline-flex', alignItems: 'center', flexShrink: 0 }}>
+        {toolButtons.map((btn, i) => (
+          <span
+            key={i}
+            role="button"
+            title={btn.title}
+            onClick={btn.disabled ? undefined : btn.onClick}
+            className="header-tool-btn"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 32,
+              height: 32,
+              cursor: btn.disabled ? 'default' : 'pointer',
+              color: tokens.fg2,
+              opacity: btn.disabled ? 0.4 : 1,
+              borderRadius: 0,
+              border: 'none',
+              background: 'transparent',
+              transition: 'background 180ms cubic-bezier(.4,0,.2,1), color 180ms cubic-bezier(.4,0,.2,1)',
+            }}
+            onMouseEnter={e => {
+              if (!btn.disabled) {
+                (e.currentTarget as HTMLElement).style.background = tokens.hover;
+                (e.currentTarget as HTMLElement).style.color = tokens.fg1;
+              }
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLElement).style.background = 'transparent';
+              (e.currentTarget as HTMLElement).style.color = tokens.fg2;
             }}
           >
-            {t('app.title')}
-          </Typography>
-        </Box>
+            {btn.icon}
+          </span>
+        ))}
+      </span>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <Button
-              color="inherit"
-              startIcon={<FolderOpen />}
-              onClick={onSelectDirectory}
-              disabled={loading}
-              aria-label={t('ui.selectFolder')}
-            >
-              {t('ui.selectFolder')}
-            </Button>
-            <Tooltip
-              title={t('ui.selectFolderInfo')}
-              placement="bottom"
-              arrow
-            >
-              <InfoOutlined
-                sx={{
-                  fontSize: 16,
-                  opacity: 0.7,
-                  '&:hover': { opacity: 1 }
-                }}
-              />
-            </Tooltip>
-          </Box>
-
-          <IconButton
-            color="inherit"
-            onClick={onToggleFocusMode}
-            size="large"
-            title={focusMode ? t('ui.exitFocusMode') : t('ui.focusMode')}
-            aria-label={focusMode ? t('ui.exitFocusMode') : t('ui.focusMode')}
-          >
-            {focusMode ? <FullscreenExit /> : <Fullscreen />}
-          </IconButton>
-
-
-          {onExportPDF && (
-            <IconButton
-              color="inherit"
-              onClick={onExportPDF}
-              size="large"
-              title={t('export.title')}
-              aria-label={t('export.title')}
-              disabled={!hasCurrentFile || loading}
-            >
-              <PictureAsPdf />
-            </IconButton>
-          )}
-
-          {onRefresh && (
-            <IconButton
-              color="inherit"
-              onClick={onRefresh}
-              size="large"
-              title={hasFileChanged ? t('ui.refreshChanged') : t('ui.refresh')}
-              aria-label={hasFileChanged ? t('ui.refreshChanged') : t('ui.refresh')}
-              disabled={!hasCurrentFile || loading}
-              sx={{
-                position: 'relative',
-                '&::after': hasFileChanged ? {
-                  content: '""',
-                  position: 'absolute',
-                  top: 8,
-                  right: 8,
-                  width: 8,
-                  height: 8,
-                  borderRadius: '50%',
-                  backgroundColor: 'warning.main',
-                  animation: 'pulse 2s infinite',
-                  '@keyframes pulse': {
-                    '0%': {
-                      transform: 'scale(1)',
-                      opacity: 1,
-                    },
-                    '50%': {
-                      transform: 'scale(1.2)',
-                      opacity: 0.7,
-                    },
-                    '100%': {
-                      transform: 'scale(1)',
-                      opacity: 1,
-                    },
-                  }
-                } : {}
-              }}
-            >
-              {hasFileChanged ? (
-                <Box sx={{ position: 'relative' }}>
-                  <Refresh />
-                  <Warning 
-                    sx={{ 
-                      position: 'absolute', 
-                      top: -4, 
-                      right: -4, 
-                      fontSize: 12,
-                      color: 'warning.main'
-                    }} 
-                  />
-                </Box>
-              ) : (
-                <Refresh />
-              )}
-            </IconButton>
-          )}
-
-          {onShowAbout && (
-            <IconButton
-              color="inherit"
-              onClick={onShowAbout}
-              size="large"
-              title={t('about.title')}
-              aria-label={t('about.title')}
-            >
-              <Info />
-            </IconButton>
-          )}
-
-          {onShowSettings && (
-            <IconButton
-              color="inherit"
-              onClick={onShowSettings}
-              size="large"
-              title={t('settings.title', 'Settings')}
-              aria-label={t('settings.title', 'Settings')}
-            >
-              <Settings />
-            </IconButton>
-          )}
-        </Box>
-      </Toolbar>
-    </AppBar>
+      {/* Present button */}
+      <span
+        role="button"
+        onClick={onStartPresent}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 8,
+          height: 34,
+          paddingLeft: 16,
+          paddingRight: 16,
+          marginLeft: 8,
+          backgroundColor: BRAND.ACCENT,
+          color: '#fff',
+          border: 'none',
+          borderRadius: 0,
+          fontSize: 13,
+          fontWeight: 600,
+          fontFamily: "'Noto Sans', Arial, sans-serif",
+          cursor: 'pointer',
+          flexShrink: 0,
+          whiteSpace: 'nowrap',
+          transition: 'background 180ms cubic-bezier(.4,0,.2,1)',
+        }}
+        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.backgroundColor = BRAND.ACCENT_HOVER; }}
+        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.backgroundColor = BRAND.ACCENT; }}
+      >
+        <PlayArrow sx={{ fontSize: 18, color: 'inherit' }} />
+        Präsentieren
+      </span>
+    </Box>
   );
 };

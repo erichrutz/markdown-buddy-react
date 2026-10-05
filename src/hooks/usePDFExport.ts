@@ -38,8 +38,7 @@ export const usePDFExport = () => {
 
   const generateDefaultFilename = useCallback((file: MarkdownFile): string => {
     const baseName = file.name.replace(/\.[^/.]+$/, ''); // Remove extension
-    const timestamp = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-    return `${baseName}_${timestamp}.pdf`;
+    return `${baseName}.pdf`;
   }, []);
 
   return {
