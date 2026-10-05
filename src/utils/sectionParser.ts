@@ -13,8 +13,18 @@ export interface Section {
   title: string;
   level: number;
   blocks: SectionBlock[];
-  meta: string; // e.g. "2 Absätze · ca. 40 Sekunden"
+  summary: SectionSummary;
 }
+
+/** Block counts and estimated speaking time; formatted for display by the UI. */
+export interface SectionSummary {
+  paragraphs: number;
+  lists: number;
+  code: number;
+  seconds: number;
+}
+
+const EMPTY_SUMMARY: SectionSummary = { paragraphs: 0, lists: 0, code: 0, seconds: 0 };
 
 export interface OutlineEntry {
   id: string;
@@ -29,10 +39,20 @@ function estimateSeconds(text: string): number {
   return Math.round((words / 130) * 60);
 }
 
-function formatDuration(seconds: number): string {
-  if (seconds < 60) return `ca. ${Math.max(10, Math.round(seconds / 10) * 10)} Sekunden`;
-  const mins = Math.round(seconds / 60);
-  return `ca. ${mins} Minute${mins > 1 ? 'n' : ''}`;
+type Translate = (key: string, options?: Record<string, unknown>) => string;
+
+/** Format a section summary, e.g. "2 paragraphs · about 40 seconds". */
+export function formatSectionSummary(summary: SectionSummary, t: Translate): string {
+  const parts: string[] = [];
+  if (summary.paragraphs) parts.push(t('sections.paragraphs', { count: summary.paragraphs }));
+  if (summary.lists) parts.push(t('sections.lists', { count: summary.lists }));
+  if (summary.code) parts.push(t('sections.codeBlocks', { count: summary.code }));
+  if (summary.seconds < 60) {
+    parts.push(t('sections.durationSeconds', { count: Math.max(10, Math.round(summary.seconds / 10) * 10) }));
+  } else {
+    parts.push(t('sections.durationMinutes', { count: Math.round(summary.seconds / 60) }));
+  }
+  return parts.join(' · ');
 }
 
 /**
@@ -58,7 +78,7 @@ export function parseSectionsFromDOM(container: HTMLElement): Section[] {
         title: 'Metadata',
         level: 1,
         blocks: [{ type: 'other', html: el.outerHTML }],
-        meta: '',
+        summary: { ...EMPTY_SUMMARY },
       };
       sections.push(current);
       // Reset so the next heading opens a fresh section rather than appending.
@@ -74,7 +94,7 @@ export function parseSectionsFromDOM(container: HTMLElement): Section[] {
         title: el.textContent?.trim() || '',
         level,
         blocks: [],
-        meta: '',
+        summary: { ...EMPTY_SUMMARY },
       };
       sections.push(current);
     } else if (current) {
@@ -107,7 +127,7 @@ export function parseSectionsFromDOM(container: HTMLElement): Section[] {
 
   // Compute meta for each section
   for (const section of sections) {
-    const counts: Record<string, number> = {};
+    const summary: SectionSummary = { ...EMPTY_SUMMARY };
     let totalText = '';
 
     for (const block of section.blocks) {
@@ -115,22 +135,13 @@ export function parseSectionsFromDOM(container: HTMLElement): Section[] {
       tempDiv.innerHTML = block.html;
       totalText += ' ' + (tempDiv.textContent || '');
 
-      if (block.type === 'paragraph') counts['Absätze'] = (counts['Absätze'] || 0) + 1;
-      else if (block.type === 'list') counts['Listen'] = (counts['Listen'] || 0) + 1;
-      else if (block.type === 'code') counts['Codeblöcke'] = (counts['Codeblöcke'] || 0) + 1;
+      if (block.type === 'paragraph') summary.paragraphs++;
+      else if (block.type === 'list') summary.lists++;
+      else if (block.type === 'code') summary.code++;
     }
 
-    const parts: string[] = [];
-    for (const [label, count] of Object.entries(counts)) {
-      const singular = label === 'Absätze' ? 'Absatz' :
-                       label === 'Listen' ? 'Liste' :
-                       label === 'Codeblöcke' ? 'Codeblock' : label;
-      parts.push(`${count} ${count === 1 ? singular : label}`);
-    }
-
-    const seconds = estimateSeconds(totalText);
-    parts.push(formatDuration(seconds));
-    section.meta = parts.join(' · ');
+    summary.seconds = estimateSeconds(totalText);
+    section.summary = summary;
   }
 
   return sections;

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Box } from '@mui/material';
 import { PlayArrow } from '@mui/icons-material';
 import { SurfaceTokens, BRAND } from '../theme/designTokens';
-import { Section } from '../utils/sectionParser';
+import { Section, formatSectionSummary } from '../utils/sectionParser';
 
 interface SectionsViewProps {
   tokens: SurfaceTokens;
@@ -83,7 +83,7 @@ export const SectionsView: React.FC<SectionsViewProps> = ({
                   {section.title}
                 </Box>
                 <Box sx={{ fontSize: 12, lineHeight: 1.55, color: tokens.fg3 }}>
-                  {isSkipped ? t('sections.skipped') : section.meta}
+                  {isSkipped ? t('sections.skipped') : formatSectionSummary(section.summary, t)}
                 </Box>
               </Box>
 

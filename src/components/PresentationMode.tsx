@@ -74,7 +74,7 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({
   onMermaidProcess,
   onPlantUMLProcess,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const slideRef = useRef<HTMLDivElement>(null);
   const contentWrapRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -650,15 +650,15 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({
     const now = new Date();
     return {
       sectionTitle: section?.title ?? '',
-      continuation: isSplit && safePageIndex > 0 ? ' (Fortsetzung)' : '',
+      continuation: isSplit && safePageIndex > 0 ? ` (${t('presentation.continuation')})` : '',
       documentTitle,
       fileName,
       sectionNumber: currentActiveIndex + 1,
       sectionCount: totalSlides,
       pageNumber: safePageIndex + 1,
       pageCount,
-      date: now.toLocaleDateString('de-DE'),
-      time: now.toLocaleTimeString('de-DE'),
+      date: now.toLocaleDateString(i18n.language),
+      time: now.toLocaleTimeString(i18n.language),
       author: author || presDefaults.team,
     };
   }, [

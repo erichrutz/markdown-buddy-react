@@ -43,7 +43,7 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
   markCount,
   onClearMarks,
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [widthOpen, setWidthOpen] = useState(false);
   const tabBtnSx = (active: boolean) => ({
     height: 30,
@@ -90,7 +90,7 @@ export const DocumentHeader: React.FC<DocumentHeaderProps> = ({
         </Box>
         {stats && (
           <Box sx={{ fontSize: 11, color: tokens.fg3 }}>
-            {stats.size} &nbsp;|&nbsp; {stats.lines} Zeilen &nbsp;|&nbsp; {stats.characters.toLocaleString('de-DE')} Zeichen &nbsp;|&nbsp; {stats.sections} Abschnitte
+            {stats.size} &nbsp;|&nbsp; {t('doc.statsLines', { count: stats.lines })} &nbsp;|&nbsp; {t('doc.statsCharacters', { count: stats.characters, formatted: stats.characters.toLocaleString(i18n.language) })} &nbsp;|&nbsp; {t('doc.statsSections', { count: stats.sections })}
           </Box>
         )}
       </Box>

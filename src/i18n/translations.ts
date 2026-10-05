@@ -129,7 +129,11 @@ export const translations = {
       pointer: 'Zeiger',
       clearMarks: 'Alle Markierungen entfernen',
       markOne: 'Markierung',
-      markMany: 'Markierungen'
+      markMany: 'Markierungen',
+      statsLines: '{{count}} Zeilen',
+      statsCharacters: '{{formatted}} Zeichen',
+      statsSections_one: '{{count}} Abschnitt',
+      statsSections_other: '{{count}} Abschnitte'
     },
     sections: {
       title: 'Abschnitte für die Präsentation',
@@ -137,7 +141,16 @@ export const translations = {
       skipped: 'Beim Präsentieren übersprungen',
       show: 'Einblenden',
       skip: 'Überspringen',
-      presentFromHere: 'Ab hier präsentieren'
+      presentFromHere: 'Ab hier präsentieren',
+      paragraphs_one: '{{count}} Absatz',
+      paragraphs_other: '{{count}} Absätze',
+      lists_one: '{{count}} Liste',
+      lists_other: '{{count}} Listen',
+      codeBlocks_one: '{{count}} Codeblock',
+      codeBlocks_other: '{{count}} Codeblöcke',
+      durationSeconds: 'ca. {{count}} Sekunden',
+      durationMinutes_one: 'ca. {{count}} Minute',
+      durationMinutes_other: 'ca. {{count}} Minuten'
     },
     presentation: {
       outline: 'Gliederung',
@@ -159,7 +172,8 @@ export const translations = {
       continues: 'Abschnitt geht weiter',
       clickToJump: 'Klicken zum Springen',
       controlsHint: 'Die Steuerung blendet sich aus. Taste S oder Maus an den linken bzw. oberen Bildschirmrand.',
-      sectionOf: 'Abschnitt {{current}} von {{total}}'
+      sectionOf: 'Abschnitt {{current}} von {{total}}',
+      continuation: 'Fortsetzung'
     },
     settings: {
       title: 'Einstellungen'
@@ -295,7 +309,11 @@ export const translations = {
       pointer: 'Pointer',
       clearMarks: 'Remove all highlights',
       markOne: 'highlight',
-      markMany: 'highlights'
+      markMany: 'highlights',
+      statsLines: '{{count}} lines',
+      statsCharacters: '{{formatted}} characters',
+      statsSections_one: '{{count}} section',
+      statsSections_other: '{{count}} sections'
     },
     sections: {
       title: 'Sections for the presentation',
@@ -303,7 +321,16 @@ export const translations = {
       skipped: 'Skipped when presenting',
       show: 'Show',
       skip: 'Skip',
-      presentFromHere: 'Present from here'
+      presentFromHere: 'Present from here',
+      paragraphs_one: '{{count}} paragraph',
+      paragraphs_other: '{{count}} paragraphs',
+      lists_one: '{{count}} list',
+      lists_other: '{{count}} lists',
+      codeBlocks_one: '{{count}} code block',
+      codeBlocks_other: '{{count}} code blocks',
+      durationSeconds: 'about {{count}} seconds',
+      durationMinutes_one: 'about {{count}} minute',
+      durationMinutes_other: 'about {{count}} minutes'
     },
     presentation: {
       outline: 'Outline',
@@ -325,7 +352,8 @@ export const translations = {
       continues: 'Section continues',
       clickToJump: 'Click to jump',
       controlsHint: 'Controls hide automatically. Press S or move the mouse to the left or top screen edge.',
-      sectionOf: 'Section {{current}} of {{total}}'
+      sectionOf: 'Section {{current}} of {{total}}',
+      continuation: 'continued'
     },
     settings: {
       title: 'Settings'

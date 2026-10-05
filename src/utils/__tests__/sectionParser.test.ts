@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseSectionsFromHTML } from '../sectionParser';
+import { parseSectionsFromHTML, formatSectionSummary } from '../sectionParser';
 
 describe('parseSectionsFromHTML', () => {
   it('keeps headings that have their own content', () => {
@@ -74,5 +74,20 @@ describe('parseSectionsFromHTML', () => {
     expect(sections[0]!.blocks[0]!.html).toContain('frontmatter-table');
     // A following heading opens its own section, not appended to Metadata.
     expect(sections[1]!.blocks.map((b) => b.type)).toEqual(['paragraph']);
+  });
+});
+
+describe('formatSectionSummary', () => {
+  const t = (key: string, options?: Record<string, unknown>) => `${key}:${options?.count}`;
+
+  it('lists only non-zero block counts followed by the duration', () => {
+    expect(formatSectionSummary({ paragraphs: 2, lists: 0, code: 1, seconds: 42 }, t))
+      .toBe('sections.paragraphs:2 · sections.codeBlocks:1 · sections.durationSeconds:40');
+  });
+
+  it('rounds short sections up to at least 10 seconds and long ones to minutes', () => {
+    expect(formatSectionSummary({ paragraphs: 0, lists: 0, code: 0, seconds: 3 }, t)).toBe('sections.durationSeconds:10');
+    expect(formatSectionSummary({ paragraphs: 0, lists: 1, code: 0, seconds: 150 }, t))
+      .toBe('sections.lists:1 · sections.durationMinutes:3');
   });
 });
