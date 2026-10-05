@@ -191,21 +191,23 @@ export const useSettings = () => {
     return undefined; // Explicit return for no cleanup needed
   }, [settings.appearance.theme]);
 
-  // Initialize settings language to match current i18n language on first load
+  // Initialize settings language to match the detected i18n language on first load.
+  // Detection may yield region variants like "en-US"; settings only know "en" | "de".
   useEffect(() => {
-    if (!initializedRef.current && settings.behavior.language !== i18n.language) {
-      // Update settings to match current i18n language instead of changing the language
+    if (initializedRef.current) return;
+    initializedRef.current = true;
+    const detected: 'en' | 'de' = i18n.language?.toLowerCase().startsWith('de') ? 'de' : 'en';
+    if (settings.behavior.language !== detected) {
       setSettings(current => ({
         ...current,
         behavior: {
           ...current.behavior,
-          language: i18n.language as 'en' | 'de'
+          language: detected
         },
         lastModified: new Date()
       }));
-      initializedRef.current = true;
     }
-  }, [settings.behavior.language, i18n.language]); // Run when either changes
+  }, [settings.behavior.language, i18n.language]);
 
   // Sync i18n language with settings when settings change (only after initialization)
   useEffect(() => {
