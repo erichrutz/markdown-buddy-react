@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { MarkdownFile } from '../types';
+import { FileSystemService } from '../services/fileSystemService';
 
 export const useFileChangeDetection = (file: MarkdownFile | null) => {
   const [hasChanged, setHasChanged] = useState(false);
@@ -14,7 +15,7 @@ export const useFileChangeDetection = (file: MarkdownFile | null) => {
       originalContentRef.current = null;
       
       // Store original content
-      file.file.text()
+      FileSystemService.readMarkdownFileContent(file)
         .then(content => {
           originalContentRef.current = content;
         })
@@ -34,7 +35,7 @@ export const useFileChangeDetection = (file: MarkdownFile | null) => {
     }
 
     try {
-      const currentContent = await file.file.text();
+      const currentContent = await FileSystemService.readMarkdownFileContent(file);
       const changed = currentContent !== originalContentRef.current;
       
       if (changed !== hasChanged) {
@@ -72,7 +73,7 @@ export const useFileChangeDetection = (file: MarkdownFile | null) => {
     if (file) {
       setHasChanged(false);
       // Update original content reference
-      file.file.text()
+      FileSystemService.readMarkdownFileContent(file)
         .then(content => {
           originalContentRef.current = content;
         })

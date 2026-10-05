@@ -1,14 +1,34 @@
 import { MarkdownFile, DirectoryNode, IGNORED_DIRECTORIES, SUPPORTED_FORMATS } from '../types';
 
 export class FileSystemService {
+  private static allFiles: Map<string, File> = new Map(); // Store all files including images
+  private static rootFolderName: string | null = null;
+
+  static getRootFolderName(): string | null {
+    return this.rootFolderName;
+  }
+
+  static isMarkdownFile(filename: string): boolean {
+    const result = SUPPORTED_FORMATS.some(ext => filename.toLowerCase().endsWith(ext));
+    console.log('FileSystemService: isMarkdownFile check:', filename, '→', result, 'supported formats:', SUPPORTED_FORMATS);
+    return result;
+  }
+
+  static isImageFile(filename: string): boolean {
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.svg', '.bmp', '.webp'];
+    return imageExtensions.some(ext => filename.toLowerCase().endsWith(ext));
+  }
+
+  static getAllFiles(): Map<string, File> {
+    return this.allFiles;
+  }
+
   static async selectDirectory(): Promise<MarkdownFile[]> {
     console.log('FileSystemService: Starting directory selection');
     console.log('FileSystemService: Browser supports showDirectoryPicker:', 'showDirectoryPicker' in window);
-    
+
     try {
-      // Always use legacy method for better compatibility during testing
-      console.log('FileSystemService: Using legacy file input for better compatibility');
-      return await this.selectDirectoryLegacy();
+      return await this.selectDirectoryModern();
     } catch (error) {
       console.error('FileSystemService: Error in selectDirectory', error);
       if ((error as Error).name === 'AbortError') {
@@ -17,6 +37,85 @@ export class FileSystemService {
       }
       throw error;
     }
+  }
+
+  static async selectDirectoryModern(): Promise<MarkdownFile[]> {
+    console.log('FileSystemService: Setting up modern directory picker');
+    const rootHandle = await window.showDirectoryPicker();
+    this.rootFolderName = rootHandle.name;
+
+    this.allFiles.clear();
+    const allProcessedFiles: MarkdownFile[] = [];
+    await this.walkDirectoryHandle(rootHandle, rootHandle.name, allProcessedFiles);
+
+    console.log('FileSystemService: Modern picker processed', allProcessedFiles.length, 'files');
+    return allProcessedFiles;
+  }
+
+  private static async walkDirectoryHandle(
+    directoryHandle: FileSystemDirectoryHandle,
+    path: string,
+    collected: MarkdownFile[]
+  ): Promise<void> {
+    for await (const [name, handle] of directoryHandle.entries()) {
+      const entryPath = `${path}/${name}`;
+
+      if (handle.kind === 'directory') {
+        if (this.isIgnoredDirectory(name)) {
+          console.log('FileSystemService: Skipping ignored directory:', entryPath);
+          continue;
+        }
+        await this.walkDirectoryHandle(handle, entryPath, collected);
+        continue;
+      }
+
+      const isMarkdown = this.isMarkdownFile(name);
+      const isImage = this.isImageFile(name);
+      if (!isMarkdown && !isImage) {
+        continue;
+      }
+
+      const file = await handle.getFile();
+      // Strip the root folder name to match the legacy webkitRelativePath-style paths.
+      const relativePath = entryPath.split('/').slice(1).join('/');
+
+      this.allFiles.set(relativePath, file);
+      collected.push({
+        path: relativePath,
+        name,
+        file,
+        handle,
+        size: file.size,
+        lastModified: file.lastModified,
+        type: isMarkdown ? 'markdown' : 'image'
+      });
+      console.log('FileSystemService: Added file (modern):', relativePath, 'type:', isMarkdown ? 'markdown' : 'image');
+    }
+  }
+
+  /** Re-fetches the file from disk via its handle instead of a stale File snapshot. */
+  static async getFreshFile(markdownFile: MarkdownFile): Promise<File> {
+    if (!markdownFile.handle) {
+      return markdownFile.file;
+    }
+
+    await this.verifyReadPermission(markdownFile.handle);
+    return await markdownFile.handle.getFile();
+  }
+
+  static async readMarkdownFileContent(markdownFile: MarkdownFile): Promise<string> {
+    const file = await this.getFreshFile(markdownFile);
+    return this.readFileContent(file);
+  }
+
+  static async verifyReadPermission(handle: FileSystemFileHandle | FileSystemDirectoryHandle): Promise<boolean> {
+    const options: FileSystemHandlePermissionDescriptor = { mode: 'read' };
+
+    if ((await handle.queryPermission(options)) === 'granted') {
+      return true;
+    }
+
+    return (await handle.requestPermission(options)) === 'granted';
   }
 
   static async selectDirectoryLegacy(): Promise<MarkdownFile[]> {
@@ -66,42 +165,58 @@ export class FileSystemService {
 
   private static async processFileList(files: File[]): Promise<MarkdownFile[]> {
     console.log('FileSystemService: Processing file list with', files.length, 'files');
-    const markdownFiles: MarkdownFile[] = [];
+    const allProcessedFiles: MarkdownFile[] = [];
+    
+    // Clear and rebuild the all files map
+    this.allFiles.clear();
+    const firstPath = files[0] ? ((files[0] as any).webkitRelativePath || files[0].name) : null;
+    this.rootFolderName = firstPath ? firstPath.split('/')[0] : null;
     
     for (const file of files) {
       const path = (file as any).webkitRelativePath || file.name;
       const isMarkdown = this.isMarkdownFile(file.name);
+      const isImage = this.isImageFile(file.name);
       const isIgnored = this.isInIgnoredDirectory(path);
       
       console.log('FileSystemService: Processing file', file.name, {
         path,
         isMarkdown,
+        isImage,
         isIgnored,
-        willInclude: isMarkdown && !isIgnored
+        willInclude: (isMarkdown || isImage) && !isIgnored
       });
       
-      if (isMarkdown && !isIgnored) {
-        markdownFiles.push({
+      // Store all non-ignored files (markdown and images)
+      if ((isMarkdown || isImage) && !isIgnored) {
+        this.allFiles.set(path, file);
+        
+        // Add all files (markdown and images) to the processed files array
+        allProcessedFiles.push({
           path,
           name: file.name,
           file,
           size: file.size,
-          lastModified: file.lastModified
+          lastModified: file.lastModified,
+          type: isMarkdown ? 'markdown' : 'image'
         });
-        console.log('FileSystemService: Added markdown file:', path);
+        console.log('FileSystemService: Added file:', path, 'type:', isMarkdown ? 'markdown' : 'image');
       }
     }
     
-    console.log('FileSystemService: Final markdown files count:', markdownFiles.length);
-    return markdownFiles;
+    console.log('FileSystemService: Final processed files count:', allProcessedFiles.length);
+    return allProcessedFiles;
   }
 
   static buildDirectoryTree(files: MarkdownFile[]): DirectoryNode[] {
     console.log('FileSystemService: Building directory tree from', files.length, 'files');
     const nodeMap: Map<string, DirectoryNode> = new Map();
     
+    // Filter to only markdown files for the tree display
+    const markdownFiles = files.filter(file => file.type === 'markdown');
+    console.log('FileSystemService: Filtering to', markdownFiles.length, 'markdown files for tree display');
+    
     // First pass: create all nodes
-    files.forEach(file => {
+    markdownFiles.forEach(file => {
       console.log('FileSystemService: Processing file path:', file.path);
       const pathParts = file.path.split('/');
       
@@ -147,7 +262,7 @@ export class FileSystemService {
     
     const result = this.sortDirectoryTree(rootNodes);
     console.log('FileSystemService: Built directory tree with', result.length, 'root nodes');
-    result.forEach((node, index) => {
+    result.forEach((node) => {
       this.logTreeNode(node, 0);
     });
     return result;
@@ -199,12 +314,6 @@ export class FileSystemService {
       characters: content.length,
       path: file.path
     };
-  }
-
-  private static isMarkdownFile(filename: string): boolean {
-    const result = SUPPORTED_FORMATS.some(ext => filename.toLowerCase().endsWith(ext));
-    console.log('FileSystemService: isMarkdownFile check:', filename, '→', result, 'supported formats:', SUPPORTED_FORMATS);
-    return result;
   }
 
   private static isIgnoredDirectory(dirName: string): boolean {

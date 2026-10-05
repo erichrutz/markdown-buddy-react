@@ -14,6 +14,8 @@ export interface PDFExportOptions {
   includeHeader: boolean;
   includeFooter: boolean;
   filename?: string;
+  imageQuality?: number; // 0.1 to 1.0 for JPEG quality
+  imageFormat?: 'png' | 'jpeg';
 }
 
 export const DEFAULT_PDF_OPTIONS: PDFExportOptions = {
@@ -26,7 +28,9 @@ export const DEFAULT_PDF_OPTIONS: PDFExportOptions = {
     left: 20
   },
   includeHeader: true,
-  includeFooter: true
+  includeFooter: true,
+  imageQuality: 0.7, // 70% quality for good balance of size vs quality
+  imageFormat: 'jpeg' // JPEG is much smaller than PNG for photos
 };
 
 export class PDFExportService {
@@ -44,16 +48,19 @@ export class PDFExportService {
       // Create a clone of the content for PDF rendering
       const clonedElement = await this.prepareContentForPDF(contentElement);
       
-      // Generate canvas from the content
+      // Generate canvas from the content with optimized settings
       const canvas = await html2canvas(clonedElement, {
-        scale: 2, // Higher quality
+        scale: 1.5, // Reduced from 2 to balance quality and file size
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
         scrollX: 0,
         scrollY: 0,
         width: clonedElement.scrollWidth,
-        height: clonedElement.scrollHeight
+        height: clonedElement.scrollHeight,
+        logging: false, // Disable logging for performance
+        imageTimeout: 15000, // 15 second timeout for images
+        removeContainer: true // Clean up automatically
       });
 
       // Calculate PDF dimensions
@@ -127,10 +134,17 @@ export class PDFExportService {
           
           pageCtx.drawImage(canvas, 0, sourceY, imgWidth, sourceHeight, 0, 0, imgWidth, sourceHeight);
           
-          const pageImgData = pageCanvas.toDataURL('image/png');
+          // Use optimized image format and quality
+          const imageFormat = exportOptions.imageFormat || 'jpeg';
+          const imageQuality = exportOptions.imageQuality || 0.7;
+          
+          const pageImgData = imageFormat === 'jpeg' 
+            ? pageCanvas.toDataURL('image/jpeg', imageQuality)
+            : pageCanvas.toDataURL('image/png');
+            
           pdf.addImage(
             pageImgData,
-            'PNG',
+            imageFormat.toUpperCase(),
             exportOptions.margins.left,
             currentYPosition,
             finalWidth,
@@ -168,6 +182,9 @@ export class PDFExportService {
     // Clone the element
     const clone = originalElement.cloneNode(true) as HTMLElement;
     
+    // Fix any lost code block content immediately after cloning
+    this.fixCodeBlocks(clone, originalElement);
+    
     // Apply PDF-specific styles
     clone.style.cssText = `
       width: 210mm;
@@ -186,20 +203,58 @@ export class PDFExportService {
       box-sizing: border-box;
     `;
 
-    // Style code blocks for better PDF rendering
+    // Style and fix code blocks for better PDF rendering
     const codeBlocks = clone.querySelectorAll('pre, code');
-    codeBlocks.forEach(block => {
-      (block as HTMLElement).style.cssText += `
-        background: #f5f5f5 !important;
-        border: 1px solid #ddd !important;
-        border-radius: 4px !important;
-        padding: 8px !important;
-        font-family: 'Courier New', monospace !important;
+    codeBlocks.forEach((block) => {
+      const element = block as HTMLElement;
+      
+      // Ensure code content is preserved - sometimes innerHTML can be lost
+      if (element.textContent && !element.innerHTML.includes(element.textContent)) {
+        // Simple HTML escape for code content
+        const escapedText = element.textContent
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+        element.innerHTML = escapedText;
+      }
+      
+      // Apply comprehensive styling to ensure visibility
+      element.style.cssText += `
+        background: #f8f9fa !important;
+        border: 1px solid #e1e4e8 !important;
+        border-radius: 6px !important;
+        padding: 12px !important;
+        font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace !important;
         font-size: 12px !important;
-        line-height: 1.4 !important;
+        line-height: 1.45 !important;
         overflow-wrap: break-word !important;
         word-break: break-all !important;
+        white-space: pre-wrap !important;
+        display: block !important;
+        margin: 12px 0 !important;
+        max-width: 100% !important;
       `;
+
+      // Special handling for pre > code blocks (common in markdown)
+      if (element.tagName === 'PRE') {
+        const codeChild = element.querySelector('code');
+        if (codeChild) {
+          // Ensure the code child has the same styling
+          (codeChild as HTMLElement).style.cssText += `
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            font-family: inherit !important;
+            font-size: inherit !important;
+            color: inherit !important;
+            white-space: inherit !important;
+          `;
+        }
+      }
+
+
     });
 
     // Style tables
@@ -225,13 +280,18 @@ export class PDFExportService {
     const blockquotes = clone.querySelectorAll('blockquote');
     blockquotes.forEach(bq => {
       (bq as HTMLElement).style.cssText += `
-        border-left: 4px solid #ddd !important;
+        border-left: 4px solid #d1d5db !important;
         margin: 16px 0 !important;
         padding-left: 16px !important;
-        color: #666 !important;
+        color: #6b7280 !important;
       `;
     });
 
+    // Optimize images in the content
+    await this.optimizeImagesInContent(clone);
+    
+
+    
     // Add to DOM temporarily for rendering
     document.body.appendChild(clone);
     
@@ -239,6 +299,75 @@ export class PDFExportService {
     await this.waitForContent(clone);
     
     return clone;
+  }
+
+
+
+  /**
+   * Fix code blocks to ensure content is preserved in PDF
+   */
+  private static fixCodeBlocks(clone: HTMLElement, original: HTMLElement): void {
+    const cloneCodeBlocks = Array.from(clone.querySelectorAll('pre code, pre, code'));
+    const originalCodeBlocks = Array.from(original.querySelectorAll('pre code, pre, code'));
+
+    cloneCodeBlocks.forEach((cloneBlock, index) => {
+      if (originalCodeBlocks[index]) {
+        const cloneEl = cloneBlock as HTMLElement;
+        const originalEl = originalCodeBlocks[index] as HTMLElement;
+        
+        // If clone lost text content, restore it from original
+        if (!cloneEl.textContent?.trim() && originalEl.textContent?.trim()) {
+          cloneEl.textContent = originalEl.textContent;
+        }
+        
+        // Ensure innerHTML is preserved too
+        if (!cloneEl.innerHTML.trim() && originalEl.innerHTML.trim()) {
+          cloneEl.innerHTML = originalEl.innerHTML;
+        }
+      }
+    });
+  }
+
+
+
+  /**
+   * Optimize images in content for better PDF compression
+   */
+  private static async optimizeImagesInContent(element: HTMLElement): Promise<void> {
+    const images = element.querySelectorAll('img');
+    
+    for (const img of Array.from(images)) {
+      try {
+        // Set max dimensions for images to prevent oversized images in PDF
+        const maxWidth = 600; // Max width in pixels for PDF
+        const maxHeight = 400; // Max height in pixels for PDF
+        
+        img.style.maxWidth = `${maxWidth}px`;
+        img.style.maxHeight = `${maxHeight}px`;
+        img.style.width = 'auto';
+        img.style.height = 'auto';
+        img.style.objectFit = 'contain';
+        
+        // If image is loaded, we can get its natural dimensions and optimize further
+        if (img.complete && img.naturalWidth > 0) {
+          const aspectRatio = img.naturalWidth / img.naturalHeight;
+          
+          // Calculate optimal display size
+          let displayWidth = Math.min(img.naturalWidth, maxWidth);
+          let displayHeight = displayWidth / aspectRatio;
+          
+          if (displayHeight > maxHeight) {
+            displayHeight = maxHeight;
+            displayWidth = displayHeight * aspectRatio;
+          }
+          
+          img.style.width = `${displayWidth}px`;
+          img.style.height = `${displayHeight}px`;
+        }
+      } catch (error) {
+        console.warn('Error optimizing image for PDF:', error);
+      }
+    }
   }
 
   /**
@@ -348,8 +477,7 @@ export class PDFExportService {
    */
   private static generateFilename(file: MarkdownFile): string {
     const baseName = file.name.replace(/\.[^/.]+$/, ''); // Remove extension
-    const timestamp = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-    return `${baseName}_${timestamp}.pdf`;
+    return `${baseName}.pdf`;
   }
 
   /**
