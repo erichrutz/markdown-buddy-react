@@ -1,324 +1,217 @@
 # MarkDown Buddy
 
-[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
-[![React](https://img.shields.io/badge/React-18.2.0-blue.svg)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.2.2-blue.svg)](https://www.typescriptlang.org/)
-[![Material-UI](https://img.shields.io/badge/MUI-7.3.2-purple.svg)](https://mui.com/)
+**Browse, read and present folders of Markdown files, right in your browser. Nothing gets uploaded.**
 
-## Why I Built This
+[![CI](https://github.com/erichrutz/markdown-buddy-react/actions/workflows/ci.yml/badge.svg)](https://github.com/erichrutz/markdown-buddy-react/actions/workflows/ci.yml)
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![React](https://img.shields.io/badge/React-18-blue.svg)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue.svg)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-7-646cff.svg)](https://vitejs.dev/)
 
-**I was frustrated.** 😤 
+**[Try it online](https://erichrutz.github.io/markdown-buddy-react/)**: no installation needed, works best in Chrome or Edge.
 
-As a developer, I constantly work with markdown files - documentation, notes, project READMEs, technical specs. But every time I needed to present or share markdown content during screen sharing sessions, I faced the same annoying problems:
+![MarkDown Buddy showing a documentation folder with file tree, rendered document and outline](img/MDB-Light-Mode.png)
 
-- **Existing viewers** couldn't handle directory structures properly
-- **IDE markdown previews** were too cluttered for presentations  
-- **Online viewers** required uploading files (not great for sensitive docs)
-- **GitHub/GitLab** worked but felt overkill for local files
-- **Simple viewers** lacked proper syntax highlighting and diagram support
+## Why I built this
 
-I wanted something **clean**, **professional**, and **perfect for screen sharing** - a tool that could elegantly browse through markdown directories and display content beautifully without distractions.
+I work with Markdown all day: documentation, notes, READMEs, specs. Whenever I had to show that content in a meeting or during screen sharing, the existing options fell short:
 
-So I built **MarkDown Buddy** - the markdown viewer I wish I had from the beginning.
+- IDE previews are cluttered and don't handle a whole folder well.
+- Online viewers want you to upload files, which is a no-go for internal docs.
+- GitHub or GitLab works, but feels like overkill for local files.
+- Simple viewers lack syntax highlighting and diagrams.
+- Turning a document into slides means copying everything into PowerPoint.
 
-## What Makes It Special
+MarkDown Buddy is the tool I wanted: point it at a folder, read comfortably, and present any document as slides with one click.
 
-A modern, elegant Markdown viewer with Material-UI components, featuring an intuitive two-panel interface for browsing and viewing markdown files with live rendering, syntax highlighting, diagrams, and advanced features like PDF export, dark mode, and a full **presentation mode** that turns any markdown document into a slide-by-slide presentation without leaving the app.
+## Features
+
+**Reading**
+- File tree for a whole folder, with search, and `node_modules`, `.git` and similar folders skipped automatically
+- GitHub-flavored Markdown with syntax highlighting for 180+ languages
+- [Mermaid](https://mermaid.js.org/) and [PlantUML](https://plantuml.com/) diagrams
+- Local images, including relative paths across folders
+- YAML frontmatter rendered as a clean key/value table (handy for agent skill files such as `SKILL.md`)
+- Links between Markdown files navigate inside the app
+- Clickable outline of the current document
+- Zoom, adjustable reading width, light and dark theme (follows the system by default)
+
+**Presenting**
+- Every section of a document becomes a 16:9 slide, and text scales automatically to fit
+- Long sections are split across several slides
+- Build mode reveals list items one at a time
+- Skip sections you don't need, or start presenting from any section
+- Laser pointer and text marker for screen sharing (also available in the document view)
+- Separate light/dark theme for the slides
+- Header and footer of the slides are configurable (see [Presentation config](#presentation-config))
+
+**Other**
+- PDF export with embedded diagrams
+- Opens the current file in VS Code
+- English and German interface
+- Remembers the last folder, file and expanded folders
 
 ## Screenshots
 
-### Light Mode
-![alt text](img/MDB-Light-Mode.png)
+| Dark theme | Diagrams |
+|---|---|
+| ![Dark theme with syntax-highlighted code](img/MDB-Dark-Mode.png) | ![Rendered Mermaid flowchart](img/MDB-Mermaid.png) |
 
-### Dark Mode  
-![alt text](img/MDB-Dark-Mode.png)
+| Preparing a presentation | Presenting |
+|---|---|
+| ![Sections view with skip and present-from-here buttons](img/MDB-Sections.png) | ![A slide with a bulleted list](img/MDB-Presentation-1.png) |
 
-### Diagram Support
-![alt text](img/MDB-Mermaid-1.png)
-![alt text](img/MDB-Mermaid-2.png)
-![alt text](img/MDB-PlantUML-1.png)
+![A slide with a Mermaid diagram on the dark stage theme](img/MDB-Presentation-2.png)
 
-## ✨ Features
+## Getting started
 
-### **Advanced Markdown Support**
-- **Live Rendering**: GitHub-flavored markdown with instant preview
-- **Syntax Highlighting**: 180+ programming languages with highlight.js
-- **Mermaid Diagrams**: Flowcharts, sequence diagrams, class diagrams, and more
-- **PlantUML Support**: UML diagrams with online rendering
-- **Frontmatter Tables**: YAML frontmatter (metadata between `---` lines, e.g. agent skill files) is rendered as a clean key/value table in both document and presentation mode
-- **Internal Link Navigation**: Seamless navigation between markdown files
+### Use it online
 
-### **Presentation Mode**
-- **Slide-based view**: Each markdown section becomes a slide (16:9 aspect ratio)
-- **Auto-fit text**: Content automatically scales to fill the slide
-- **Build mode**: Reveal list items one at a time (toggle with `B`)
-- **Section management**: Skip or include sections from the "Abschnitte" tab
-- **Collapsible controls**: Sidebar and header auto-hide; bring back with `S` or mouse at screen edge
-- **Laser pointer**: Visual pointer overlay for highlighting (toggle with `P`)
-- **Text marker**: Highlight text passages during presentations (CSS Custom Highlight API)
-- **Independent theme**: Switch light/dark on the stage independently (`D`)
-- **Fullscreen**: Automatic fullscreen request; works without it too
-- **Keyboard navigation**: `Arrow keys`, `Space`, `PageUp/Down` for smooth navigation
+Open **https://erichrutz.github.io/markdown-buddy-react/** and click **Open folder**. Your browser asks for permission to read the folder; the files are only read locally.
 
-### **Modern Interface**
-- **Design Tokens**: Clean, professional UI built on a consistent token system
-- **Dark Mode**: Eye-friendly dark theme with automatic system detection
-- **Zoom control**: Scale document text independently
-- **Pointer for screen sharing**: Visible cursor overlay for the document view
-- **Settings Panel**: Comprehensive customization options
+### Run it locally
 
-### **File Management**
-- **Directory Browser**: Recursive exploration with intelligent filtering
-- **Session Persistence**: Remembers last opened folder and files
-- **File Statistics**: Size, line count, character count, and section count
-- **Auto-refresh**: Detects external file changes with notification
+You need **Node.js 20.19 or newer** and npm.
 
-### **Internationalization & Export**
-- **Multi-language**: German and English interface
-- **PDF Export**: Professional PDF generation with embedded diagrams
-- **VS Code Integration**: Open files directly in your favorite editor
-- **Keyboard Shortcuts**: Efficient navigation and controls
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+ 
-- npm or yarn
-
-### Installation
-
-1. Clone the repository:
 ```bash
 git clone https://github.com/erichrutz/markdown-buddy-react.git
 cd markdown-buddy-react
-```
-
-2. Install dependencies:
-```bash
 npm install
-```
-
-3. Start the development server:
-```bash
 npm run dev
 ```
 
-Check the port the system assigns to the tool. Default port is 3002, but if that is not available, a different one may be used.
+The app opens at http://localhost:3002. If that port is in use, Vite picks another one and prints it in the terminal.
 
-1. Open your browser to `http://localhost:3002` (check port if 3002 does not work)
-
-### Building for Production
+To build a static version for any web server:
 
 ```bash
 npm run build
 ```
 
-The built files will be in the `dist` directory.
+The output lands in `dist/`. Production builds use the base path `/markdown-buddy-react/` (for GitHub Pages); change `base` in `vite.config.ts` if you host it elsewhere.
 
-## Testing
+## How to present
 
-```bash
-# Run tests
-npm test
+1. Open a folder and select a document.
+2. Optional: switch to the **Sections** tab, skip sections you don't need, or press ▶ next to a section to start from there.
+3. Click **Present**. The browser switches to fullscreen if allowed.
+4. Use the keyboard to move through the slides. Move the mouse to the left or top edge, or press `S`, to show the controls.
+5. Press `Esc` to return to the document.
 
-# Generate coverage report  
-npm run test:coverage
+Select text in the document view to highlight it with the marker; click a highlight to remove it. Highlights are carried over to the slides.
 
-# Run tests once
-npm run test:run
-```
-
-## Usage
-
-Perfect for presentations, documentation reviews, and screen sharing:
-
-1. **Select a Directory**: Click the folder icon to choose your documentation folder
-2. **Browse Files**: Navigate the file tree on the left
-3. **Read**: Click any `.md` file to view it with full rendering
-4. **Prepare**: Switch to the "Abschnitte" tab to review sections and skip what you don't need
-5. **Present**: Hit "Präsentieren" — each section becomes a slide with auto-fitting text
-6. **Navigate**: Use arrow keys, Space, or the outline sidebar to move between slides
-7. **Highlight**: Use the pointer (`P`) and text marker during your talk
-8. **Export**: Generate PDFs with embedded diagrams
-
-### Presentation Keyboard Shortcuts
+### Presentation shortcuts
 
 | Key | Action |
 |---|---|
-| `↓` / `Space` / `PageDown` | Next step (reveal build item, scroll, or next slide) |
-| `↑` / `PageUp` | Previous step |
-| `←` / `→` | Jump between sections |
-| `B` | Toggle build mode (reveal list items one by one) |
-| `P` | Toggle laser pointer |
-| `D` | Toggle light/dark on stage |
-| `S` | Pin/unpin controls |
-| `Esc` | Exit presentation |
+| `↓` `Space` `PageDown` | Next step: reveal the next list item, next part of the section, or next slide |
+| `↑` `PageUp` | Previous step |
+| `→` / `←` | Next / previous section |
+| `B` | Build mode on/off |
+| `P` | Laser pointer on/off |
+| `D` | Light/dark slides |
+| `S` | Show or hide the controls |
+| `Esc` | Exit the presentation |
 
-### Perfect For:
-- **Presenting documentation** during meetings — no PowerPoint needed
-- **Screen sharing** technical content with the laser pointer
-- **Browsing large documentation** projects
-- **Distraction-free reading** of markdown files
-- **Generating PDFs** from markdown content
+### App shortcuts
 
-## Built With
+`Ctrl` on Windows and Linux, `⌘` on macOS.
 
-### Core Technologies
-- **[React 18](https://reactjs.org/)** - Modern UI library with hooks and concurrent features
-- **[TypeScript](https://www.typescriptlang.org/)** - Type safety and enhanced developer experience
-- **[Material-UI (MUI)](https://mui.com/)** - React component library following Material Design
-- **[Vite](https://vitejs.dev/)** - Lightning-fast build tool and development server
+| Key | Action |
+|---|---|
+| `Ctrl/⌘ + O` | Open a folder |
+| `Ctrl/⌘ + R` | Reload the current file |
+| `Ctrl/⌘ + P` | Export as PDF |
+| `Ctrl/⌘ + Shift + K` | Collapse all folders |
+| `Ctrl/⌘ + +` / `-` / `0` | Zoom in / out / reset |
+| `?` | Show all shortcuts |
 
-### Markdown & Rendering
-- **[marked.js](https://marked.js.org/)** - Fast markdown parser and compiler
-- **[highlight.js](https://highlightjs.org/)** - Syntax highlighting for 180+ languages
-- **[Mermaid.js](https://mermaid.js.org/)** - Diagrams and flowcharts from text
-- **[PlantUML](https://plantuml.com/)** - UML diagram generation
+## Presentation config
 
-### Additional Features
-- **[react-i18next](https://react.i18next.com/)** - Internationalization framework
-- **[jsPDF](https://github.com/parallax/jsPDF)** - PDF generation in the browser
-- **[html2canvas](https://html2canvas.hertzen.com/)** - Screenshot functionality for diagrams
+The slide header and footer are defined in [`public/presentation/config.json`](public/presentation/config.json). Edit it to add your logo, team name or other details. If the file is missing or invalid, built-in defaults are used.
 
-## Project Structure
-
-```
-src/
-├── components/           # React components
-│   ├── AboutDialog.tsx      # About dialog with license info
-│   ├── AppHeader.tsx        # Main navigation header
-│   ├── DocumentHeader.tsx   # Document tabs, zoom, pointer, markers
-│   ├── ErrorBoundary.tsx    # Error handling boundary
-│   ├── FileTree.tsx         # File system navigation
-│   ├── MarkdownViewer.tsx   # Markdown content renderer with outline
-│   ├── PDFExportDialog.tsx  # PDF export configuration
-│   ├── Pointer.tsx          # Laser pointer overlay
-│   ├── PresentationMode.tsx # Slide-based presentation with auto-fit
-│   ├── SectionsView.tsx     # Section list for presentation prep
-│   └── SettingsDialog.tsx   # Application settings
-├── hooks/               # Custom React hooks
-│   ├── useFileSystem.ts     # File system operations
-│   ├── useKeyboardShortcuts.ts # Keyboard navigation
-│   ├── useMarkdown.ts       # Markdown processing
-│   ├── usePDFExport.ts      # PDF generation
-│   ├── useSession.ts        # Session persistence
-│   ├── useSettings.ts       # Settings management
-│   └── useTextMarker.ts     # CSS Custom Highlight API markers
-├── services/            # Business logic services
-│   ├── fileSystemService.ts # File operations
-│   ├── markdownService.ts   # Markdown parsing
-│   ├── pdfExportService.ts  # PDF generation
-│   ├── sessionService.ts    # Local storage
-│   └── vscodeService.ts     # VS Code integration
-├── utils/              # Utilities
-│   └── sectionParser.ts     # Parse markdown HTML into sections
-├── i18n/               # Internationalization
-│   ├── i18n.ts             # i18next configuration
-│   └── translations.ts     # Language translations
-├── theme/              # Design system & tokens
-│   ├── theme.ts            # MUI theme configuration
-│   ├── designTokens.ts     # Design tokens
-│   └── palette.ts          # Color palette
-├── types/              # TypeScript definitions
-│   └── settings.ts         # Settings type definitions
-├── styles/             # Global styles
-│   └── markdown.css        # Markdown-specific styling
-└── App.tsx             # Main application component
+```json
+{
+  "defaults": { "team": "" },
+  "activeHeader": "default",
+  "activeFooter": "standard",
+  "headers": {
+    "default": {
+      "left":  [{ "type": "text", "value": "{sectionTitle}{continuation}", "variant": "title" }],
+      "right": [{ "type": "text", "value": "{sectionNumber} / {sectionCount}", "variant": "meta" }]
+    }
+  },
+  "footers": {
+    "standard": {
+      "left":   [{ "type": "icon", "src": "icons/logo.svg", "height": 18 }],
+      "center": [{ "type": "text", "value": "{documentTitle}", "variant": "meta" }],
+      "right":  [{ "type": "text", "value": "{date}", "variant": "meta" }]
+    }
+  }
+}
 ```
 
-## Features in Detail
+- You can define several headers and footers; `activeHeader` and `activeFooter` select which one is used.
+- Each band has `left`, `center` and `right` slots containing a list of elements.
+- `text` elements have a `variant` of `title`, `normal` or `meta`.
+- `icon` elements point to a file relative to `public/presentation/`.
+- Available placeholders: `{sectionTitle}`, `{continuation}`, `{documentTitle}`, `{fileName}`, `{sectionNumber}`, `{sectionCount}`, `{pageNumber}`, `{pageCount}`, `{date}`, `{time}`, `{author}`.
+- `{author}` comes from an `author:` field in the document's frontmatter and falls back to `defaults.team`.
 
-### File System Support
-- Modern File System Access API with fallback to legacy file input
-- Automatic filtering of ignored directories (node_modules, .git, etc.)
-- Support for .md and .markdown files
+## Privacy and browser support
 
-### Markdown Rendering
-- GitHub Flavored Markdown support
-- Syntax highlighting for 180+ programming languages
-- Responsive tables and lists
-- Custom link handling for internal navigation
-- YAML frontmatter (metadata between `---` lines) rendered as a key/value table — ideal for agent skill files (`SKILL.md`); shown in both document view and as a "Metadata" intro slide in presentation mode
+- **Your files stay on your machine.** The app is a static website; files are read in the browser and never uploaded.
+- **Exception: PlantUML.** PlantUML diagrams are rendered by the public server at `plantuml.com`, so the diagram source is sent there. Mermaid diagrams are rendered locally. Avoid PlantUML for confidential content.
+- Rendered HTML is sanitized with [DOMPurify](https://github.com/cure53/DOMPurify).
 
-### Mermaid Diagrams
-Supports all Mermaid diagram types:
-- Flowcharts
-- Sequence diagrams
-- Class diagrams
-- State diagrams
-- Gantt charts
-- Pie charts
-- Git graphs
+| Browser | Support |
+|---|---|
+| Chrome, Edge and other Chromium-based browsers | Full support via the [File System Access API](https://developer.mozilla.org/docs/Web/API/File_System_API); **Reload** always reads the latest version from disk |
+| Firefox, Safari | Folders are opened through the standard folder upload dialog; files are read once, so to see changes on disk, open the folder again |
 
-### Session Management
-- Automatic saving of last opened folder and file
-- Persistent folder expansion state
-- Language preference storage
-
-## Browser Support
-
-- Chrome/Edge 88+
-- Firefox 85+
-- Safari 14+
-- Mobile browsers with responsive design
+The text marker uses the [CSS Custom Highlight API](https://developer.mozilla.org/docs/Web/API/CSS_Custom_Highlight_API). In browsers without it, the marker is simply unavailable.
 
 ## Configuration
 
-### Ignored Directories
-Edit `src/types/index.ts` to modify the list of ignored directories:
+| What | Where |
+|---|---|
+| Folders to skip, supported file extensions | `src/types/index.ts` (`IGNORED_DIRECTORIES`, `SUPPORTED_FORMATS`) |
+| Colors, surfaces and accent color | `src/theme/designTokens.ts`, `src/theme/palette.ts` |
+| MUI theme | `src/theme/theme.ts` |
+| Slide header and footer | `public/presentation/config.json` |
+| Translations | `src/i18n/translations.ts` |
 
-```typescript
-export const IGNORED_DIRECTORIES = [
-  'node_modules', '.git', '.vscode', 'dist', 'build'
-];
+## Development
+
+```bash
+npm run dev            # start the dev server
+npm test               # run tests in watch mode
+npm run test:run       # run tests once
+npm run test:coverage  # coverage report
+npm run lint           # ESLint
+npm run build          # type check and production build
 ```
 
-### Supported File Extensions
-Modify the supported file extensions in `src/types/index.ts`:
-
-```typescript
-export const SUPPORTED_FORMATS = ['.md', '.markdown'];
+```
+src/
+├── components/   UI: file tree, viewer, document header, presentation mode, dialogs
+├── hooks/        state and behavior: files, settings, session, shortcuts, text marker
+├── services/     file system access, Markdown rendering, PlantUML, images, PDF export
+├── utils/        section parsing, slide pagination, presentation config, text anchors
+├── theme/        design tokens, palette and MUI theme
+├── i18n/         English and German translations
+└── types/        shared TypeScript types
+public/
+├── presentation/         slide header/footer config and icons
+└── test-markdown-files/  sample documents for manual testing
 ```
 
-### Theme Customization
-Edit `src/theme/theme.ts` to customize colors and styling.
+Built with [React](https://react.dev/), [TypeScript](https://www.typescriptlang.org/), [MUI](https://mui.com/), [Vite](https://vitejs.dev/), [marked](https://marked.js.org/), [highlight.js](https://highlightjs.org/), [Mermaid](https://mermaid.js.org/), [jsPDF](https://github.com/parallax/jsPDF), [html2canvas](https://html2canvas.hertzen.com/) and [i18next](https://www.i18next.com/).
 
 ## Contributing
 
-Contributions are welcome! Here's how you can help:
-
-1. **Fork the repository**
-2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
-3. **Commit your changes**: `git commit -m 'Add some amazing feature'`
-4. **Push to the branch**: `git push origin feature/amazing-feature`
-5. **Open a Pull Request**
-
-### Development Guidelines
-- Follow the existing code style and TypeScript patterns
-- Add appropriate tests for new features
-- Update documentation for significant changes
-- Ensure all linting and type checking passes
-
-### Issues and Feature Requests
-- Use the GitHub Issues tab to report bugs or request features
-- Provide detailed information about your environment and use case
-- Check existing issues before creating new ones
+Issues and pull requests are welcome. Before opening a pull request, please make sure `npm run lint`, `npm run test:run` and `npm run build` pass, and add tests for new logic.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Author
-
-**Erich Rutz**
-
-## 🙏 Acknowledgments
-
-- Material-UI team for the excellent component library
-- The React community for inspiration and best practices
-- All open-source contributors whose libraries make this project possible
-
----
-
-**Made with ❤️ by Erich Rutz**
+[MIT](LICENSE) © Erich Rutz
