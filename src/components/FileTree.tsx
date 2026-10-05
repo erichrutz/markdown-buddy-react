@@ -257,7 +257,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
             component="input"
             value={filter}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFilter(e.target.value)}
-            placeholder="Nach Dateien suchen…"
+            placeholder={t('search.placeholder')}
             sx={{
               flex: 1,
               minWidth: 0,
@@ -291,7 +291,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
           color: tokens.fg3,
         }}
       >
-        {totalFiles} Markdown-Dateien
+        {t('tree.fileCount', { count: totalFiles })}
       </Box>
     </Box>
   );

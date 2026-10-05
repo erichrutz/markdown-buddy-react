@@ -816,7 +816,7 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({
           {t('presentation.outline')}
         </Box>
         <Box sx={{ px: '24px', pb: '18px', fontSize: 12, color: pc.dim, whiteSpace: 'nowrap' }}>
-          Klicken zum Springen
+          {t('presentation.clickToJump')}
         </Box>
 
         <Box sx={{ flex: 1, overflow: 'auto' }}>
@@ -858,7 +858,7 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({
           <div>S&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{t('presentation.helpControls')}</div>
           <div>Esc&nbsp;&nbsp;{t('presentation.exit')}</div>
           <Box sx={{ mt: '8px', fontSize: 10.5, opacity: 0.7 }}>
-            Die Steuerung blendet sich aus. Taste S oder Maus an den linken bzw. oberen Bildschirmrand.
+            {t('presentation.controlsHint')}
           </Box>
         </Box>
       </Box>
@@ -893,7 +893,7 @@ export const PresentationMode: React.FC<PresentationModeProps> = ({
           </Box>
           <Box sx={{ flex: 1 }} />
           <Box sx={{ flex: '0 0 auto', fontSize: 12, fontVariantNumeric: 'tabular-nums', color: pc.dim }}>
-            Abschnitt {currentActiveIndex + 1} von {totalSlides}
+            {t('presentation.sectionOf', { current: currentActiveIndex + 1, total: totalSlides })}
           </Box>
 
           <Box component="button" type="button" onClick={() => goTo(currentActiveIndex - 1)} title={t('presentation.prevSection')} sx={navBtnSx}>

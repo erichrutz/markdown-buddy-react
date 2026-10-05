@@ -109,7 +109,8 @@ export const translations = {
     },
     tree: {
       sort: 'Sortieren',
-      loading: 'Laden…'
+      loading: 'Laden…',
+      fileCount: '{{count}} Markdown-Dateien'
     },
     viewer: {
       errorLoading: 'Fehler beim Laden',
@@ -155,7 +156,10 @@ export const translations = {
       pointerTitle: 'Zeiger (P)',
       screenUsage: 'Bildschirmnutzung',
       themeTitle: 'Hell/Dunkel (D)',
-      continues: 'Abschnitt geht weiter'
+      continues: 'Abschnitt geht weiter',
+      clickToJump: 'Klicken zum Springen',
+      controlsHint: 'Die Steuerung blendet sich aus. Taste S oder Maus an den linken bzw. oberen Bildschirmrand.',
+      sectionOf: 'Abschnitt {{current}} von {{total}}'
     },
     settings: {
       title: 'Einstellungen'
@@ -271,7 +275,8 @@ export const translations = {
     },
     tree: {
       sort: 'Sort',
-      loading: 'Loading…'
+      loading: 'Loading…',
+      fileCount: '{{count}} Markdown files'
     },
     viewer: {
       errorLoading: 'Error while loading',
@@ -317,7 +322,10 @@ export const translations = {
       pointerTitle: 'Pointer (P)',
       screenUsage: 'Screen usage',
       themeTitle: 'Light/Dark (D)',
-      continues: 'Section continues'
+      continues: 'Section continues',
+      clickToJump: 'Click to jump',
+      controlsHint: 'Controls hide automatically. Press S or move the mouse to the left or top screen edge.',
+      sectionOf: 'Section {{current}} of {{total}}'
     },
     settings: {
       title: 'Settings'
