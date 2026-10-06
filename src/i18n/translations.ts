@@ -93,7 +93,7 @@ export const translations = {
       version: 'Version',
       author: 'Entwickler',
       year: 'Jahr',
-      description: 'Ein eleganter Markdown-Viewer und -Editor mit erweiterten Funktionen für Diagramme, Syntax-Highlighting und PDF-Export.',
+      description: 'Ein browserbasierter Markdown-Viewer und -Presenter. Lokale Markdown-Dateien durchsuchen, Mermaid- und PlantUML-Diagramme rendern, Code hervorheben, als PDF exportieren und Folien präsentieren.',
       license: {
         title: 'Lizenz',
         description: 'Diese Software steht unter der MIT-Lizenz:'
@@ -321,7 +321,7 @@ export const translations = {
       version: 'Version',
       author: 'Developer',
       year: 'Year',
-      description: 'An elegant Markdown viewer and editor with advanced features for diagrams, syntax highlighting, and PDF export.',
+      description: 'A browser-based Markdown viewer and presenter. Browse local Markdown files, render Mermaid and PlantUML diagrams, highlight code, export to PDF, and present slides.',
       license: {
         title: 'License',
         description: 'This software is licensed under the MIT License:'
