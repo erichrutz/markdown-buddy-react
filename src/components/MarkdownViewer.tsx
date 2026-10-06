@@ -1,12 +1,11 @@
-import React, { useEffect, useRef, useMemo, useState } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Typography } from '@mui/material';
 import DOMPurify from 'dompurify';
 import { MarkdownFile } from '../types';
-import { SurfaceTokens, BRAND, DOC_WIDTH_MAX } from '../theme/designTokens';
+import { SurfaceTokens, DOC_WIDTH_MAX } from '../theme/designTokens';
 import { LoadingIndicator } from './LoadingIndicator';
 import { OutlineEntry } from '../utils/sectionParser';
-import { useResizableWidth } from '../hooks/useResizableWidth';
 import 'highlight.js/styles/github.css';
 
 import appLogo from '../img/logo.svg';
@@ -38,7 +37,6 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
   zoom,
   docWidth,
   docPointer,
-  outline,
   wordWrap = true,
   onInternalLinkClick,
   onMermaidProcess,
@@ -47,8 +45,6 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
 }) => {
   const { t } = useTranslation();
   const contentRef = useRef<HTMLDivElement>(null);
-  const [activeOutline, setActiveOutline] = useState<string>(outline[0]?.id || '');
-  const { width: outlineWidth, onMouseDown: onOutlineResize } = useResizableWidth(236, 160, 420, 'left');
 
   // Sanitize HTML
   const sanitizedContent = useMemo(() => {
@@ -92,14 +88,6 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
     processContent();
   }, [content, loading, onInternalLinkClick, onMermaidProcess, onPlantUMLProcess]);
 
-  // Set active outline to first entry when outline changes
-  useEffect(() => {
-    const first = outline[0];
-    if (first && !outline.find(o => o.id === activeOutline)) {
-      setActiveOutline(first.id);
-    }
-  }, [outline, activeOutline]);
-
   if (loading) {
     return <LoadingIndicator variant="markdown" size="medium" type="circular" />;
   }
@@ -128,95 +116,27 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
   }
 
   return (
-    <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-      {/* Document body */}
+    <Box
+      onMouseUp={(e) => onDocMouseUp?.(e.clientX, e.clientY)}
+      sx={{
+        flex: 1,
+        minWidth: 0,
+        overflow: 'auto',
+        background: tokens.paper,
+        cursor: docPointer ? 'none' : 'auto',
+      }}
+    >
       <Box
-        onMouseUp={(e) => onDocMouseUp?.(e.clientX, e.clientY)}
+        ref={contentRef}
+        className={`markdown-content ${wordWrap ? 'word-wrap-enabled' : 'word-wrap-disabled'}`}
+        dangerouslySetInnerHTML={{ __html: sanitizedContent }}
         sx={{
-          flex: 1,
-          minWidth: 0,
-          overflow: 'auto',
-          background: tokens.paper,
-          cursor: docPointer ? 'none' : 'auto',
+          maxWidth: docWidth >= DOC_WIDTH_MAX ? 'none' : docWidth,
+          margin: '0 auto',
+          padding: '56px 40px 96px',
+          fontSize: `${fontPx}px`,
         }}
-      >
-        <Box
-          ref={contentRef}
-          className={`markdown-content ${wordWrap ? 'word-wrap-enabled' : 'word-wrap-disabled'}`}
-          dangerouslySetInnerHTML={{ __html: sanitizedContent }}
-          sx={{
-            maxWidth: docWidth >= DOC_WIDTH_MAX ? 'none' : docWidth,
-            margin: '0 auto',
-            padding: '56px 40px 96px',
-            fontSize: `${fontPx}px`,
-          }}
-        />
-      </Box>
-
-      {/* Outline panel */}
-      {outline.length > 0 && (
-        <Box
-          sx={{
-            position: 'relative',
-            width: outlineWidth,
-            flexShrink: 0,
-            overflow: 'auto',
-            padding: '56px 24px 40px 0',
-            borderLeft: `1px solid ${tokens.border}`,
-            background: tokens.paper,
-          }}
-        >
-          {/* Resize handle */}
-          <Box
-            onMouseDown={onOutlineResize}
-            sx={{
-              position: 'absolute',
-              top: 0,
-              left: -3,
-              width: 6,
-              height: '100%',
-              cursor: 'col-resize',
-              zIndex: 1,
-              '&:hover': { background: BRAND.ACCENT },
-            }}
-          />
-          <Box sx={{ fontSize: 11, fontWeight: 600, letterSpacing: '.09em', textTransform: 'uppercase', color: tokens.fg3, pl: '24px', mb: '12px' }}>
-            {t('viewer.outline')}
-          </Box>
-          {outline.map((o, idx) => {
-            const active = activeOutline === o.id;
-            return (
-              <Box
-                key={o.id}
-                onClick={() => {
-                  setActiveOutline(o.id);
-                  // Scroll to the matching heading. Outline entries are in
-                  // document order, so the Nth entry maps to the Nth heading.
-                  const root = contentRef.current;
-                  if (!root) return;
-                  const headings = root.querySelectorAll('h1, h2, h3');
-                  const target = headings[idx] as HTMLElement | undefined;
-                  target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }}
-                sx={{
-                  fontSize: 15,
-                  lineHeight: 1.45,
-                  padding: '6px 0 6px 21px',
-                  cursor: 'pointer',
-                  borderLeft: `3px solid ${active ? BRAND.ACCENT : 'transparent'}`,
-                  ml: 0,
-                  color: active ? tokens.fg1 : tokens.fg3,
-                  fontWeight: active ? 600 : 400,
-                  pl: o.level === 3 ? '36px' : '21px',
-                  '&:hover': { color: BRAND.ACCENT },
-                }}
-              >
-                {o.label}
-              </Box>
-            );
-          })}
-        </Box>
-      )}
+      />
     </Box>
   );
 };
