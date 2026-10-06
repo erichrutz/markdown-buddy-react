@@ -21,7 +21,13 @@ export const translations = {
       close: 'Schließen',
       cancel: 'Abbrechen',
       refresh: 'Datei neu laden',
-      refreshChanged: 'Datei wurde geändert - neu laden'
+      refreshChanged: 'Datei wurde geändert - neu laden',
+      addedToOpened: '"{{name}}" zu geöffneten Dateien hinzugefügt',
+      addedMultipleToOpened: '{{count}} Dateien zu geöffneten Dateien hinzugefügt',
+      onlyMarkdownFiles: 'Nur Markdown-Dateien können hinzugefügt werden',
+      dropToAdd: 'Ablegen, um zu geöffneten Dateien hinzuzufügen',
+      imageAltHint: 'Enthaltenden Ordner öffnen, um Bilder anzuzeigen',
+      linkNotLoaded: 'Nicht geladen — Datei oder Ordner öffnen'
     },
     search: {
       title: 'Suchen',
@@ -110,9 +116,16 @@ export const translations = {
     sidebar: {
       changeFolder: 'Ordner wechseln',
       openFolderAction: 'Ordner öffnen…',
+      openFilesAction: 'Dateien öffnen…',
+      openFilesHint: 'Zu "Geöffnete Dateien" hinzugefügt · oder hierher ziehen',
+      openFolderOrFiles: 'Ordner oder Dateien öffnen',
       recent: 'ZULETZT',
       files: 'DATEIEN',
       outline: 'GLIEDERUNG',
+      openedFiles: 'Geöffnete Dateien',
+      clearOpenedFiles: 'Leeren',
+      removeOpenedFile: 'Aus geöffneten Dateien entfernen (Datei bleibt auf der Festplatte)',
+      clickToReopen: 'Klicken zum erneuten Öffnen',
       filterFiles: '{{count}} Dateien filtern…',
       expandAll: 'Alle Ordner aufklappen',
       collapseAll: 'Alle einklappen (⌘⇧K)',
@@ -236,7 +249,13 @@ export const translations = {
       close: 'Close',
       cancel: 'Cancel',
       refresh: 'Reload file',
-      refreshChanged: 'File changed - reload'
+      refreshChanged: 'File changed - reload',
+      addedToOpened: 'Added "{{name}}" to Opened files',
+      addedMultipleToOpened: 'Added {{count}} files to Opened files',
+      onlyMarkdownFiles: 'Only Markdown files can be added',
+      dropToAdd: 'Drop to add to Opened files',
+      imageAltHint: 'Open the containing folder to show images',
+      linkNotLoaded: 'Not loaded — open the file or its folder'
     },
     search: {
       title: 'Search',
@@ -325,9 +344,16 @@ export const translations = {
     sidebar: {
       changeFolder: 'Change folder',
       openFolderAction: 'Open folder…',
+      openFilesAction: 'Open files…',
+      openFilesHint: 'Added to "Opened files" · or drop them anywhere',
+      openFolderOrFiles: 'Open folder or files',
       recent: 'RECENT',
       files: 'FILES',
       outline: 'OUTLINE',
+      openedFiles: 'Opened files',
+      clearOpenedFiles: 'Clear',
+      removeOpenedFile: 'Remove from Opened files (file stays on disk)',
+      clickToReopen: 'Click to reopen',
       filterFiles: 'Filter {{count}} files…',
       expandAll: 'Expand all folders',
       collapseAll: 'Collapse all folders (⌘⇧K)',

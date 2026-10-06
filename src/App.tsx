@@ -1,8 +1,9 @@
-import { useCallback, useState, useEffect, useMemo } from 'react';
+import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ThemeProvider } from '@mui/material/styles';
-import { CssBaseline, Box } from '@mui/material';
+import { CssBaseline, Box, Snackbar } from '@mui/material';
 import { createAppTheme } from './theme/theme';
-import { getSurfaceTokens, getStageTokens, getSurroundTokens } from './theme/designTokens';
+import { getSurfaceTokens, getStageTokens, getSurroundTokens, BRAND } from './theme/designTokens';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Sidebar } from './components/Sidebar';
 import { Toolbar } from './components/Toolbar';
@@ -18,6 +19,7 @@ import { useFileSystem } from './hooks/useFileSystem';
 import { useMarkdown } from './hooks/useMarkdown';
 import { useSession } from './hooks/useSession';
 import { useSettings } from './hooks/useSettings';
+import { useOpenedFiles } from './hooks/useOpenedFiles';
 import { useKeyboardShortcuts, createDefaultShortcuts } from './hooks/useKeyboardShortcuts';
 import { usePDFExport } from './hooks/usePDFExport';
 import { useFileChangeDetection } from './hooks/useFileChangeDetection';
@@ -26,11 +28,13 @@ import { usePresentationConfig } from './hooks/usePresentationConfig';
 import { parseSectionsFromHTML, extractOutline, Section, OutlineEntry } from './utils/sectionParser';
 import { PDFExportOptions } from './services/pdfExportService';
 import { MarkdownService } from './services/markdownService';
+import { FileSystemService } from './services/fileSystemService';
 import { ViewMode } from './components/Toolbar';
 import './i18n/i18n';
 import './styles/markdown.css';
 
 function App() {
+  const { t } = useTranslation();
   const {
     settings,
     updateAppearanceSettings,
@@ -60,6 +64,29 @@ function App() {
   } = useFileSystem();
 
   const {
+    expandedFolders,
+    saveExpandedFolders,
+    saveCurrentFile,
+  } = useSession();
+
+  const {
+    openedEntries,
+    openedSectionOpen,
+    setOpenedSectionOpen,
+    addFiles: addOpenedFiles,
+    removeFile: removeOpenedFile,
+    clearAll: clearOpenedFiles,
+    requestPermission,
+    getFileById: getOpenedFileById,
+  } = useOpenedFiles();
+
+  // Combine folder files with opened files for markdown rendering
+  const combinedAllFiles = useMemo(() => {
+    const opened = openedEntries.filter(e => !e.needsPermission).map(e => e.file);
+    return [...allFiles, ...opened];
+  }, [allFiles, openedEntries]);
+
+  const {
     currentFile,
     renderedHtml,
     stats,
@@ -69,16 +96,17 @@ function App() {
     processInternalLinks,
     processMermaidDiagrams,
     processPlantUMLDiagrams
-  } = useMarkdown(getEffectiveTheme(), allFiles, {
+  } = useMarkdown(getEffectiveTheme(), combinedAllFiles, {
     openLinksInNewTab: settings.behavior.openLinksInNewTab,
     plantUMLServer: settings.diagrams.plantUMLServer,
   });
 
-  const {
-    expandedFolders,
-    saveExpandedFolders,
-    saveCurrentFile,
-  } = useSession();
+  // Drag & drop state
+  const [dragOver, setDragOver] = useState(false);
+  const dragCounterRef = useRef(0);
+
+  // Toast state
+  const [toast, setToast] = useState<string | null>(null);
 
   // Dialog states
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
@@ -133,10 +161,13 @@ function App() {
   // Breadcrumb from file path
   const breadcrumb = useMemo(() => {
     if (!currentFile) return '';
+    if (currentFile.path.startsWith('@opened/')) {
+      return t('sidebar.openedFiles');
+    }
     const parts = currentFile.path.split('/');
     parts.pop();
     return parts.join(' / ') || folderName || 'Document Store';
-  }, [currentFile, folderName]);
+  }, [currentFile, folderName, t]);
 
   // Document title (first h1)
   const documentTitle = useMemo(() => {
@@ -241,6 +272,94 @@ function App() {
     updateAppearanceSettings({ theme: isDark ? 'light' : 'dark' });
   }, [isDark, updateAppearanceSettings]);
 
+  // Opened files handlers
+  const handleOpenFiles = useCallback(async () => {
+    try {
+      const files = await FileSystemService.pickFiles();
+      if (files.length === 0) return;
+      const { added, names, entries: newEntries } = addOpenedFiles(files);
+      if (added === 1) {
+        setToast(t('ui.addedToOpened', { name: names[0] }));
+      } else if (added > 1) {
+        setToast(t('ui.addedMultipleToOpened', { count: added }));
+      }
+      // Select the first newly added file
+      const firstNew = newEntries[0];
+      if (firstNew) {
+        handleFileSelect(firstNew.file);
+      }
+    } catch (e) {
+      if ((e as Error).name !== 'AbortError') {
+        console.error('Failed to open files:', e);
+      }
+    }
+  }, [addOpenedFiles, handleFileSelect, t]);
+
+  const handleRemoveOpenedFile = useCallback((id: string) => {
+    const selectNextId = removeOpenedFile(id, currentFile);
+    if (selectNextId) {
+      const nextFile = getOpenedFileById(selectNextId);
+      if (nextFile) handleFileSelect(nextFile);
+    }
+  }, [removeOpenedFile, currentFile, getOpenedFileById, handleFileSelect]);
+
+  const handleClearOpenedFiles = useCallback(() => {
+    clearOpenedFiles();
+  }, [clearOpenedFiles]);
+
+  const handleRequestPermission = useCallback(async (id: string) => {
+    const file = await requestPermission(id);
+    if (file) handleFileSelect(file);
+  }, [requestPermission, handleFileSelect]);
+
+  // Drag & drop handlers
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!e.dataTransfer.types.includes('Files')) return;
+    dragCounterRef.current++;
+    if (dragCounterRef.current === 1) setDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounterRef.current--;
+    if (dragCounterRef.current === 0) setDragOver(false);
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDrop = useCallback(async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounterRef.current = 0;
+    setDragOver(false);
+
+    const droppedFiles = Array.from(e.dataTransfer.files);
+    if (droppedFiles.length === 0) return;
+
+    const mdFiles = await FileSystemService.processDroppedFiles(droppedFiles);
+    if (mdFiles.length === 0) {
+      setToast(t('ui.onlyMarkdownFiles'));
+      return;
+    }
+
+    const { added, names, entries: newEntries } = addOpenedFiles(mdFiles);
+    if (added === 1) {
+      setToast(t('ui.addedToOpened', { name: names[0] }));
+    } else if (added > 1) {
+      setToast(t('ui.addedMultipleToOpened', { count: added }));
+    }
+    const firstNew = newEntries[0];
+    if (firstNew) {
+      handleFileSelect(firstNew.file);
+    }
+  }, [addOpenedFiles, handleFileSelect, t]);
+
   // Zoom
   const zoomIn = useCallback(() => setZoom(z => Math.min(z + 10, 200)), []);
   const zoomOut = useCallback(() => setZoom(z => Math.max(z - 10, 50)), []);
@@ -308,6 +427,7 @@ function App() {
     toggleFocusMode: () => {},
     exitFocusMode: () => {},
     selectDirectory,
+    openFiles: handleOpenFiles,
     collapseAll: handleCollapseAll,
     showHelp: () => setShowShortcutsHelp(true),
     exportPDF: handleShowPDFExport,
@@ -334,22 +454,48 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <ErrorBoundary>
-        <Box sx={{
-          display: 'flex',
-          height: '100vh',
-          overflow: 'hidden',
-          background: tokens.canvas,
-          color: tokens.fg1,
-          fontFamily: "'Noto Sans', Arial, sans-serif",
-          WebkitFontSmoothing: 'antialiased',
-          '& *, & *::before, & *::after': { boxSizing: 'border-box' },
-        }}>
+        <Box
+          onDragEnter={handleDragEnter}
+          onDragLeave={handleDragLeave}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+          sx={{
+            display: 'flex',
+            height: '100vh',
+            overflow: 'hidden',
+            background: tokens.canvas,
+            color: tokens.fg1,
+            fontFamily: "'Noto Sans', Arial, sans-serif",
+            WebkitFontSmoothing: 'antialiased',
+            '& *, & *::before, & *::after': { boxSizing: 'border-box' },
+            position: 'relative',
+          }}>
+          {/* Drag & drop overlay */}
+          {dragOver && (
+            <Box sx={{
+              position: 'absolute', inset: 8, zIndex: 100,
+              border: `2px dashed ${BRAND.ACCENT}`,
+              background: `rgba(2, 132, 199, 0.06)`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              pointerEvents: 'none',
+            }}>
+              <Box sx={{
+                background: tokens.chrome, border: `1px solid ${tokens.border}`,
+                boxShadow: '0 8px 24px rgba(17,24,39,.12)',
+                px: 3, py: 1.5, fontSize: 15, fontWeight: 600,
+                color: tokens.selFg,
+              }}>
+                {t('ui.dropToAdd')}
+              </Box>
+            </Box>
+          )}
           {/* Sidebar */}
           <Sidebar
             tokens={tokens}
             isDark={isDark}
             folderName={folderName}
             onSelectDirectory={selectDirectory}
+            onOpenFiles={handleOpenFiles}
             directoryTree={directoryTree}
             selectedFile={currentFile}
             expandedFolders={expandedFolders}
@@ -358,6 +504,12 @@ function App() {
             onExpandedChange={saveExpandedFolders}
             onCollapseAll={handleCollapseAll}
             onExpandAll={handleExpandAll}
+            openedEntries={openedEntries}
+            openedSectionOpen={openedSectionOpen}
+            onToggleOpenedSection={() => setOpenedSectionOpen(o => !o)}
+            onRemoveOpenedFile={handleRemoveOpenedFile}
+            onClearOpenedFiles={handleClearOpenedFiles}
+            onRequestPermission={handleRequestPermission}
             outline={outline}
             activeOutlineId={activeOutlineId}
             onOutlineClick={handleOutlineClick}
@@ -502,6 +654,15 @@ function App() {
           <AboutDialog
             open={showAbout}
             onClose={() => setShowAbout(false)}
+          />
+
+          {/* Toast notifications */}
+          <Snackbar
+            open={!!toast}
+            autoHideDuration={3000}
+            onClose={() => setToast(null)}
+            message={toast}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
           />
         </Box>
       </ErrorBoundary>

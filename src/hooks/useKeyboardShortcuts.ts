@@ -112,6 +112,7 @@ export const createDefaultShortcuts = (actions: {
   toggleSidebar?: () => void;
   toggleFocusMode?: () => void;
   selectDirectory?: () => void;
+  openFiles?: () => void;
   collapseAll?: () => void;
   showHelp?: () => void;
   exitFocusMode?: () => void;
@@ -150,6 +151,17 @@ export const createDefaultShortcuts = (actions: {
       [isMac ? 'metaKey' : 'ctrlKey']: true,
       action: actions.selectDirectory,
       description: 'Open directory',
+      category: 'file'
+    });
+  }
+
+  if (actions.openFiles) {
+    shortcuts.push({
+      key: 'o',
+      [isMac ? 'metaKey' : 'ctrlKey']: true,
+      shiftKey: true,
+      action: actions.openFiles,
+      description: 'Open files',
       category: 'file'
     });
   }
