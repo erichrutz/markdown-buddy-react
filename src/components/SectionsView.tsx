@@ -21,22 +21,39 @@ export const SectionsView: React.FC<SectionsViewProps> = ({
   onPresentFrom,
 }) => {
   const { t } = useTranslation();
+  const included = sections.length - skipped.length;
+
   return (
     <Box sx={{ flex: 1, overflow: 'auto', padding: '32px 40px 56px', background: tokens.paper }}>
       <Box sx={{ maxWidth: 760, margin: '0 auto' }}>
-        <Box sx={{ mb: '8px', fontSize: 17, fontWeight: 600, letterSpacing: '-0.01em' }}>
-          {t('sections.title')}
-        </Box>
-        <Box
-          sx={{
-            mb: '26px',
-            fontSize: 13,
-            lineHeight: 1.6,
-            color: tokens.fg2,
-            maxWidth: '62ch',
-          }}
-        >
-          {t('sections.intro')}
+
+        {/* Header: title + description left, present button right */}
+        <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '24px', mb: '26px' }}>
+          <Box>
+            <Box sx={{ mb: '8px', fontSize: 17, fontWeight: 600, letterSpacing: '-0.01em' }}>
+              {t('sections.title')}
+            </Box>
+            <Box sx={{ fontSize: 13, lineHeight: 1.6, color: tokens.fg2, maxWidth: '62ch' }}>
+              {t('sections.intro')}
+            </Box>
+          </Box>
+          <Box
+            component="button"
+            type="button"
+            onClick={() => onPresentFrom(0)}
+            sx={{
+              flexShrink: 0,
+              display: 'flex', alignItems: 'center', gap: '8px',
+              height: 36, px: '16px', border: 0,
+              background: BRAND.ACCENT, color: '#fff',
+              fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              '&:hover': { background: BRAND.ACCENT_HOVER },
+            }}
+          >
+            <PlayArrow sx={{ fontSize: 18 }} />
+            {t('toolbar.present')} {t('toolbar.sectionsOf', { included, total: sections.length })}
+          </Box>
         </Box>
 
         {sections.map((section, i) => {
@@ -52,6 +69,7 @@ export const SectionsView: React.FC<SectionsViewProps> = ({
                 mb: '8px',
                 border: `1px solid ${tokens.border}`,
                 background: isSkipped ? 'transparent' : tokens.paper,
+                opacity: isSkipped ? 0.5 : 1,
               }}
             >
               {/* Number */}
@@ -78,6 +96,7 @@ export const SectionsView: React.FC<SectionsViewProps> = ({
                     lineHeight: 1.35,
                     mb: '4px',
                     color: isSkipped ? tokens.fg3 : tokens.fg1,
+                    textDecoration: isSkipped ? 'line-through' : 'none',
                   }}
                 >
                   {section.title}
@@ -101,33 +120,36 @@ export const SectionsView: React.FC<SectionsViewProps> = ({
                   font: "600 11px 'Noto Sans', Arial, sans-serif",
                   cursor: 'pointer',
                   color: isSkipped ? BRAND.ACCENT : tokens.fg2,
+                  '&:hover': { background: tokens.hover },
                 }}
               >
                 {isSkipped ? t('sections.show') : t('sections.skip')}
               </Box>
 
               {/* Present from here */}
-              <Box
-                component="button"
-                type="button"
-                onClick={() => onPresentFrom(i)}
-                title={t('sections.presentFromHere')}
-                sx={{
-                  flexShrink: 0,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  width: 26,
-                  height: 26,
-                  border: `1px solid ${tokens.border}`,
-                  background: 'transparent',
-                  cursor: 'pointer',
-                  color: tokens.fg2,
-                  '&:hover': { borderColor: BRAND.ACCENT, color: BRAND.ACCENT },
-                }}
-              >
-                <PlayArrow sx={{ fontSize: 15 }} />
-              </Box>
+              {!isSkipped && (
+                <Box
+                  component="button"
+                  type="button"
+                  onClick={() => onPresentFrom(i)}
+                  title={t('sections.presentFromHere')}
+                  sx={{
+                    flexShrink: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 26,
+                    height: 26,
+                    border: `1px solid ${tokens.border}`,
+                    background: 'transparent',
+                    cursor: 'pointer',
+                    color: tokens.fg2,
+                    '&:hover': { borderColor: BRAND.ACCENT, color: BRAND.ACCENT },
+                  }}
+                >
+                  <PlayArrow sx={{ fontSize: 15 }} />
+                </Box>
+              )}
             </Box>
           );
         })}

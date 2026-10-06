@@ -4,10 +4,9 @@ import { CssBaseline, Box } from '@mui/material';
 import { createAppTheme } from './theme/theme';
 import { getSurfaceTokens, getStageTokens, getSurroundTokens } from './theme/designTokens';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { AppHeader } from './components/AppHeader';
-import { FileTree } from './components/FileTree';
+import { Sidebar } from './components/Sidebar';
+import { Toolbar } from './components/Toolbar';
 import { MarkdownViewer } from './components/MarkdownViewer';
-import { DocumentHeader, ViewMode } from './components/DocumentHeader';
 import { SectionsView } from './components/SectionsView';
 import { PresentationMode } from './components/PresentationMode';
 import { Pointer } from './components/Pointer';
@@ -27,6 +26,7 @@ import { usePresentationConfig } from './hooks/usePresentationConfig';
 import { parseSectionsFromHTML, extractOutline, Section, OutlineEntry } from './utils/sectionParser';
 import { PDFExportOptions } from './services/pdfExportService';
 import { MarkdownService } from './services/markdownService';
+import { ViewMode } from './components/Toolbar';
 import './i18n/i18n';
 import './styles/markdown.css';
 
@@ -76,11 +76,8 @@ function App() {
 
   const {
     expandedFolders,
-    focusMode,
     saveExpandedFolders,
     saveCurrentFile,
-    toggleFocusMode,
-    toggleSidebar
   } = useSession();
 
   // Dialog states
@@ -89,7 +86,7 @@ function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
 
-  // Redesign A state
+  // View & presentation state
   const [view, setView] = useState<ViewMode>('doc');
   const [zoom, setZoom] = useState(settings.view.zoom);
   const [docWidth, setDocWidth] = useState(settings.view.docWidth);
@@ -100,7 +97,13 @@ function App() {
   const [presTheme, setPresTheme] = useState<'light' | 'dark'>(settings.view.presTheme);
   const [skipped, setSkipped] = useState<number[]>([]);
 
-  // Persist view state (zoom, doc width, pointers, presentation theme) to settings
+  // Sidebar state
+  const [filesSectionOpen, setFilesSectionOpen] = useState(true);
+  const [outlineSectionOpen, setOutlineSectionOpen] = useState(true);
+  const [activeOutlineId, setActiveOutlineId] = useState<string | null>(null);
+  const [sortDescending, setSortDescending] = useState(false);
+
+  // Persist view state
   useEffect(() => {
     updateViewSettings({ zoom, docWidth, docPointer, presPointer, presTheme });
   }, [zoom, docWidth, docPointer, presPointer, presTheme, updateViewSettings]);
@@ -117,6 +120,13 @@ function App() {
 
   const outline: OutlineEntry[] = useMemo(() => extractOutline(sections), [sections]);
 
+  // Set initial active outline when outline changes
+  useEffect(() => {
+    if (outline.length > 0 && (!activeOutlineId || !outline.find(o => o.id === activeOutlineId))) {
+      setActiveOutlineId(outline[0]?.id ?? null);
+    }
+  }, [outline, activeOutlineId]);
+
   const stageTokens = useMemo(() => getStageTokens(presTheme), [presTheme]);
   const surroundTokens = useMemo(() => getSurroundTokens(presTheme), [presTheme]);
 
@@ -124,7 +134,7 @@ function App() {
   const breadcrumb = useMemo(() => {
     if (!currentFile) return '';
     const parts = currentFile.path.split('/');
-    parts.pop(); // remove filename
+    parts.pop();
     return parts.join(' / ') || folderName || 'Document Store';
   }, [currentFile, folderName]);
 
@@ -135,12 +145,10 @@ function App() {
     return first?.title || sections[0]?.title || '';
   }, [sections]);
 
-  // Presentation header/footer templates (config.json → resolved active bands)
+  // Presentation config
   const presConfig = usePresentationConfig();
 
-  // Author for {author} token: frontmatter `author:` of the current file,
-  // else config default team. Re-parses the leading frontmatter block using
-  // the same delimiter shape as markdownService.
+  // Author from frontmatter
   const author = useMemo(() => {
     const content = currentFile?.content;
     if (!content) return '';
@@ -162,6 +170,16 @@ function App() {
     return { ...stats, sections: sections.length };
   }, [stats, sections]);
 
+  // Current section title for present menu
+  const currentSectionTitle = useMemo(() => {
+    if (!activeOutlineId || outline.length === 0) return '';
+    const entry = outline.find(o => o.id === activeOutlineId);
+    return entry?.label || outline[0]?.label || '';
+  }, [activeOutlineId, outline]);
+
+  // Included sections count (total minus skipped)
+  const includedSections = sections.length - skipped.length;
+
   // Event handlers
   const handleFileSelect = useCallback((file: any) => {
     loadFile(file);
@@ -171,6 +189,20 @@ function App() {
   const handleCollapseAll = useCallback(() => {
     saveExpandedFolders([]);
   }, [saveExpandedFolders]);
+
+  const handleExpandAll = useCallback(() => {
+    const allPaths: string[] = [];
+    const collect = (nodes: any[]) => {
+      for (const n of nodes) {
+        if (n.type === 'directory') {
+          allPaths.push(n.path);
+          if (n.children) collect(n.children);
+        }
+      }
+    };
+    collect(directoryTree);
+    saveExpandedFolders(allPaths);
+  }, [directoryTree, saveExpandedFolders]);
 
   const handleInternalLinkClick = useCallback((container: HTMLElement) => {
     const allFilesMap = new Map(allFiles.map(file => [file.path, file]));
@@ -214,6 +246,18 @@ function App() {
   const zoomOut = useCallback(() => setZoom(z => Math.max(z - 10, 50)), []);
   const zoomReset = useCallback(() => setZoom(100), []);
 
+  // Outline click: scroll to heading
+  const handleOutlineClick = useCallback((id: string) => {
+    setActiveOutlineId(id);
+    const idx = outline.findIndex(o => o.id === id);
+    if (idx < 0) return;
+    const root = document.querySelector('.markdown-content');
+    if (!root) return;
+    const headings = root.querySelectorAll('h1, h2, h3');
+    const target = headings[idx] as HTMLElement | undefined;
+    target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [outline]);
+
   // Presentation
   const startPresent = useCallback((fromIndex = 0) => {
     setPresIndex(fromIndex);
@@ -235,17 +279,24 @@ function App() {
     setSkipped(prev => prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i]);
   }, []);
 
+  // Present from current outline section
+  const handlePresentFromCurrent = useCallback(() => {
+    if (!activeOutlineId || outline.length === 0) {
+      startPresent(0);
+      return;
+    }
+    const idx = outline.findIndex(o => o.id === activeOutlineId);
+    startPresent(idx >= 0 ? idx : 0);
+  }, [activeOutlineId, outline, startPresent]);
+
   const handleDocMouseUp = useCallback((x: number, y: number) => {
-    // Delay slightly so the browser finalises the selection
     setTimeout(() => {
       const sel = window.getSelection();
       if (sel && !sel.isCollapsed) {
-        // A text selection → add a mark.
         const el = document.querySelector('.markdown-content') as HTMLElement;
         if (!el) return;
         addMark(el);
       } else {
-        // A plain click → remove a mark under the cursor, if any.
         removeMarkAtPoint(x, y);
       }
     }, 10);
@@ -253,9 +304,9 @@ function App() {
 
   // Keyboard shortcuts
   const shortcuts = createDefaultShortcuts({
-    toggleSidebar: () => { if (!focusMode) toggleSidebar(); },
-    toggleFocusMode,
-    exitFocusMode: () => { if (focusMode) toggleFocusMode(); },
+    toggleSidebar: () => {},
+    toggleFocusMode: () => {},
+    exitFocusMode: () => {},
     selectDirectory,
     collapseAll: handleCollapseAll,
     showHelp: () => setShowShortcutsHelp(true),
@@ -285,7 +336,6 @@ function App() {
       <ErrorBoundary>
         <Box sx={{
           display: 'flex',
-          flexDirection: 'column',
           height: '100vh',
           overflow: 'hidden',
           background: tokens.canvas,
@@ -294,88 +344,95 @@ function App() {
           WebkitFontSmoothing: 'antialiased',
           '& *, & *::before, & *::after': { boxSizing: 'border-box' },
         }}>
-          {/* Header */}
-          <AppHeader
+          {/* Sidebar */}
+          <Sidebar
             tokens={tokens}
             isDark={isDark}
             folderName={folderName}
             onSelectDirectory={selectDirectory}
-            onRefresh={handleRefresh}
-            onExportPDF={handleShowPDFExport}
+            directoryTree={directoryTree}
+            selectedFile={currentFile}
+            expandedFolders={expandedFolders}
+            loading={fileLoading}
+            onFileSelect={handleFileSelect}
+            onExpandedChange={saveExpandedFolders}
+            onCollapseAll={handleCollapseAll}
+            onExpandAll={handleExpandAll}
+            outline={outline}
+            activeOutlineId={activeOutlineId}
+            onOutlineClick={handleOutlineClick}
+            onPresentFromSection={startPresent}
             onToggleTheme={handleToggleTheme}
-            onShowAbout={() => setShowAbout(true)}
+            onShowShortcuts={() => setShowShortcutsHelp(true)}
             onShowSettings={() => setShowSettings(true)}
-            onStartPresent={() => startPresent(0)}
-            hasCurrentFile={!!currentFile}
+            onShowAbout={() => setShowAbout(true)}
+            filesSectionOpen={filesSectionOpen}
+            outlineSectionOpen={outlineSectionOpen}
+            onToggleFilesSection={() => setFilesSectionOpen(o => !o)}
+            onToggleOutlineSection={() => setOutlineSectionOpen(o => !o)}
+            sortDescending={sortDescending}
+            onSortChange={setSortDescending}
           />
 
-          {/* Main content area */}
-          <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-            {/* File Tree */}
-            <FileTree
-              directoryTree={directoryTree}
-              selectedFile={currentFile}
-              expandedFolders={expandedFolders}
-              loading={fileLoading}
+          {/* Main column */}
+          <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            {/* Toolbar */}
+            <Toolbar
               tokens={tokens}
-              onFileSelect={handleFileSelect}
-              onExpandedChange={saveExpandedFolders}
-              onCollapseAll={handleCollapseAll}
+              fileName={currentFile?.name || ''}
+              breadcrumb={breadcrumb}
+              stats={headerStats}
+              hasCurrentFile={!!currentFile}
+              view={view}
+              onViewChange={setView}
+              zoom={zoom}
+              onZoomIn={zoomIn}
+              onZoomOut={zoomOut}
+              onZoomReset={zoomReset}
+              docWidth={docWidth}
+              onDocWidthChange={setDocWidth}
+              docPointer={docPointer}
+              onToggleDocPointer={() => setDocPointer(p => !p)}
+              markCount={markCount}
+              onClearMarks={clearMarks}
+              onReload={handleRefresh}
+              onExportPDF={handleShowPDFExport}
+              onPresentFromStart={() => startPresent(0)}
+              onPresentFromCurrent={handlePresentFromCurrent}
+              onChooseSections={() => setView('slides')}
+              includedSections={includedSections}
+              totalSections={sections.length}
+              currentSectionTitle={currentSectionTitle}
             />
 
-            {/* Content panel */}
-            <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: tokens.canvas }}>
-              {/* Document header (only when file is open) */}
-              {currentFile && (
-                <DocumentHeader
-                  tokens={tokens}
-                  fileName={currentFile.name}
-                  breadcrumb={breadcrumb}
-                  stats={headerStats}
-                  view={view}
-                  onViewChange={setView}
-                  zoom={zoom}
-                  onZoomIn={zoomIn}
-                  onZoomOut={zoomOut}
-                  onZoomReset={zoomReset}
-                  docWidth={docWidth}
-                  onDocWidthChange={setDocWidth}
-                  docPointer={docPointer}
-                  onToggleDocPointer={() => setDocPointer(p => !p)}
-                  markCount={markCount}
-                  onClearMarks={clearMarks}
-                />
-              )}
-
-              {/* Document or Sections view */}
-              {view === 'doc' ? (
-                <MarkdownViewer
-                  file={currentFile}
-                  content={renderedHtml}
-                  loading={markdownLoading}
-                  error={markdownError || fileError}
-                  tokens={tokens}
-                  isDark={isDark}
-                  zoom={zoom}
-                  docWidth={docWidth}
-                  docPointer={docPointer}
-                  wordWrap={settings.appearance.wordWrap}
-                  outline={outline}
-                  onInternalLinkClick={handleInternalLinkClick}
-                  onMermaidProcess={handleMermaidProcess}
-                  onPlantUMLProcess={handlePlantUMLProcess}
-                  onDocMouseUp={handleDocMouseUp}
-                />
-              ) : (
-                <SectionsView
-                  tokens={tokens}
-                  sections={sections}
-                  skipped={skipped}
-                  onToggleSkip={handleToggleSkip}
-                  onPresentFrom={startPresent}
-                />
-              )}
-            </Box>
+            {/* Document or Sections view */}
+            {view === 'doc' ? (
+              <MarkdownViewer
+                file={currentFile}
+                content={renderedHtml}
+                loading={markdownLoading}
+                error={markdownError || fileError}
+                tokens={tokens}
+                isDark={isDark}
+                zoom={zoom}
+                docWidth={docWidth}
+                docPointer={docPointer}
+                wordWrap={settings.appearance.wordWrap}
+                outline={outline}
+                onInternalLinkClick={handleInternalLinkClick}
+                onMermaidProcess={handleMermaidProcess}
+                onPlantUMLProcess={handlePlantUMLProcess}
+                onDocMouseUp={handleDocMouseUp}
+              />
+            ) : (
+              <SectionsView
+                tokens={tokens}
+                sections={sections}
+                skipped={skipped}
+                onToggleSkip={handleToggleSkip}
+                onPresentFrom={startPresent}
+              />
+            )}
           </Box>
 
           {/* Presentation mode overlay */}
