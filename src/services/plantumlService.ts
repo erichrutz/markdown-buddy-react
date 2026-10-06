@@ -8,7 +8,8 @@ interface PlantUMLCache {
 }
 
 export class PlantUMLService {
-  private static readonly PLANTUML_SERVER = 'https://www.plantuml.com/plantuml';
+  private static PLANTUML_SERVER = 'https://www.plantuml.com/plantuml';
+  private static readonly DEFAULT_PLANTUML_SERVER = 'https://www.plantuml.com/plantuml';
   private static readonly CACHE_KEY = 'plantuml-diagram-cache';
   private static readonly CACHE_EXPIRY_DAYS = 30; // Cache expires after 30 days
   private static cache: Map<string, string> = new Map();
@@ -19,6 +20,10 @@ export class PlantUMLService {
    */
   static setTheme(theme: 'light' | 'dark') {
     this.currentTheme = theme;
+  }
+
+  static setServer(url: string) {
+    this.PLANTUML_SERVER = url.replace(/\/+$/, '') || this.DEFAULT_PLANTUML_SERVER;
   }
   
   /**

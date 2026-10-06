@@ -21,8 +21,10 @@ import {
   Slider,
   Divider,
   Alert,
-  Stack
+  Stack,
+  Chip
 } from '@mui/material';
+import { SxProps, Theme } from '@mui/material/styles';
 import {
   Palette as PaletteIcon,
   Settings as BehaviorIcon,
@@ -71,6 +73,12 @@ const TabPanel: React.FC<TabPanelProps> = ({ children, value, index, ...other })
     </div>
   );
 };
+
+const inactiveSx: SxProps<Theme> = { opacity: 0.45, pointerEvents: 'none' };
+
+const InactiveChip: React.FC = () => (
+  <Chip label="Not implemented" size="small" variant="outlined" sx={{ ml: 1, fontSize: '0.7rem', height: 20 }} />
+);
 
 export const SettingsDialog: React.FC<SettingsDialogProps> = ({
   open,
@@ -206,17 +214,6 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
               <FormControlLabel
                 control={
                   <Switch
-                    checked={settings.appearance.compactMode}
-                    onChange={(e) => onUpdateAppearanceSettings({ compactMode: e.target.checked })}
-                  />
-                }
-                label={t('settings.compactMode', 'Compact Mode')}
-                sx={{ mb: 2 }}
-              />
-
-              <FormControlLabel
-                control={
-                  <Switch
                     checked={settings.appearance.wordWrap}
                     onChange={(e) => onUpdateAppearanceSettings({ wordWrap: e.target.checked })}
                   />
@@ -242,16 +239,13 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
                 </Select>
               </FormControl>
 
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={settings.behavior.rememberLastFolder}
-                    onChange={(e) => onUpdateBehaviorSettings({ rememberLastFolder: e.target.checked })}
-                  />
-                }
-                label={t('settings.rememberLastFolder', 'Remember Last Folder')}
-                sx={{ mb: 2 }}
-              />
+              <Box sx={inactiveSx}>
+                <FormControlLabel
+                  control={<Switch checked={settings.behavior.rememberLastFolder} disabled />}
+                  label={<>{t('settings.rememberLastFolder', 'Remember Last Folder')}<InactiveChip /></>}
+                  sx={{ mb: 2 }}
+                />
+              </Box>
 
               <FormControlLabel
                 control={
@@ -264,15 +258,12 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
                 sx={{ mb: 2 }}
               />
 
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={settings.behavior.confirmBeforeExit}
-                    onChange={(e) => onUpdateBehaviorSettings({ confirmBeforeExit: e.target.checked })}
-                  />
-                }
-                label={t('settings.confirmBeforeExit', 'Confirm Before Exit')}
-              />
+              <Box sx={inactiveSx}>
+                <FormControlLabel
+                  control={<Switch checked={settings.behavior.confirmBeforeExit} disabled />}
+                  label={<>{t('settings.confirmBeforeExit', 'Confirm Before Exit')}<InactiveChip /></>}
+                />
+              </Box>
             </TabPanel>
 
             {/* Diagrams Tab */}
@@ -289,7 +280,7 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
                   />
                 }
                 label={t('settings.enableMermaid', 'Enable Mermaid Diagrams')}
-                sx={{ mb: 2 }}
+                sx={{ display: 'flex', mb: 2 }}
               />
 
               <FormControlLabel
@@ -300,7 +291,7 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
                   />
                 }
                 label={t('settings.enablePlantUML', 'Enable PlantUML Diagrams')}
-                sx={{ mb: 3 }}
+                sx={{ display: 'flex', mb: 3 }}
               />
 
               <TextField
@@ -311,29 +302,6 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
                 sx={{ mb: 3 }}
               />
 
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={settings.diagrams.cacheEnabled}
-                    onChange={(e) => onUpdateDiagramSettings({ cacheEnabled: e.target.checked })}
-                  />
-                }
-                label={t('settings.enableCache', 'Enable Diagram Caching')}
-                sx={{ mb: 3 }}
-              />
-
-              <Box sx={{ mb: 3 }}>
-                <FormLabel>{t('settings.cacheSize', 'Cache Size (MB)')}</FormLabel>
-                <Slider
-                  value={settings.diagrams.cacheSize}
-                  onChange={(_, value) => onUpdateDiagramSettings({ cacheSize: value as number })}
-                  min={10}
-                  max={500}
-                  step={10}
-                  valueLabelDisplay="auto"
-                  sx={{ mt: 2 }}
-                />
-              </Box>
             </TabPanel>
 
             {/* Export Tab */}
@@ -349,7 +317,7 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
                       <FormLabel>{t('settings.defaultFormat', 'Default Format')}</FormLabel>
                       <Select
                         value={settings.export.defaultFormat}
-                        onChange={(e) => onUpdateExportSettings({ defaultFormat: e.target.value as any })}
+                        onChange={(e) => onUpdateExportSettings({ defaultFormat: e.target.value as 'A4' | 'Letter' | 'Legal' })}
                       >
                         <MenuItem value="A4">A4</MenuItem>
                         <MenuItem value="Letter">Letter</MenuItem>
@@ -363,7 +331,7 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
                       <FormLabel>{t('settings.defaultOrientation', 'Default Orientation')}</FormLabel>
                       <Select
                         value={settings.export.defaultOrientation}
-                        onChange={(e) => onUpdateExportSettings({ defaultOrientation: e.target.value as any })}
+                        onChange={(e) => onUpdateExportSettings({ defaultOrientation: e.target.value as 'portrait' | 'landscape' })}
                       >
                         <MenuItem value="portrait">{t('settings.portrait', 'Portrait')}</MenuItem>
                         <MenuItem value="landscape">{t('settings.landscape', 'Landscape')}</MenuItem>
@@ -373,26 +341,6 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
                 </Stack>
               </Stack>
 
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={settings.export.includeHeaders}
-                    onChange={(e) => onUpdateExportSettings({ includeHeaders: e.target.checked })}
-                  />
-                }
-                label={t('settings.includeHeaders', 'Include Headers')}
-                sx={{ mb: 2, mt: 3 }}
-              />
-
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={settings.export.includeFooters}
-                    onChange={(e) => onUpdateExportSettings({ includeFooters: e.target.checked })}
-                  />
-                }
-                label={t('settings.includeFooters', 'Include Footers')}
-              />
             </TabPanel>
 
             {/* Keyboard Tab */}
@@ -412,15 +360,6 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
                 sx={{ mb: 2 }}
               />
 
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={settings.keyboard.emulateVSCode}
-                    onChange={(e) => onUpdateKeyboardSettings({ emulateVSCode: e.target.checked })}
-                  />
-                }
-                label={t('settings.emulateVSCode', 'VS Code Style Shortcuts')}
-              />
             </TabPanel>
 
             {/* Performance Tab */}
@@ -429,17 +368,19 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
                 {t('settings.performance', 'Performance')}
               </Typography>
 
-              <Box sx={{ mb: 3 }}>
-                <FormLabel>{t('settings.maxFileSize', 'Max File Size (MB)')}</FormLabel>
-                <Slider
-                  value={settings.performance.maxFileSize}
-                  onChange={(_, value) => onUpdatePerformanceSettings({ maxFileSize: value as number })}
-                  min={1}
-                  max={100}
-                  step={1}
-                  valueLabelDisplay="auto"
-                  sx={{ mt: 2 }}
-                />
+              <Box sx={inactiveSx}>
+                <Box sx={{ mb: 3 }}>
+                  <FormLabel>{t('settings.maxFileSize', 'Max File Size (MB)')}</FormLabel>
+                  <Slider
+                    value={settings.performance.maxFileSize}
+                    disabled
+                    min={1}
+                    max={100}
+                    step={1}
+                    valueLabelDisplay="auto"
+                    sx={{ mt: 2 }}
+                  />
+                </Box>
               </Box>
 
               <Box sx={{ mb: 3 }}>
@@ -454,16 +395,6 @@ export const SettingsDialog: React.FC<SettingsDialogProps> = ({
                   sx={{ mt: 2 }}
                 />
               </Box>
-
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={settings.performance.lazyLoading}
-                    onChange={(e) => onUpdatePerformanceSettings({ lazyLoading: e.target.checked })}
-                  />
-                }
-                label={t('settings.lazyLoading', 'Lazy Loading')}
-              />
 
               <Divider sx={{ my: 3 }} />
 

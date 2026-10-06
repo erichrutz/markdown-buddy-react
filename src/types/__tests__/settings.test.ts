@@ -17,7 +17,6 @@ describe('Settings Types', () => {
     expect(appearance.theme).toBe('auto');
     expect(appearance.fontSize).toBe('medium');
     expect(appearance.fontFamily).toContain('apple-system');
-    expect(appearance.compactMode).toBe(false);
     expect(appearance.showLineNumbers).toBe(false);
     expect(appearance.wordWrap).toBe(true);
   });

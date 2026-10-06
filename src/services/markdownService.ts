@@ -9,6 +9,7 @@ export class MarkdownService {
   private static imageMap: Map<string, string> = new Map(); // Map of image paths to blob URLs
   private static currentDirectory: string = '';
   private static mermaidProcessing = false; // Global flag to prevent concurrent processing
+  private static openLinksInNewTab = true;
 
   static initialize(theme: 'light' | 'dark' = 'light') {
     if (this.initialized && this.currentTheme === theme) {
@@ -56,7 +57,8 @@ export class MarkdownService {
       if (href.endsWith('.md') || href.endsWith('.markdown')) {
         return `<a href="#" class="internal-md-link" data-md-path="${href}" title="${title || ''}">${text}</a>`;
       }
-      return `<a href="${href}" target="_blank" rel="noopener noreferrer" title="${title || ''}">${text}</a>`;
+      const targetAttr = this.openLinksInNewTab ? ' target="_blank" rel="noopener noreferrer"' : '';
+      return `<a href="${href}"${targetAttr} title="${title || ''}">${text}</a>`;
     };
 
     renderer.image = ({ href, title, text }) => {
@@ -141,8 +143,15 @@ export class MarkdownService {
     }
   }
 
+  static setOpenLinksInNewTab(value: boolean) {
+    if (this.openLinksInNewTab !== value) {
+      this.openLinksInNewTab = value;
+      this.initialized = false; // Force re-initialization to update renderer
+    }
+  }
+
   static async renderMarkdown(
-    content: string, 
+    content: string,
     theme: 'light' | 'dark' = 'light',
     currentFilePath?: string,
     allFiles?: Map<string, any>

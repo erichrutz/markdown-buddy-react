@@ -1,13 +1,20 @@
 import { useState, useCallback, useEffect } from 'react';
 import { MarkdownFile, FileStats } from '../types';
 import { MarkdownService } from '../services/markdownService';
+import { PlantUMLService } from '../services/plantumlService';
 import { FileSystemService } from '../services/fileSystemService';
 import { ImageService } from '../services/imageService';
 import i18n from '../i18n/i18n';
 
 const STALE_FILE_ERROR_NAMES = ['NotReadableError', 'NotFoundError', 'NotAllowedError'];
 
-export const useMarkdown = (theme: 'light' | 'dark' = 'light', allFiles: MarkdownFile[] = []) => {
+interface UseMarkdownOptions {
+  openLinksInNewTab?: boolean;
+  plantUMLServer?: string;
+}
+
+export const useMarkdown = (theme: 'light' | 'dark' = 'light', allFiles: MarkdownFile[] = [], options: UseMarkdownOptions = {}) => {
+  const { openLinksInNewTab = true, plantUMLServer } = options;
   const [currentFile, setCurrentFile] = useState<MarkdownFile | null>(null);
   const [content, setContent] = useState<string>('');
   const [renderedHtml, setRenderedHtml] = useState<string>('');
@@ -116,6 +123,16 @@ export const useMarkdown = (theme: 'light' | 'dark' = 'light', allFiles: Markdow
   useEffect(() => {
     MarkdownService.initialize(theme);
   }, [theme]);
+
+  useEffect(() => {
+    MarkdownService.setOpenLinksInNewTab(openLinksInNewTab);
+  }, [openLinksInNewTab]);
+
+  useEffect(() => {
+    if (plantUMLServer) {
+      PlantUMLService.setServer(plantUMLServer);
+    }
+  }, [plantUMLServer]);
 
   return {
     currentFile,

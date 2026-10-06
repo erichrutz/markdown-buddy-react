@@ -44,6 +44,7 @@ interface SearchDialogProps {
   onFileSelect: (file: MarkdownFile) => void;
   searchHistory?: string[];
   onSearchHistoryUpdate?: (searches: string[]) => void;
+  searchDebounce?: number;
 }
 
 export const SearchDialog: React.FC<SearchDialogProps> = ({
@@ -52,7 +53,8 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({
   files,
   onFileSelect,
   searchHistory = [],
-  onSearchHistoryUpdate
+  onSearchHistoryUpdate,
+  searchDebounce = 150
 }) => {
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
@@ -117,7 +119,7 @@ export const SearchDialog: React.FC<SearchDialogProps> = ({
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       performSearch(searchQuery);
-    }, 150); // Debounce search
+    }, searchDebounce);
     
     return () => clearTimeout(timeoutId);
   }, [searchQuery, performSearch]);

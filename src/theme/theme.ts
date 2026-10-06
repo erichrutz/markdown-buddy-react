@@ -275,7 +275,6 @@ export const createAppTheme = (mode: 'light' | 'dark', appearanceSettings?: Part
 
   const enhancedThemeOptions: ThemeOptions = {
     ...baseTheme,
-    // Note: spacing removed as it breaks MUI - implement compactMode differently
     typography: {
       ...baseTheme.typography,
       fontFamily: customFontFamily,
