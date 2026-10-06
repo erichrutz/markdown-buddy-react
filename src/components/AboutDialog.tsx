@@ -11,6 +11,7 @@ import {
   Link
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import packageJson from '../../package.json';
 
 interface AboutDialogProps {
   open: boolean;
@@ -26,16 +27,16 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({ open, onClose }) => {
       <DialogContent>
         <Box sx={{ mb: 3 }}>
           <Typography variant="h6" gutterBottom>
-            Markdown Buddy React
+            MarkDown Buddy
           </Typography>
           <Typography variant="body2" color="text.secondary" gutterBottom>
-            {t('about.version')}: 0.0.0
+            {t('about.version')}: {packageJson.version}
           </Typography>
           <Typography variant="body2" color="text.secondary" gutterBottom>
             {t('about.author')}: Erich Rutz
           </Typography>
           <Typography variant="body2" color="text.secondary" gutterBottom sx={{ mb: 2 }}>
-            {t('about.year')}: 2025
+            {t('about.year')}: 2025-2026
           </Typography>
           <Typography variant="body1" paragraph>
             {t('about.description')}
@@ -71,7 +72,7 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({ open, onClose }) => {
             >
 {`MIT License
 
-Copyright (c) 2025 Erich Rutz
+Copyright (c) 2025-2026 Erich Rutz
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -105,12 +106,16 @@ SOFTWARE.`}
           </Typography>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
             {[
-              { name: 'React', url: 'https://reactjs.org/' },
-              { name: 'Material-UI', url: 'https://mui.com/' },
+              { name: 'React', url: 'https://react.dev/' },
+              { name: 'Material UI', url: 'https://mui.com/' },
               { name: 'Marked', url: 'https://marked.js.org/' },
               { name: 'Mermaid', url: 'https://mermaid.js.org/' },
               { name: 'PlantUML', url: 'https://plantuml.com/' },
-              { name: 'Highlight.js', url: 'https://highlightjs.org/' }
+              { name: 'Highlight.js', url: 'https://highlightjs.org/' },
+              { name: 'DOMPurify', url: 'https://github.com/cure53/DOMPurify' },
+              { name: 'Fuse.js', url: 'https://www.fusejs.io/' },
+              { name: 'jsPDF', url: 'https://github.com/parallax/jsPDF' },
+              { name: 'i18next', url: 'https://www.i18next.com/' }
             ].map((dep) => (
               <Link
                 key={dep.name}

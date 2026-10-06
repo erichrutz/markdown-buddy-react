@@ -12,8 +12,12 @@ import {
   FolderOpen,
 } from '@mui/icons-material';
 import { SurfaceTokens, BRAND } from '../theme/designTokens';
+import { isDBBrand, PRODUCT_NAME } from '../theme/brand';
 
-import appLogo from '../img/logo.svg';
+import defaultLogo from '../img/logo.svg';
+
+// DB logo lives in public/ (gitignored) and is referenced by URL path
+const appLogo = isDBBrand ? `${import.meta.env.BASE_URL}img/DB_logo_red_100px_rgb.svg` : defaultLogo;
 
 // Lets span-based buttons be triggered with Enter/Space like native buttons.
 const activateOnKey = (handler?: () => void) => (e: React.KeyboardEvent) => {
@@ -80,13 +84,13 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       {/* App logo */}
       <img
         src={appLogo}
-        alt="MarkDown Buddy"
+        alt={PRODUCT_NAME}
         style={{ height: 24, width: 'auto', display: 'block', flexShrink: 0 }}
       />
 
       {/* Product name */}
       <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em', color: tokens.fg1, whiteSpace: 'nowrap', flexShrink: 0 }}>
-        MarkDown Buddy
+        {PRODUCT_NAME}
       </span>
 
       {/* Separator */}
