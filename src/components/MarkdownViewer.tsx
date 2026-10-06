@@ -23,6 +23,7 @@ interface MarkdownViewerProps {
   docPointer: boolean;
   outline: OutlineEntry[];
   onInternalLinkClick: (container: HTMLElement) => void;
+  wordWrap?: boolean;
   onMermaidProcess: (container: HTMLElement) => void;
   onPlantUMLProcess: (container: HTMLElement) => Promise<void>;
   onDocMouseUp?: (x: number, y: number) => void;
@@ -38,6 +39,7 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
   docWidth,
   docPointer,
   outline,
+  wordWrap = true,
   onInternalLinkClick,
   onMermaidProcess,
   onPlantUMLProcess,
@@ -140,7 +142,7 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
       >
         <Box
           ref={contentRef}
-          className="markdown-content"
+          className={`markdown-content ${wordWrap ? 'word-wrap-enabled' : 'word-wrap-disabled'}`}
           dangerouslySetInnerHTML={{ __html: sanitizedContent }}
           sx={{
             maxWidth: docWidth >= DOC_WIDTH_MAX ? 'none' : docWidth,

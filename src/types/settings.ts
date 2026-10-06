@@ -6,7 +6,6 @@ export interface AppearanceSettings {
   theme: ThemeMode;
   fontSize: FontSize;
   fontFamily: string;
-  compactMode: boolean;
   showLineNumbers: boolean;
   wordWrap: boolean;
 }
@@ -26,15 +25,11 @@ export interface DiagramSettings {
   diagramTheme: 'light' | 'dark' | 'auto';
   mermaidTheme: string;
   plantUMLServer: string;
-  cacheEnabled: boolean;
-  cacheSize: number; // in MB
 }
 
 export interface ExportSettings {
   defaultFormat: 'A4' | 'Letter' | 'Legal';
   defaultOrientation: 'portrait' | 'landscape';
-  includeHeaders: boolean;
-  includeFooters: boolean;
   pdfQuality: 'low' | 'medium' | 'high';
   exportPath: string;
 }
@@ -43,11 +38,9 @@ export interface KeyboardSettings {
   enableShortcuts: boolean;
   customShortcuts: Record<string, string>;
   vimMode: boolean;
-  emulateVSCode: boolean;
 }
 
 export interface PerformanceSettings {
-  lazyLoading: boolean;
   maxFileSize: number; // in MB
   renderTimeout: number; // in ms
   searchDebounce: number; // in ms
@@ -80,7 +73,6 @@ export const DEFAULT_SETTINGS: ApplicationSettings = {
     theme: 'auto',
     fontSize: 'medium',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    compactMode: false,
     showLineNumbers: false,
     wordWrap: true
   },
@@ -104,26 +96,20 @@ export const DEFAULT_SETTINGS: ApplicationSettings = {
     enablePlantUML: true,
     diagramTheme: 'auto',
     mermaidTheme: 'default',
-    plantUMLServer: 'https://www.plantuml.com/plantuml',
-    cacheEnabled: true,
-    cacheSize: 50
+    plantUMLServer: 'https://www.plantuml.com/plantuml'
   },
   export: {
     defaultFormat: 'A4',
     defaultOrientation: 'portrait',
-    includeHeaders: true,
-    includeFooters: true,
     pdfQuality: 'medium',
     exportPath: ''
   },
   keyboard: {
     enableShortcuts: true,
     customShortcuts: {},
-    vimMode: false,
-    emulateVSCode: true
+    vimMode: false
   },
   performance: {
-    lazyLoading: true,
     maxFileSize: 10,
     renderTimeout: 5000,
     searchDebounce: 150,

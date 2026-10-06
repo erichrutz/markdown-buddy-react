@@ -26,17 +26,23 @@ interface PDFExportDialogProps {
   onClose: () => void;
   onExport: (options: PDFExportOptions & { useTextBasedExport?: boolean }) => Promise<void>;
   defaultFilename: string;
+  defaultFormat?: 'A4' | 'Letter' | 'Legal';
+  defaultOrientation?: 'portrait' | 'landscape';
 }
 
 export const PDFExportDialog: React.FC<PDFExportDialogProps> = ({
   open,
   onClose,
   onExport,
-  defaultFilename
+  defaultFilename,
+  defaultFormat,
+  defaultOrientation
 }) => {
   const { t } = useTranslation();
   const [options, setOptions] = useState<PDFExportOptions & { useTextBasedExport?: boolean }>({
     ...DEFAULT_PDF_OPTIONS,
+    ...(defaultFormat && { format: defaultFormat }),
+    ...(defaultOrientation && { orientation: defaultOrientation }),
     filename: defaultFilename,
     useTextBasedExport: true // Default to the new improved method
   });

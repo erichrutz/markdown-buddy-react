@@ -69,7 +69,10 @@ function App() {
     processInternalLinks,
     processMermaidDiagrams,
     processPlantUMLDiagrams
-  } = useMarkdown(getEffectiveTheme(), allFiles);
+  } = useMarkdown(getEffectiveTheme(), allFiles, {
+    openLinksInNewTab: settings.behavior.openLinksInNewTab,
+    plantUMLServer: settings.diagrams.plantUMLServer,
+  });
 
   const {
     expandedFolders,
@@ -175,12 +178,14 @@ function App() {
   }, [processInternalLinks, allFiles, handleFileSelect]);
 
   const handleMermaidProcess = useCallback((container: HTMLElement) => {
+    if (!settings.diagrams.enableMermaid) return;
     processMermaidDiagrams(container);
-  }, [processMermaidDiagrams]);
+  }, [processMermaidDiagrams, settings.diagrams.enableMermaid]);
 
   const handlePlantUMLProcess = useCallback(async (container: HTMLElement) => {
+    if (!settings.diagrams.enablePlantUML) return;
     await processPlantUMLDiagrams(container);
-  }, [processPlantUMLDiagrams]);
+  }, [processPlantUMLDiagrams, settings.diagrams.enablePlantUML]);
 
   const handlePDFExport = useCallback(async (options: PDFExportOptions) => {
     if (!currentFile) return;
@@ -262,7 +267,7 @@ function App() {
     zoomReset
   });
 
-  const { formatShortcut } = useKeyboardShortcuts({ shortcuts, enabled: !presenting });
+  const { formatShortcut } = useKeyboardShortcuts({ shortcuts, enabled: !presenting && settings.keyboard.enableShortcuts });
 
   // Set data-theme
   useEffect(() => {
@@ -354,6 +359,7 @@ function App() {
                   zoom={zoom}
                   docWidth={docWidth}
                   docPointer={docPointer}
+                  wordWrap={settings.appearance.wordWrap}
                   outline={outline}
                   onInternalLinkClick={handleInternalLinkClick}
                   onMermaidProcess={handleMermaidProcess}
@@ -416,6 +422,8 @@ function App() {
             onClose={() => setShowPDFExport(false)}
             onExport={handlePDFExport}
             defaultFilename={currentFile ? generateDefaultFilename(currentFile) : 'document.pdf'}
+            defaultFormat={settings.export.defaultFormat}
+            defaultOrientation={settings.export.defaultOrientation}
           />
 
           <SettingsDialog
