@@ -88,3 +88,12 @@ CLAUDE.md
 test-markdown-files/
 public/test-markdown-files/
 docs/
+*.zip
+
+# Deutsche Bahn brand (not for GitLab)
+src/theme/brands/db.ts
+public/img/DB_*
+public/favicon.db.svg
+public/presentation/config.db.json
+public/presentation/icons/DB_*
+public/presentation/icons/db-*

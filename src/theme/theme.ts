@@ -1,6 +1,6 @@
 import { createTheme, Theme, ThemeOptions } from '@mui/material/styles';
 import { AppearanceSettings, FontSize } from '../types/settings';
-import { SEMANTIC_COLORS } from './palette';
+import { SEMANTIC_COLORS, FONT_FAMILY, GREY_LIGHT, GREY_DARK } from './brand';
 
 // Font size scale based on setting
 const getFontSizeScale = (fontSize: FontSize): number => {
@@ -34,14 +34,7 @@ const lightThemeOptions: ThemeOptions = {
       secondary: SEMANTIC_COLORS.TEXT_SECONDARY_LIGHT,
       disabled: SEMANTIC_COLORS.TEXT_DISABLED_LIGHT
     },
-    grey: {
-      50: '#f3f4f6',
-      100: '#e5e7eb',
-      200: '#d1d5db',
-      300: '#9ca3af',
-      400: '#6b7280',
-      500: '#374151'
-    },
+    grey: GREY_LIGHT,
     success: {
       main: SEMANTIC_COLORS.SUCCESS
     },
@@ -56,7 +49,7 @@ const lightThemeOptions: ThemeOptions = {
     }
   },
   typography: {
-    fontFamily: '"Roboto", "Helvetica Neue", "Helvetica", "Arial", sans-serif',
+    fontFamily: FONT_FAMILY,
     h1: {
       fontSize: '2rem',
       fontWeight: 600
@@ -136,18 +129,7 @@ const darkThemeOptions: ThemeOptions = {
       secondary: SEMANTIC_COLORS.TEXT_SECONDARY_DARK,
       disabled: SEMANTIC_COLORS.TEXT_DISABLED_DARK
     },
-    grey: {
-      50: '#f3f4f6',
-      100: '#e5e7eb',
-      200: '#d1d5db',
-      300: '#9ca3af',
-      400: '#6b7280',
-      500: '#374151',
-      600: '#1f2937',
-      700: '#111827',
-      800: '#0a0b0f',
-      900: '#050506'
-    },
+    grey: GREY_DARK,
     success: {
       main: SEMANTIC_COLORS.SUCCESS_DARK
     },
@@ -162,7 +144,7 @@ const darkThemeOptions: ThemeOptions = {
     }
   },
   typography: {
-    fontFamily: '"Roboto", "Helvetica Neue", "Helvetica", "Arial", sans-serif',
+    fontFamily: FONT_FAMILY,
     h1: {
       fontSize: '2rem',
       fontWeight: 600
@@ -263,14 +245,14 @@ export const darkTheme = createTheme(darkThemeOptions);
 // Enhanced theme creator function with appearance settings
 export const createAppTheme = (mode: 'light' | 'dark', appearanceSettings?: Partial<AppearanceSettings>): Theme => {
   const baseTheme = mode === 'dark' ? darkThemeOptions : lightThemeOptions;
-  
+
   if (!appearanceSettings) {
     return mode === 'dark' ? darkTheme : lightTheme;
   }
 
   const fontScale = getFontSizeScale(appearanceSettings.fontSize || 'medium');
-  const baseFontFamily = typeof baseTheme.typography === 'object' && baseTheme.typography ? 
-    (baseTheme.typography as any).fontFamily : '"Roboto", "Helvetica Neue", "Helvetica", "Arial", sans-serif';
+  const baseFontFamily = typeof baseTheme.typography === 'object' && baseTheme.typography ?
+    (baseTheme.typography as any).fontFamily : FONT_FAMILY;
   const customFontFamily = appearanceSettings.fontFamily || baseFontFamily;
 
   const enhancedThemeOptions: ThemeOptions = {

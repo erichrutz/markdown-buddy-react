@@ -1,5 +1,13 @@
 /// <reference types="vite/client" />
 
+interface ImportMetaEnv {
+  readonly VITE_BRAND?: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
+
 // CSS Custom Highlight API
 // https://developer.mozilla.org/en-US/docs/Web/API/CSS_Custom_Highlight_API
 declare class Highlight {
