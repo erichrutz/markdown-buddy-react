@@ -1,5 +1,14 @@
 import { MarkdownFile, DirectoryNode, IGNORED_DIRECTORIES, SUPPORTED_FORMATS } from '../types';
 
+export interface OpenedFileEntry {
+  id: string;
+  file: MarkdownFile;
+  /** Parent folder name for disambiguation, derived from the handle or path. */
+  parentName?: string;
+  /** True when the handle exists but permission hasn't been re-granted yet. */
+  needsPermission?: boolean;
+}
+
 export class FileSystemService {
   private static allFiles: Map<string, File> = new Map(); // Store all files including images
   private static rootFolderName: string | null = null;
@@ -37,6 +46,88 @@ export class FileSystemService {
       }
       throw error;
     }
+  }
+
+  /**
+   * Opens a multi-select file picker for individual Markdown files.
+   * Returns MarkdownFile[] with handles when available (modern API)
+   * or File objects from the legacy input fallback.
+   */
+  static async pickFiles(): Promise<MarkdownFile[]> {
+    if ('showOpenFilePicker' in window) {
+      return this.pickFilesModern();
+    }
+    return this.pickFilesLegacy();
+  }
+
+  private static async pickFilesModern(): Promise<MarkdownFile[]> {
+    const handles = await (window as any).showOpenFilePicker({
+      multiple: true,
+      types: [
+        {
+          description: 'Markdown files',
+          accept: { 'text/markdown': ['.md', '.markdown'] },
+        },
+      ],
+    });
+    const result: MarkdownFile[] = [];
+    for (const handle of handles) {
+      if (handle.kind !== 'file') continue;
+      const file = await handle.getFile();
+      if (!this.isMarkdownFile(file.name)) continue;
+      result.push({
+        path: `@opened/${file.name}`,
+        name: file.name,
+        file,
+        handle,
+        size: file.size,
+        lastModified: file.lastModified,
+        type: 'markdown',
+      });
+    }
+    return result;
+  }
+
+  private static pickFilesLegacy(): Promise<MarkdownFile[]> {
+    return new Promise((resolve) => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.multiple = true;
+      input.accept = '.md,.markdown';
+      input.onchange = () => {
+        const files = Array.from(input.files || []);
+        const result: MarkdownFile[] = files
+          .filter(f => this.isMarkdownFile(f.name))
+          .map(f => ({
+            path: `@opened/${f.name}`,
+            name: f.name,
+            file: f,
+            size: f.size,
+            lastModified: f.lastModified,
+            type: 'markdown' as const,
+          }));
+        resolve(result);
+      };
+      input.oncancel = () => resolve([]);
+      input.click();
+    });
+  }
+
+  /**
+   * Builds MarkdownFile entries from dropped File objects.
+   * Only returns markdown files.
+   */
+  static async processDroppedFiles(files: File[]): Promise<MarkdownFile[]> {
+    return files
+      .filter(f => this.isMarkdownFile(f.name))
+      .map(f => ({
+        path: `@opened/${f.name}`,
+        name: f.name,
+        file: f,
+        size: f.size,
+        lastModified: f.lastModified,
+        type: 'markdown' as const,
+      }));
   }
 
   static async selectDirectoryModern(): Promise<MarkdownFile[]> {
