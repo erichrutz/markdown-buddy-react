@@ -294,6 +294,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </Box>
 
       {/* ===== Main flex area: FILES + OUTLINE ===== */}
+      {!hasFolderOpen && <Box sx={{ flex: 1 }} />}
       {hasFolderOpen && (
         <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
 
