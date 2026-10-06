@@ -143,8 +143,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     const isDir = node.type === 'directory';
     const isExpanded = expandedFolders.includes(node.path);
     const isSelected = selectedFile?.path === node.path;
-    // Design spec: folder rows 12px, root files 36px, nested files 56px + 20px per depth
-    const padLeft = isDir ? 12 : (level === 0 ? 36 : 12 + level * 20 + 24);
+    // Folders show chevron+icon, files only icon — add 24px for files to align with folder content
+    const padLeft = isDir ? (12 + level * 20) : (12 + level * 20 + 24);
 
     const activate = () => {
       if (isDir) {
