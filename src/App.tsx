@@ -126,10 +126,32 @@ function App() {
   const [skipped, setSkipped] = useState<number[]>([]);
 
   // Sidebar state
+  const [sidebarWidth, setSidebarWidth] = useState(300);
   const [filesSectionOpen, setFilesSectionOpen] = useState(true);
   const [outlineSectionOpen, setOutlineSectionOpen] = useState(true);
   const [activeOutlineId, setActiveOutlineId] = useState<string | null>(null);
   const [sortDescending, setSortDescending] = useState(false);
+  const sidebarDragging = useRef(false);
+
+  const handleSidebarResizeMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    sidebarDragging.current = true;
+    const onMove = (ev: globalThis.MouseEvent) => {
+      if (!sidebarDragging.current) return;
+      setSidebarWidth(Math.max(200, Math.min(600, ev.clientX)));
+    };
+    const onUp = () => {
+      sidebarDragging.current = false;
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  }, []);
 
   // Persist view state
   useEffect(() => {
@@ -493,6 +515,7 @@ function App() {
           <Sidebar
             tokens={tokens}
             isDark={isDark}
+            width={sidebarWidth}
             folderName={folderName}
             onSelectDirectory={selectDirectory}
             onOpenFiles={handleOpenFiles}
@@ -524,6 +547,17 @@ function App() {
             onToggleOutlineSection={() => setOutlineSectionOpen(o => !o)}
             sortDescending={sortDescending}
             onSortChange={setSortDescending}
+          />
+
+          {/* Sidebar resize handle */}
+          <Box
+            onMouseDown={handleSidebarResizeMouseDown}
+            sx={{
+              width: 5, flexShrink: 0, cursor: 'col-resize',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'transparent', zIndex: 17,
+              '&:hover': { background: tokens.hover },
+            }}
           />
 
           {/* Main column */}

@@ -52,45 +52,29 @@ export const AboutDialog: React.FC<AboutDialogProps> = ({ open, onClose }) => {
           <Typography variant="body2" paragraph>
             {t('about.license.description')}
           </Typography>
-          <Box sx={{ 
-            bgcolor: 'background.paper', 
+          <Box sx={{
+            bgcolor: 'background.paper',
             border: 1,
             borderColor: 'divider',
-            p: 2, 
+            p: 2,
             borderRadius: 1,
-            fontFamily: 'monospace',
-            fontSize: '0.8rem',
+            fontSize: '0.75rem',
             mb: 2
           }}>
-            <Typography 
-              component="pre" 
-              sx={{ 
-                whiteSpace: 'pre-wrap', 
-                margin: 0,
-                color: 'text.primary'
-              }}
-            >
-{`MIT License
-
-Copyright (c) 2025-2026 Erich Rutz
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.`}
+            <Typography variant="body2" sx={{ fontWeight: 'bold', mb: 1 }}>
+              MIT License
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 1 }}>
+              Copyright (c) 2025-2026 Erich Rutz
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 1 }}>
+              Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &quot;Software&quot;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 1 }}>
+              The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+            </Typography>
+            <Typography variant="body2" sx={{ fontSize: '0.7rem' }}>
+              THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
             </Typography>
           </Box>
         </Box>
