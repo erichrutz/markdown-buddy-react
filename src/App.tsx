@@ -9,6 +9,7 @@ import { Sidebar } from './components/Sidebar';
 import { Toolbar } from './components/Toolbar';
 import { MarkdownViewer } from './components/MarkdownViewer';
 import { SectionsView } from './components/SectionsView';
+import { RawViewer } from './components/RawViewer';
 import { PresentationMode } from './components/PresentationMode';
 import { Pointer } from './components/Pointer';
 import { KeyboardShortcutsHelp } from './components/KeyboardShortcutsHelp';
@@ -88,6 +89,7 @@ function App() {
 
   const {
     currentFile,
+    content: markdownSource,
     renderedHtml,
     stats,
     loading: markdownLoading,
@@ -611,6 +613,14 @@ function App() {
                 onMermaidProcess={handleMermaidProcess}
                 onPlantUMLProcess={handlePlantUMLProcess}
                 onDocMouseUp={handleDocMouseUp}
+              />
+            ) : view === 'raw' ? (
+              <RawViewer
+                source={markdownSource}
+                tokens={tokens}
+                zoom={zoom}
+                docWidth={docWidth}
+                wordWrap={settings.appearance.wordWrap}
               />
             ) : (
               <SectionsView

@@ -14,7 +14,7 @@ import {
 } from '@mui/icons-material';
 import { SurfaceTokens, BRAND, DOC_WIDTH_MIN, DOC_WIDTH_MAX, DOC_WIDTH_STEP, DOC_WIDTH_DEFAULT } from '../theme/designTokens';
 
-export type ViewMode = 'doc' | 'slides';
+export type ViewMode = 'doc' | 'raw' | 'slides';
 
 const TRANSITION = 'background 180ms cubic-bezier(.4,0,.2,1), color 180ms cubic-bezier(.4,0,.2,1)';
 const MENU_SHADOW = '0 8px 24px rgba(17,24,39,.12)';
@@ -115,6 +115,16 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             }}
           >
             {t('toolbar.read')}
+          </Box>
+          <Box component="button" type="button" onClick={() => onViewChange('raw')}
+            sx={{
+              height: 32, px: '14px', border: 0, borderLeft: `1px solid ${tokens.border}`,
+              fontSize: 12, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer',
+              background: view === 'raw' ? BRAND.ACCENT : 'transparent',
+              color: view === 'raw' ? '#ffffff' : tokens.fg2,
+            }}
+          >
+            {t('toolbar.source')}
           </Box>
           <Box component="button" type="button" onClick={() => onViewChange('slides')}
             sx={{
