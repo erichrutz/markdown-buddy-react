@@ -26,6 +26,8 @@ interface MarkdownViewerProps {
   onMermaidProcess: (container: HTMLElement) => void;
   onPlantUMLProcess: (container: HTMLElement) => Promise<void>;
   onDocMouseUp?: (x: number, y: number, shiftKey: boolean) => void;
+  /** Called with the content element once rendering (incl. diagrams) is complete. */
+  onRendered?: (container: HTMLElement) => void;
 }
 
 export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
@@ -42,6 +44,7 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
   onMermaidProcess,
   onPlantUMLProcess,
   onDocMouseUp,
+  onRendered,
 }) => {
   const { t } = useTranslation();
   const contentRef = useRef<HTMLDivElement>(null);
@@ -83,10 +86,11 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
         onInternalLinkClick(contentRef.current);
         await onMermaidProcess(contentRef.current);
         await onPlantUMLProcess(contentRef.current);
+        if (contentRef.current) onRendered?.(contentRef.current);
       }
     };
     processContent();
-  }, [content, loading, onInternalLinkClick, onMermaidProcess, onPlantUMLProcess]);
+  }, [content, loading, onInternalLinkClick, onMermaidProcess, onPlantUMLProcess, onRendered]);
 
   if (loading) {
     return <LoadingIndicator variant="markdown" size="medium" type="circular" />;
@@ -117,6 +121,11 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
 
   return (
     <Box
+      onMouseDown={(e) => {
+        // Shift starts a new highlight: drop any existing selection so the browser's
+        // native Shift+click does not extend it to the new drag position.
+        if (e.shiftKey && e.button === 0) window.getSelection()?.removeAllRanges();
+      }}
       onMouseUp={(e) => onDocMouseUp?.(e.clientX, e.clientY, e.shiftKey)}
       sx={{
         flex: 1,

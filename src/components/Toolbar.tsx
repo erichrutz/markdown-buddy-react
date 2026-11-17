@@ -10,7 +10,7 @@ import {
   ExpandMore,
   Remove,
   Add,
-  FormatColorReset,
+  StickyNote2Outlined,
 } from '@mui/icons-material';
 import { SurfaceTokens, BRAND, DOC_WIDTH_MIN, DOC_WIDTH_MAX, DOC_WIDTH_STEP, DOC_WIDTH_DEFAULT } from '../theme/designTokens';
 
@@ -39,9 +39,10 @@ interface ToolbarProps {
   // Pointer
   docPointer: boolean;
   onToggleDocPointer: () => void;
-  // Marks
-  markCount: number;
-  onClearMarks: () => void;
+  // Notes
+  notesOpen: boolean;
+  onToggleNotes: () => void;
+  noteCount: number;
   // Actions
   onReload: () => void;
   onExportPDF: () => void;
@@ -60,7 +61,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   zoom, onZoomIn, onZoomOut, onZoomReset,
   docWidth, onDocWidthChange,
   docPointer, onToggleDocPointer,
-  markCount, onClearMarks,
+  notesOpen, onToggleNotes, noteCount,
   onReload, onExportPDF,
   onPresentFromStart, onPresentFromCurrent, onChooseSections,
   includedSections, totalSections, currentSectionTitle,
@@ -97,7 +98,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             <span style={{ fontSize: 17, fontWeight: 600, letterSpacing: '-0.01em', color: tokens.fg1 }}>{fileName}</span>
           </Box>
           {stats && (
-            <Box sx={{ fontSize: 11, color: tokens.fg3 }}>
+            <Box sx={{ fontSize: 11, color: tokens.fg3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {stats.size} &nbsp;|&nbsp; {t('doc.statsLines', { count: stats.lines })} &nbsp;|&nbsp; {t('doc.statsCharacters', { count: stats.characters, formatted: stats.characters.toLocaleString(i18n.language) })} &nbsp;|&nbsp; {t('doc.statsSections', { count: stats.sections })}
             </Box>
           )}
@@ -216,16 +217,26 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             <span>{t('toolbar.pointer')}</span>
           </Box>
 
-          {/* Clear marks (conditional) */}
-          {markCount > 0 && (
-            <Box component="button" type="button" onClick={onClearMarks}
-              title={t('doc.clearMarks')}
-              sx={toolBtnSx()}
-            >
-              <FormatColorReset sx={{ fontSize: 17, color: tokens.fg2 }} />
-              <span>{markCount} {markCount === 1 ? t('doc.markOne') : t('doc.markMany')}</span>
-            </Box>
-          )}
+          {/* Notes panel toggle */}
+          <Box component="button" type="button" onClick={onToggleNotes}
+            title={t('notes.toggleHint')}
+            aria-pressed={notesOpen}
+            sx={{
+              ...toolBtnSx(),
+              border: `1px solid ${notesOpen ? BRAND.ACCENT : 'transparent'}`,
+              color: notesOpen ? BRAND.ACCENT : '#374151',
+            }}
+          >
+            <StickyNote2Outlined sx={{ fontSize: 17, color: notesOpen ? BRAND.ACCENT : tokens.fg2 }} />
+            <span>{t('notes.title')}</span>
+            {noteCount > 0 && (
+              <Box component="span" sx={{
+                minWidth: 18, height: 18, px: '5px', borderRadius: '9px', fontSize: 11, fontWeight: 600,
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                background: BRAND.MARKER_BG, color: BRAND.MARKER_FG,
+              }}>{noteCount}</Box>
+            )}
+          </Box>
 
           {/* Reload */}
           <Box component="button" type="button" onClick={hasCurrentFile ? onReload : undefined}

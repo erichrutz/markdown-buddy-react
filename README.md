@@ -35,6 +35,7 @@ MarkDown Buddy is the tool I wanted: point it at a folder, read comfortably, and
 - Links between Markdown files navigate inside the app
 - Clickable outline of the current document
 - Zoom, adjustable reading width, light and dark theme (follows the system by default)
+- **Notes**: highlights with notes plus a free-text note per document, kept in the browser's local storage; **Copy all** puts them on the clipboard as Markdown so you can keep them permanently
 - **Source** view showing the raw Markdown full-width with syntax colors, line numbers and a copy button
 
 **Presenting**
@@ -99,7 +100,7 @@ The output lands in `dist/`. Production builds use the base path `/markdown-budd
 4. Use the keyboard to move through the slides. Move the mouse to the left or top edge, or press `S`, to show the controls.
 5. Press `Esc` to return to the document.
 
-Hold Shift while selecting text in the document view to highlight it with the marker (a selection without Shift stays a normal selection for copying); click a highlight to remove it. Highlights are carried over to the slides.
+Hold Shift while selecting text in the document view to highlight it with the marker (a selection without Shift stays a normal selection for copying). Click a highlight to add a note or delete it. Highlights are carried over to the slides; there, a click removes a highlight unless it has a note.
 
 ### Presentation shortcuts
 
@@ -164,6 +165,7 @@ The slide header and footer are defined in [`public/presentation/config.json`](p
 - **Your files stay on your machine.** The app is a static website; files are read in the browser and never uploaded.
 - **Exception: PlantUML.** PlantUML diagrams are rendered by the public server at `plantuml.com`, so the diagram source is sent there. Mermaid diagrams are rendered locally. Avoid PlantUML for confidential content.
 - Rendered HTML is sanitized with [DOMPurify](https://github.com/cure53/DOMPurify).
+- Highlights and notes are stored in the browser's `localStorage`, per document path. They stay in that browser only and disappear when its site data is cleared; use **Notes → Copy all** to keep a copy. If a document changes, highlights are re-located by their text; ones that can no longer be found are kept and marked in the notes panel.
 
 | Browser | Support |
 |---|---|
