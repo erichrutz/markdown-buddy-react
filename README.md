@@ -35,8 +35,14 @@ MarkDown Buddy is the tool I wanted: point it at a folder, read comfortably, and
 - Links between Markdown files navigate inside the app
 - Clickable outline of the current document
 - Zoom, adjustable reading width, light and dark theme (follows the system by default)
-- **Notes**: highlights with notes plus a free-text note per document, kept in the browser's local storage; **Copy all** puts them on the clipboard as Markdown so you can keep them permanently
 - **Source** view showing the raw Markdown full-width with syntax colors, line numbers and a copy button
+
+**Highlights and notes**
+- Highlight text with the marker by holding Shift while selecting; a plain selection still copies as usual
+- Attach a note to any highlight, plus one free-text note per document
+- Notes panel lists all highlights and notes grouped by heading; click one to jump to it
+- Saved in the browser per document and restored after reloading, even if the file was edited
+- **Copy all** puts everything on the clipboard as Markdown, so you can keep your notes permanently
 
 **Presenting**
 - Every section of a document becomes a 16:9 slide, and text scales automatically to fit
@@ -92,15 +98,28 @@ npm run build
 
 The output lands in `dist/`. Production builds use the base path `/markdown-buddy-react/` (for GitHub Pages); change `base` in `vite.config.ts` if you host it elsewhere.
 
+## Highlights and notes
+
+1. Hold **Shift** and drag over text in the **Read** view to highlight it. Without Shift, the selection is a normal selection you can copy.
+2. Click a highlight to open its note. Type your note; it is saved as you type. **Done** or `Ctrl/⌘ + Enter` closes the editor, **Delete highlight** removes the highlight together with its note. Highlights with a note are underlined.
+3. Click **Notes** in the toolbar to open the notes panel. It has a free-text **document note** and lists every highlight in document order, grouped by heading. Click an entry to jump to the highlight and edit its note.
+4. Click **Copy all** in the panel to copy the document note, all highlights and their notes to the clipboard as Markdown, ready to paste into a file, wiki or ticket.
+
+Highlights and notes are stored in your browser's local storage, separately for each document. They survive reloads and switching documents, but not clearing the browser's site data, and they are not shared between browsers or computers. Use **Copy all** to keep them permanently.
+
+If a document changes, each highlight is located again by its text and the text around it. A highlight whose text can no longer be found is kept and marked *No longer found in the current document* in the panel, so its note is not lost.
+
+Highlights also appear on the slides when presenting. There, clicking a highlight removes it, unless it has a note.
+
 ## How to present
 
 1. Open a folder and select a document.
-2. Optional: switch to the **Sections** tab, skip sections you don't need, or press ▶ next to a section to start from there.
+2. Optional: switch to the **Prepare slides** tab, skip sections you don't need, or press ▶ next to a section to start from there.
 3. Click **Present**. The browser switches to fullscreen if allowed.
 4. Use the keyboard to move through the slides. Move the mouse to the left or top edge, or press `S`, to show the controls.
 5. Press `Esc` to return to the document.
 
-Hold Shift while selecting text in the document view to highlight it with the marker (a selection without Shift stays a normal selection for copying). Click a highlight to add a note or delete it. Highlights are carried over to the slides; there, a click removes a highlight unless it has a note.
+Highlights from the document view are shown on the slides as well (see [Highlights and notes](#highlights-and-notes)).
 
 ### Presentation shortcuts
 
