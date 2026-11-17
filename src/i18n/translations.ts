@@ -137,8 +137,13 @@ export const translations = {
       light: 'Hell',
       shortcuts: 'Kürzel'
     },
+    raw: {
+      copy: 'Quelltext kopieren',
+      copied: 'Kopiert',
+    },
     toolbar: {
       read: 'Lesen',
+      source: 'Quelltext',
       prepareSlides: 'Folien vorbereiten',
       view: 'Ansicht',
       textWidth: 'Textbreite',
@@ -365,8 +370,13 @@ export const translations = {
       light: 'Light',
       shortcuts: 'Shortcuts'
     },
+    raw: {
+      copy: 'Copy source',
+      copied: 'Copied',
+    },
     toolbar: {
       read: 'Read',
+      source: 'Source',
       prepareSlides: 'Prepare slides',
       view: 'View',
       textWidth: 'Text width',

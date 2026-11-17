@@ -9,6 +9,7 @@ import { Sidebar } from './components/Sidebar';
 import { Toolbar } from './components/Toolbar';
 import { MarkdownViewer } from './components/MarkdownViewer';
 import { SectionsView } from './components/SectionsView';
+import { RawViewer } from './components/RawViewer';
 import { PresentationMode } from './components/PresentationMode';
 import { Pointer } from './components/Pointer';
 import { KeyboardShortcutsHelp } from './components/KeyboardShortcutsHelp';
@@ -88,6 +89,7 @@ function App() {
 
   const {
     currentFile,
+    content: markdownSource,
     renderedHtml,
     stats,
     loading: markdownLoading,
@@ -430,10 +432,12 @@ function App() {
     startPresent(idx >= 0 ? idx : 0);
   }, [activeOutlineId, outline, startPresent]);
 
-  const handleDocMouseUp = useCallback((x: number, y: number) => {
+  // Marking requires Shift; a plain selection stays a normal selection for copying.
+  const handleDocMouseUp = useCallback((x: number, y: number, shiftKey: boolean) => {
     setTimeout(() => {
       const sel = window.getSelection();
       if (sel && !sel.isCollapsed) {
+        if (!shiftKey) return;
         const el = document.querySelector('.markdown-content') as HTMLElement;
         if (!el) return;
         addMark(el);
@@ -609,6 +613,14 @@ function App() {
                 onMermaidProcess={handleMermaidProcess}
                 onPlantUMLProcess={handlePlantUMLProcess}
                 onDocMouseUp={handleDocMouseUp}
+              />
+            ) : view === 'raw' ? (
+              <RawViewer
+                source={markdownSource}
+                tokens={tokens}
+                isDark={isDark}
+                zoom={zoom}
+                wordWrap={settings.appearance.wordWrap}
               />
             ) : (
               <SectionsView
