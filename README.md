@@ -100,6 +100,8 @@ The output lands in `dist/`. Production builds use the base path `/markdown-budd
 
 ## Highlights and notes
 
+![Document with highlights, one underlined because it has a note, and the notes panel with a document note and all highlights grouped by heading](img/MDB-Notes.png)
+
 1. Hold **Shift** and drag over text in the **Read** view to highlight it. Without Shift, the selection is a normal selection you can copy.
 2. Click a highlight to open its note. Type your note; it is saved as you type. **Done** or `Ctrl/⌘ + Enter` closes the editor, **Delete highlight** removes the highlight together with its note. Highlights with a note are underlined.
 3. Click **Notes** in the toolbar to open the notes panel. It has a free-text **document note** and lists every highlight in document order, grouped by heading. Click an entry to jump to the highlight and edit its note.
