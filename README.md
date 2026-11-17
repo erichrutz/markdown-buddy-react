@@ -98,7 +98,7 @@ The output lands in `dist/`. Production builds use the base path `/markdown-budd
 4. Use the keyboard to move through the slides. Move the mouse to the left or top edge, or press `S`, to show the controls.
 5. Press `Esc` to return to the document.
 
-Select text in the document view to highlight it with the marker; click a highlight to remove it. Highlights are carried over to the slides.
+Hold Shift while selecting text in the document view to highlight it with the marker (a selection without Shift stays a normal selection for copying); click a highlight to remove it. Highlights are carried over to the slides.
 
 ### Presentation shortcuts
 

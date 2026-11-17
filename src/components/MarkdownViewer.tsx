@@ -25,7 +25,7 @@ interface MarkdownViewerProps {
   wordWrap?: boolean;
   onMermaidProcess: (container: HTMLElement) => void;
   onPlantUMLProcess: (container: HTMLElement) => Promise<void>;
-  onDocMouseUp?: (x: number, y: number) => void;
+  onDocMouseUp?: (x: number, y: number, shiftKey: boolean) => void;
 }
 
 export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
@@ -117,7 +117,7 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({
 
   return (
     <Box
-      onMouseUp={(e) => onDocMouseUp?.(e.clientX, e.clientY)}
+      onMouseUp={(e) => onDocMouseUp?.(e.clientX, e.clientY, e.shiftKey)}
       sx={{
         flex: 1,
         minWidth: 0,

@@ -430,10 +430,12 @@ function App() {
     startPresent(idx >= 0 ? idx : 0);
   }, [activeOutlineId, outline, startPresent]);
 
-  const handleDocMouseUp = useCallback((x: number, y: number) => {
+  // Marking requires Shift; a plain selection stays a normal selection for copying.
+  const handleDocMouseUp = useCallback((x: number, y: number, shiftKey: boolean) => {
     setTimeout(() => {
       const sel = window.getSelection();
       if (sel && !sel.isCollapsed) {
+        if (!shiftKey) return;
         const el = document.querySelector('.markdown-content') as HTMLElement;
         if (!el) return;
         addMark(el);
