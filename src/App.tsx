@@ -10,6 +10,9 @@ import { Toolbar } from './components/Toolbar';
 import { MarkdownViewer } from './components/MarkdownViewer';
 import { SectionsView } from './components/SectionsView';
 import { RawViewer } from './components/RawViewer';
+import { NotesPanel } from './components/NotesPanel';
+import { NotePopover } from './components/NotePopover';
+import { notesToMarkdown } from './services/notesStore';
 import { PresentationMode } from './components/PresentationMode';
 import { Pointer } from './components/Pointer';
 import { KeyboardShortcutsHelp } from './components/KeyboardShortcutsHelp';
@@ -35,7 +38,7 @@ import './i18n/i18n';
 import './styles/markdown.css';
 
 function App() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const {
     settings,
     updateAppearanceSettings,
@@ -160,7 +163,16 @@ function App() {
     updateViewSettings({ zoom, docWidth, docPointer, presPointer, presTheme });
   }, [zoom, docWidth, docPointer, presPointer, presTheme, updateViewSettings]);
 
-  const { markCount, addMark, removeMarkAtPoint, clearMarks, reanchorStage, clearStage } = useTextMarker();
+  const {
+    marks, markCount, scratchpad, addMark, markIdAtPoint, removeMark, removeMarkAtPoint, setNote,
+    setScratchpad, clearMarks, reanchorDoc, scrollToMark, markRect, reanchorStage, clearStage, getNotes,
+  } = useTextMarker(currentFile?.path ?? null);
+
+  // Notes panel and note editor
+  const [notesOpen, setNotesOpen] = useState(false);
+  const [noteEditor, setNoteEditor] = useState<{ id: string; top: number; left: number } | null>(null);
+  const editedMark = noteEditor ? marks.find(m => m.id === noteEditor.id) ?? null : null;
+  useEffect(() => { setNoteEditor(null); }, [currentFile?.path]);
   const { exportToPDF, generateDefaultFilename } = usePDFExport();
   const { resetChangeState } = useFileChangeDetection(currentFile);
 
@@ -442,10 +454,62 @@ function App() {
         if (!el) return;
         addMark(el);
       } else {
-        removeMarkAtPoint(x, y);
+        // Plain click on a highlight opens its note.
+        const id = markIdAtPoint(x, y);
+        if (id) setNoteEditor({ id, top: y + 14, left: x });
       }
     }, 10);
-  }, [addMark, removeMarkAtPoint]);
+  }, [addMark, markIdAtPoint]);
+
+  const handleOpenMarkFromPanel = useCallback((id: string, entry: HTMLElement) => {
+    const show = () => {
+      if (scrollToMark(id)) {
+        const r = markRect(id);
+        if (r) { setNoteEditor({ id, top: r.bottom + 8, left: r.left }); return; }
+      }
+      // Detached or not rendered: open next to the panel entry.
+      const b = entry.getBoundingClientRect();
+      setNoteEditor({ id, top: b.top, left: Math.max(8, b.left - 352) });
+    };
+    if (view !== 'doc') {
+      setView('doc');
+      setTimeout(show, 400);
+    } else {
+      show();
+    }
+  }, [view, scrollToMark, markRect]);
+
+  const handleCopyNotes = useCallback(async () => {
+    if (!currentFile) return;
+    const markdown = notesToMarkdown(
+      currentFile.name,
+      currentFile.path.startsWith('@opened/') ? '' : currentFile.path,
+      getNotes(),
+      new Set(marks.filter(m => m.detached).map(m => m.id)),
+      {
+        title: t('notes.exportTitle'),
+        exported: t('notes.exported'),
+        documentNote: t('notes.documentNote'),
+        highlights: t('notes.highlights'),
+        noHeading: t('notes.noHeading'),
+        detached: t('notes.detached'),
+      },
+      new Date().toLocaleString(i18n.language),
+    );
+    try {
+      await navigator.clipboard.writeText(markdown);
+      setToast(t('notes.copied'));
+    } catch {
+      setToast(t('notes.copyFailed'));
+    }
+  }, [currentFile, getNotes, marks, t, i18n.language]);
+
+  const handleClearAllMarks = useCallback(() => {
+    if (window.confirm(t('notes.confirmClear', { count: markCount }))) {
+      setNoteEditor(null);
+      clearMarks();
+    }
+  }, [clearMarks, markCount, t]);
 
   // Keyboard shortcuts
   const shortcuts = createDefaultShortcuts({
@@ -583,8 +647,9 @@ function App() {
               onDocWidthChange={setDocWidth}
               docPointer={docPointer}
               onToggleDocPointer={() => setDocPointer(p => !p)}
-              markCount={markCount}
-              onClearMarks={clearMarks}
+              notesOpen={notesOpen}
+              onToggleNotes={() => setNotesOpen(o => !o)}
+              noteCount={markCount + (scratchpad.trim() ? 1 : 0)}
               onReload={handleRefresh}
               onExportPDF={handleShowPDFExport}
               onPresentFromStart={() => startPresent(0)}
@@ -595,7 +660,8 @@ function App() {
               currentSectionTitle={currentSectionTitle}
             />
 
-            {/* Document or Sections view */}
+            {/* Document, source or sections view, plus the notes panel */}
+            <Box sx={{ flex: 1, minHeight: 0, display: 'flex' }}>
             {view === 'doc' ? (
               <MarkdownViewer
                 file={currentFile}
@@ -613,6 +679,7 @@ function App() {
                 onMermaidProcess={handleMermaidProcess}
                 onPlantUMLProcess={handlePlantUMLProcess}
                 onDocMouseUp={handleDocMouseUp}
+                onRendered={reanchorDoc}
               />
             ) : view === 'raw' ? (
               <RawViewer
@@ -631,7 +698,29 @@ function App() {
                 onPresentFrom={startPresent}
               />
             )}
+            {notesOpen && currentFile && (
+              <NotesPanel
+                tokens={tokens}
+                marks={marks}
+                scratchpad={scratchpad}
+                onScratchpadChange={setScratchpad}
+                onOpenMark={handleOpenMarkFromPanel}
+                onCopyAll={handleCopyNotes}
+                onClearAll={handleClearAllMarks}
+                onClose={() => setNotesOpen(false)}
+              />
+            )}
+            </Box>
           </Box>
+
+          <NotePopover
+            tokens={tokens}
+            mark={editedMark}
+            position={noteEditor}
+            onNoteChange={setNote}
+            onDelete={(id) => { setNoteEditor(null); removeMark(id); }}
+            onClose={() => setNoteEditor(null)}
+          />
 
           {/* Presentation mode overlay */}
           {presenting && (

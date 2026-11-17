@@ -43,6 +43,14 @@
   color: #111827;
 }
 
+/* Highlight that carries a note: same marker, plus an underline */
+::highlight(md-marker-note) {
+  background: #ffe14d;
+  color: #111827;
+  text-decoration: underline 2px #e8590c;
+  text-underline-offset: 3px;
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-thumb { background: #d1d5db; }

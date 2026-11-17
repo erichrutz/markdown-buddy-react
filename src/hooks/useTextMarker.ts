@@ -1,28 +1,35 @@
-import { useCallback, useRef, useState } from 'react';
-import {
-  MarkDescriptor,
-  rangeToDescriptor,
-  descriptorToRange,
-} from '../utils/textAnchor';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { rangeToDescriptor, descriptorToRange } from '../utils/textAnchor';
+import { createDocAnchor, resolveDocAnchor, headingBefore } from '../utils/docAnchor';
+import { StoredMark, loadNotes, saveNotes } from '../services/notesStore';
 
 /**
- * Text marker using the CSS Custom Highlight API.
+ * Text marker and notes, using the CSS Custom Highlight API.
  *
- * Each mark keeps a live document-view Range and (when the selection maps to a
- * section block/heading) a portable descriptor so it can be re-anchored on the
- * presentation stage — the stage renders the same blocks as a separate DOM
- * subtree. The DOM itself is never modified, so marks survive React re-renders.
+ * Highlights (with optional notes) and a free-text document note are stored
+ * per file in localStorage. After every render of the document view the marks
+ * are re-anchored (see docAnchor.ts); marks whose text can no longer be found
+ * are kept and flagged as detached. Marks are also re-anchored on presentation
+ * slides via their section/block descriptor. The DOM itself is never modified.
  *
- * Style rule: ::highlight(md-marker) { background:#ffe14d; color:#111827; }
- * Fallback: if the browser lacks the API, nothing happens (no error).
+ * Style rules: ::highlight(md-marker) and ::highlight(md-marker-note) in markdown.css.
+ * Fallback: without the API, highlights are not painted (notes still work).
  */
 
-interface Mark {
-  id: number;
-  /** Live range in the document view (always present). */
-  docRange: Range;
-  /** Portable descriptor for stage re-anchoring (null if not resolvable). */
-  descriptor: MarkDescriptor | null;
+interface Mark extends StoredMark {
+  /** Live range in the document view, null if not (yet) anchored. */
+  docRange: Range | null;
+  /** True once a re-anchor attempt failed to find the text. */
+  detached: boolean;
+}
+
+/** Read-only view of a mark for the UI. */
+export interface MarkInfo {
+  id: string;
+  text: string;
+  note: string;
+  heading: string;
+  detached: boolean;
 }
 
 function hasHighlightAPI(): boolean {
@@ -48,98 +55,169 @@ function rangeHitsPoint(range: Range, x: number, y: number): boolean {
   return false;
 }
 
-export function useTextMarker() {
+const newId = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+
+export function useTextMarker(fileKey: string | null) {
   const marksRef = useRef<Mark[]>([]);
-  const nextIdRef = useRef(1);
+  const scratchpadRef = useRef('');
+  const loadedKeyRef = useRef<string | null>(null);
+  const fileKeyRef = useRef(fileKey);
+  fileKeyRef.current = fileKey;
   // Stage ranges for the currently-active presentation section, keyed by mark id.
-  const stageRangesRef = useRef<Map<number, Range>>(new Map());
-  const [markCount, setMarkCount] = useState(0);
+  const stageRangesRef = useRef<Map<string, Range>>(new Map());
+  const [marks, setMarks] = useState<MarkInfo[]>([]);
+  const [scratchpad, setScratchpadState] = useState('');
 
   const paint = useCallback(() => {
     if (!hasHighlightAPI()) return;
     try {
-      const all = [
-        ...marksRef.current.map((m) => m.docRange),
-        ...stageRangesRef.current.values(),
-      ];
-      if (all.length === 0) {
-        CSS.highlights.delete('md-marker');
-      } else {
-        CSS.highlights.set('md-marker', new Highlight(...all));
+      const plain: Range[] = [];
+      const noted: Range[] = [];
+      for (const m of marksRef.current) {
+        const ranges = [m.docRange, stageRangesRef.current.get(m.id)].filter((r): r is Range => !!r);
+        (m.note.trim() ? noted : plain).push(...ranges);
       }
+      if (plain.length) CSS.highlights.set('md-marker', new Highlight(...plain));
+      else CSS.highlights.delete('md-marker');
+      if (noted.length) CSS.highlights.set('md-marker-note', new Highlight(...noted));
+      else CSS.highlights.delete('md-marker-note');
     } catch (e) {
       console.warn('Text marker paint failed:', e);
     }
   }, []);
 
+  /** Publish state to React, repaint, and persist. */
+  const commit = useCallback((persist = true) => {
+    const ordered = [...marksRef.current].sort((a, b) => a.anchor.start - b.anchor.start);
+    setMarks(ordered.map(({ id, anchor, note, heading, detached }) => ({ id, text: anchor.text, note, heading, detached })));
+    paint();
+    const key = loadedKeyRef.current;
+    if (persist && key) {
+      saveNotes(key, {
+        marks: marksRef.current.map(({ id, anchor, descriptor, heading, note, createdAt }) =>
+          ({ id, anchor, descriptor, heading, note, createdAt })),
+        scratchpad: scratchpadRef.current,
+      });
+    }
+  }, [paint]);
+
+  /** Switch to the stored marks of the given file (no-op if already loaded). */
+  const ensureLoaded = useCallback(() => {
+    const key = fileKeyRef.current;
+    if (key === loadedKeyRef.current) return;
+    loadedKeyRef.current = key;
+    const data = key ? loadNotes(key) : { marks: [], scratchpad: '' };
+    marksRef.current = data.marks.map((m) => ({ ...m, docRange: null, detached: false }));
+    scratchpadRef.current = data.scratchpad;
+    setScratchpadState(data.scratchpad);
+    stageRangesRef.current.clear();
+    commit(false);
+  }, [commit]);
+
+  useEffect(() => { ensureLoaded(); }, [fileKey, ensureLoaded]);
+
+  /** Re-anchor all marks into the freshly rendered document view. */
+  const reanchorDoc = useCallback((host: HTMLElement | null) => {
+    ensureLoaded();
+    if (!host) return;
+    for (const m of marksRef.current) {
+      m.docRange = resolveDocAnchor(host, m.anchor);
+      m.detached = !m.docRange;
+    }
+    commit(false);
+  }, [ensureLoaded, commit]);
+
   /**
    * Capture the current browser selection as a highlight mark.
    * `host` is the markdown container — only selections within it are accepted.
    */
-  const addMark = useCallback(
-    (host: HTMLElement | null) => {
-      if (!host) return;
-      if (!hasHighlightAPI()) {
-        console.warn('CSS Custom Highlight API not available in this browser');
-        return;
-      }
-      const sel = window.getSelection();
-      if (!sel || sel.isCollapsed || !sel.rangeCount) return;
-      const r = sel.getRangeAt(0);
-      if (!host.contains(r.commonAncestorContainer)) return;
+  const addMark = useCallback((host: HTMLElement | null): string | null => {
+    ensureLoaded();
+    if (!host || !loadedKeyRef.current) return null;
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed || !sel.rangeCount) return null;
+    const r = sel.getRangeAt(0);
+    if (!host.contains(r.commonAncestorContainer)) return null;
+    const anchor = createDocAnchor(host, r);
+    if (!anchor || !anchor.text.trim()) return null;
 
-      const descriptor = rangeToDescriptor(host, r);
-      marksRef.current.push({
-        id: nextIdRef.current++,
-        docRange: r.cloneRange(),
-        descriptor,
-      });
+    const id = newId();
+    marksRef.current.push({
+      id,
+      anchor,
+      descriptor: rangeToDescriptor(host, r),
+      heading: headingBefore(host, r),
+      note: '',
+      createdAt: Date.now(),
+      docRange: r.cloneRange(),
+      detached: false,
+    });
+    sel.removeAllRanges();
+    commit();
+    return id;
+  }, [ensureLoaded, commit]);
 
-      sel.removeAllRanges();
-      paint();
-      setMarkCount(marksRef.current.length);
-    },
-    [paint],
-  );
+  /** Id of the mark under the given client coordinates (document view first, then slides). */
+  const markIdAtPoint = useCallback((x: number, y: number): string | null => {
+    const doc = marksRef.current.find((m) => m.docRange && rangeHitsPoint(m.docRange, x, y));
+    if (doc) return doc.id;
+    for (const [id, range] of stageRangesRef.current) {
+      if (rangeHitsPoint(range, x, y)) return id;
+    }
+    return null;
+  }, []);
+
+  const removeMark = useCallback((id: string) => {
+    marksRef.current = marksRef.current.filter((m) => m.id !== id);
+    stageRangesRef.current.delete(id);
+    commit();
+  }, [commit]);
 
   /**
-   * Remove the single mark hit by a click at the given client coordinates.
-   * Tests the document-view ranges first, then any active stage ranges.
-   * Returns true if a mark was removed.
+   * Remove the mark hit by a click (used on slides). Marks carrying a note are
+   * kept so a stray click during a talk cannot lose a note. Returns true if removed.
    */
-  const removeMarkAtPoint = useCallback(
-    (x: number, y: number): boolean => {
-      // Document-view hit-test.
-      const docHit = marksRef.current.find((m) => rangeHitsPoint(m.docRange, x, y));
-      let target = docHit;
+  const removeMarkAtPoint = useCallback((x: number, y: number): boolean => {
+    const id = markIdAtPoint(x, y);
+    const mark = id ? marksRef.current.find((m) => m.id === id) : undefined;
+    if (!mark || mark.note.trim()) return false;
+    removeMark(mark.id);
+    return true;
+  }, [markIdAtPoint, removeMark]);
 
-      // Stage hit-test (presentation) if no doc hit.
-      if (!target) {
-        for (const [id, range] of stageRangesRef.current) {
-          if (rangeHitsPoint(range, x, y)) {
-            target = marksRef.current.find((m) => m.id === id);
-            break;
-          }
-        }
-      }
+  const setNote = useCallback((id: string, note: string) => {
+    const mark = marksRef.current.find((m) => m.id === id);
+    if (!mark) return;
+    mark.note = note;
+    commit();
+  }, [commit]);
 
-      if (!target) return false;
-
-      marksRef.current = marksRef.current.filter((m) => m.id !== target!.id);
-      stageRangesRef.current.delete(target.id);
-      paint();
-      setMarkCount(marksRef.current.length);
-      return true;
-    },
-    [paint],
-  );
+  const setScratchpad = useCallback((text: string) => {
+    scratchpadRef.current = text;
+    setScratchpadState(text);
+    commit();
+  }, [commit]);
 
   const clearMarks = useCallback(() => {
     marksRef.current = [];
     stageRangesRef.current.clear();
-    paint();
-    setMarkCount(0);
-  }, [paint]);
+    commit();
+  }, [commit]);
+
+  /** Scroll the document view to a mark. Returns false if it is not anchored. */
+  const scrollToMark = useCallback((id: string): boolean => {
+    const range = marksRef.current.find((m) => m.id === id)?.docRange;
+    const el = range?.startContainer.parentElement;
+    if (!el || !el.isConnected) return false;
+    el.scrollIntoView({ block: 'center' });
+    return true;
+  }, []);
+
+  /** Client rect of a mark in the document view (for positioning popovers). */
+  const markRect = useCallback((id: string): DOMRect | null => {
+    const range = marksRef.current.find((m) => m.id === id)?.docRange;
+    return range && range.startContainer.isConnected ? range.getBoundingClientRect() : null;
+  }, []);
 
   /**
    * Re-anchor all marks belonging to `sectionIndex` into the active section's
@@ -152,7 +230,7 @@ export function useTextMarker() {
   const reanchorStage = useCallback(
     (resolveBlock: (blockIndex: number) => Element | null, sectionIndex: number) => {
       if (!hasHighlightAPI()) return;
-      const map = new Map<number, Range>();
+      const map = new Map<string, Range>();
       for (const m of marksRef.current) {
         if (!m.descriptor || m.descriptor.sectionIndex !== sectionIndex) continue;
         const blockEl = resolveBlock(m.descriptor.blockIndex);
@@ -172,13 +250,29 @@ export function useTextMarker() {
     paint();
   }, [paint]);
 
+  /** Snapshot of the stored data for export. */
+  const getNotes = useCallback(() => ({
+    marks: marksRef.current.map(({ docRange: _r, detached: _d, ...rest }) => rest),
+    scratchpad: scratchpadRef.current,
+  }), []);
+
   return {
-    markCount,
+    marks,
+    markCount: marks.length,
+    scratchpad,
     addMark,
+    markIdAtPoint,
+    removeMark,
     removeMarkAtPoint,
+    setNote,
+    setScratchpad,
     clearMarks,
+    reanchorDoc,
+    scrollToMark,
+    markRect,
     reanchorStage,
     clearStage,
+    getNotes,
     hasAPI: hasHighlightAPI(),
   };
 }
