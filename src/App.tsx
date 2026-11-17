@@ -618,8 +618,8 @@ function App() {
               <RawViewer
                 source={markdownSource}
                 tokens={tokens}
+                isDark={isDark}
                 zoom={zoom}
-                docWidth={docWidth}
                 wordWrap={settings.appearance.wordWrap}
               />
             ) : (

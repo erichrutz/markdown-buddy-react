@@ -35,7 +35,7 @@ MarkDown Buddy is the tool I wanted: point it at a folder, read comfortably, and
 - Links between Markdown files navigate inside the app
 - Clickable outline of the current document
 - Zoom, adjustable reading width, light and dark theme (follows the system by default)
-- **Source** view showing the raw Markdown with line numbers and a copy button
+- **Source** view showing the raw Markdown full-width with syntax colors, line numbers and a copy button
 
 **Presenting**
 - Every section of a document becomes a 16:9 slide, and text scales automatically to fit
