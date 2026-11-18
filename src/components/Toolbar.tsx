@@ -11,6 +11,10 @@ import {
   Remove,
   Add,
   StickyNote2Outlined,
+  ChromeReaderModeOutlined,
+  CodeOutlined,
+  ViewCarouselOutlined,
+  Check,
 } from '@mui/icons-material';
 import { SurfaceTokens, BRAND, DOC_WIDTH_MIN, DOC_WIDTH_MAX, DOC_WIDTH_STEP, DOC_WIDTH_DEFAULT } from '../theme/designTokens';
 
@@ -18,6 +22,21 @@ export type ViewMode = 'doc' | 'raw' | 'slides';
 
 const TRANSITION = 'background 180ms cubic-bezier(.4,0,.2,1), color 180ms cubic-bezier(.4,0,.2,1)';
 const MENU_SHADOW = '0 8px 24px rgba(17,24,39,.12)';
+
+/**
+ * Responsive breakpoints, measured on the toolbar itself (CSS container queries),
+ * so the sidebar width is taken into account. Below these widths labels collapse
+ * to icons; every button keeps a tooltip.
+ */
+const COMPACT_TOOLS = '@container toolbar (max-width: 1080px)';
+const COMPACT_VIEW = '@container toolbar (max-width: 860px)';
+const COMPACT_PRESENT = '@container toolbar (max-width: 720px)';
+
+const VIEW_OPTIONS: Array<{ mode: ViewMode; icon: typeof CodeOutlined; label: string; hint: string }> = [
+  { mode: 'doc', icon: ChromeReaderModeOutlined, label: 'toolbar.read', hint: 'toolbar.readHint' },
+  { mode: 'raw', icon: CodeOutlined, label: 'toolbar.source', hint: 'toolbar.sourceHint' },
+  { mode: 'slides', icon: ViewCarouselOutlined, label: 'toolbar.prepareSlides', hint: 'toolbar.prepareSlidesHint' },
+];
 
 interface ToolbarProps {
   tokens: SurfaceTokens;
@@ -69,6 +88,9 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   const { t, i18n } = useTranslation();
   const [viewAnchor, setViewAnchor] = useState<null | HTMLElement>(null);
   const [presentAnchor, setPresentAnchor] = useState<null | HTMLElement>(null);
+  const [modeAnchor, setModeAnchor] = useState<null | HTMLElement>(null);
+  const currentView = VIEW_OPTIONS.find(o => o.mode === view) ?? VIEW_OPTIONS[0]!;
+  const CurrentViewIcon = currentView.icon;
 
   const toolBtnSx = (disabled?: boolean) => ({
     display: 'flex', alignItems: 'center', gap: '6px',
@@ -76,8 +98,9 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     color: disabled ? tokens.fg2 : '#374151',
     opacity: disabled ? 0.4 : 1,
     fontSize: 13, fontFamily: 'inherit', cursor: disabled ? 'default' : 'pointer',
-    transition: TRANSITION, flexShrink: 0,
+    transition: TRANSITION, flexShrink: 0, whiteSpace: 'nowrap',
     '&:hover': disabled ? {} : { background: tokens.hover },
+    [COMPACT_TOOLS]: { px: '8px', '& .tb-label': { display: 'none' } },
   });
 
   const widthLabel = docWidth >= DOC_WIDTH_MAX ? t('doc.fullWidth') : `${docWidth}px`;
@@ -85,7 +108,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   return (
     <Box sx={{
       height: 72, flexShrink: 0, display: 'flex', alignItems: 'center',
-      gap: '16px', padding: '0 20px 0 32px',
+      gap: '12px', padding: '0 16px 0 24px',
+      containerType: 'inline-size', containerName: 'toolbar',
       borderBottom: `1px solid ${tokens.border}`, background: tokens.chrome,
       position: 'relative', zIndex: 20,
     }}>
@@ -94,8 +118,9 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '4px' }}>
         {hasCurrentFile && <>
           <Box sx={{ display: 'flex', alignItems: 'baseline', gap: '6px', whiteSpace: 'nowrap', overflow: 'hidden' }}>
-            <span style={{ fontSize: 13, color: tokens.fg3 }}>{breadcrumb}</span>
-            <span style={{ fontSize: 17, fontWeight: 600, letterSpacing: '-0.01em', color: tokens.fg1 }}>{fileName}</span>
+            {/* The folder path gives way first; the file name is truncated only when it alone does not fit. */}
+            <span style={{ fontSize: 13, color: tokens.fg3, minWidth: 0, flexShrink: 1000, overflow: 'hidden', textOverflow: 'ellipsis' }}>{breadcrumb}</span>
+            <span title={fileName} style={{ fontSize: 17, fontWeight: 600, letterSpacing: '-0.01em', color: tokens.fg1, minWidth: 0, flexShrink: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>{fileName}</span>
           </Box>
           {stats && (
             <Box sx={{ fontSize: 11, color: tokens.fg3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -106,38 +131,58 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       </Box>
 
       {hasCurrentFile && <>
-        {/* === View switch === */}
-        <Box sx={{ display: 'flex', border: `1px solid ${tokens.border}`, flexShrink: 0 }}>
-          <Box component="button" type="button" onClick={() => onViewChange('doc')}
-            sx={{
-              height: 32, px: '14px', border: 0, fontSize: 12, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer',
-              background: view === 'doc' ? BRAND.ACCENT : 'transparent',
-              color: view === 'doc' ? '#ffffff' : tokens.fg2,
-            }}
-          >
-            {t('toolbar.read')}
-          </Box>
-          <Box component="button" type="button" onClick={() => onViewChange('raw')}
-            sx={{
-              height: 32, px: '14px', border: 0, borderLeft: `1px solid ${tokens.border}`,
-              fontSize: 12, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer',
-              background: view === 'raw' ? BRAND.ACCENT : 'transparent',
-              color: view === 'raw' ? '#ffffff' : tokens.fg2,
-            }}
-          >
-            {t('toolbar.source')}
-          </Box>
-          <Box component="button" type="button" onClick={() => onViewChange('slides')}
-            sx={{
-              height: 32, px: '14px', border: 0, borderLeft: `1px solid ${tokens.border}`,
-              fontSize: 12, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer',
-              background: view === 'slides' ? BRAND.ACCENT : 'transparent',
-              color: view === 'slides' ? '#ffffff' : tokens.fg2,
-            }}
-          >
-            {t('toolbar.prepareSlides')}
-          </Box>
+        {/* === View mode dropdown === */}
+        <Box component="button" type="button"
+          onClick={e => setModeAnchor(e.currentTarget)}
+          title={t('toolbar.viewMode')}
+          aria-haspopup="menu"
+          aria-expanded={!!modeAnchor}
+          sx={{
+            display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0,
+            height: 34, pl: '10px', pr: '6px', whiteSpace: 'nowrap',
+            border: `1px solid ${modeAnchor ? BRAND.ACCENT : tokens.border}`, background: tokens.paper,
+            color: tokens.fg1, fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer',
+            transition: 'border-color 180ms cubic-bezier(.4,0,.2,1)',
+            '&:hover': { borderColor: BRAND.ACCENT },
+            [COMPACT_VIEW]: { '& .tb-label': { display: 'none' } },
+          }}
+        >
+          <CurrentViewIcon sx={{ fontSize: 18, color: BRAND.ACCENT }} />
+          <span className="tb-label">{t(currentView.label)}</span>
+          <ExpandMore sx={{
+            fontSize: 18, color: tokens.fg3,
+            transform: modeAnchor ? 'rotate(180deg)' : 'none', transition: 'transform 180ms',
+          }} />
         </Box>
+        <Menu
+          anchorEl={modeAnchor}
+          open={!!modeAnchor}
+          onClose={() => setModeAnchor(null)}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+          slotProps={{ paper: { sx: { width: 290, borderRadius: 0, border: `1px solid ${tokens.border}`, boxShadow: MENU_SHADOW, mt: '6px' } } }}
+        >
+          {VIEW_OPTIONS.map(({ mode, icon: Icon, label, hint }) => {
+            const active = mode === view;
+            return (
+              <MenuItem key={mode} selected={active}
+                onClick={() => { setModeAnchor(null); onViewChange(mode); }}
+                sx={{
+                  display: 'flex', alignItems: 'flex-start', gap: '12px', py: '10px', px: '14px',
+                  '&.Mui-selected': { background: tokens.hover },
+                  '&.Mui-selected:hover': { background: tokens.hover },
+                }}
+              >
+                <Icon sx={{ fontSize: 20, mt: '1px', color: active ? BRAND.ACCENT : tokens.fg2 }} />
+                <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                  <span style={{ fontSize: 13, fontWeight: active ? 600 : 400, color: tokens.fg1 }}>{t(label)}</span>
+                  <span style={{ fontSize: 11, color: tokens.fg3, whiteSpace: 'normal', lineHeight: 1.4 }}>{t(hint)}</span>
+                </Box>
+                {active && <Check sx={{ fontSize: 18, mt: '1px', color: BRAND.ACCENT }} />}
+              </MenuItem>
+            );
+          })}
+        </Menu>
 
         {/* === Tool group === */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
@@ -148,8 +193,8 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             sx={toolBtnSx()}
           >
             <FormatSize sx={{ fontSize: 18, color: tokens.fg2 }} />
-            <span>{t('toolbar.view')}</span>
-            <span style={{ fontSize: 11, color: tokens.fg3, fontVariantNumeric: 'tabular-nums' }}>{zoom} %</span>
+            <span className="tb-label">{t('toolbar.view')}</span>
+            <span className="tb-label" style={{ fontSize: 11, color: tokens.fg3, fontVariantNumeric: 'tabular-nums' }}>{zoom} %</span>
           </Box>
           <Popover
             open={!!viewAnchor}
@@ -214,7 +259,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             }}
           >
             <MyLocation sx={{ fontSize: 17, color: docPointer ? BRAND.ACCENT : tokens.fg2 }} />
-            <span>{t('toolbar.pointer')}</span>
+            <span className="tb-label">{t('toolbar.pointer')}</span>
           </Box>
 
           {/* Notes panel toggle */}
@@ -228,7 +273,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             }}
           >
             <StickyNote2Outlined sx={{ fontSize: 17, color: notesOpen ? BRAND.ACCENT : tokens.fg2 }} />
-            <span>{t('notes.title')}</span>
+            <span className="tb-label">{t('notes.title')}</span>
             {noteCount > 0 && (
               <Box component="span" sx={{
                 minWidth: 18, height: 18, px: '5px', borderRadius: '9px', fontSize: 11, fontWeight: 600,
@@ -244,7 +289,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             sx={toolBtnSx(!hasCurrentFile)}
           >
             <Refresh sx={{ fontSize: 17, color: tokens.fg2 }} />
-            <span>{t('toolbar.reload')}</span>
+            <span className="tb-label">{t('toolbar.reload')}</span>
           </Box>
 
           {/* PDF */}
@@ -253,16 +298,18 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             sx={toolBtnSx(!hasCurrentFile)}
           >
             <PictureAsPdf sx={{ fontSize: 17, color: tokens.fg2 }} />
-            <span>{t('toolbar.pdf')}</span>
+            <span className="tb-label">{t('toolbar.pdf')}</span>
           </Box>
         </Box>
 
         {/* === Present split button === */}
         <Box sx={{ display: 'flex', flexShrink: 0 }}>
           <Box component="button" type="button" onClick={onPresentFromStart}
+            title={t('toolbar.presentFromBeginning')}
             sx={{
-              display: 'flex', alignItems: 'center', gap: '8px',
+              display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap',
               height: 36, padding: '0 14px 0 16px', border: 0,
+              [COMPACT_PRESENT]: { px: '10px', '& .tb-label': { display: 'none' } },
               background: BRAND.ACCENT, color: '#fff',
               fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer',
               transition: TRANSITION,
@@ -270,7 +317,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             }}
           >
             <PlayArrow sx={{ fontSize: 18 }} />
-            <span>{t('toolbar.present')}</span>
+            <span className="tb-label">{t('toolbar.present')}</span>
           </Box>
           <Box component="button" type="button"
             onClick={e => setPresentAnchor(e.currentTarget)}
