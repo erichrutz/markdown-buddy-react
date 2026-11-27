@@ -86,11 +86,15 @@ export class ImageService {
       }
     );
 
-    // Replace markdown image syntax ![alt](src)
+    // Replace markdown image syntax ![alt](src), ![alt](src "title") and ![alt](<path with spaces>)
     const markdownImgRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
-    resolvedContent = resolvedContent.replace(markdownImgRegex, (_match, alt, src) => {
+    resolvedContent = resolvedContent.replace(markdownImgRegex, (match, alt, target: string) => {
+      const m = target.trim().match(/^(?:<([^>]+)>|(\S+))(\s+.*)?$/);
+      if (!m) return match;
+      const src = m[1] ?? m[2] ?? '';
       const resolvedSrc = this.resolveImageSrc(src, pathMap);
-      return `![${alt}](${resolvedSrc})`;
+      if (resolvedSrc === src) return match;
+      return `![${alt}](${resolvedSrc}${m[3] ?? ''})`;
     });
 
     return resolvedContent;
@@ -105,15 +109,27 @@ export class ImageService {
       return src;
     }
 
-    // Check direct path match
-    if (pathMap.has(src)) {
-      return pathMap.get(src)!;
+    // Links are URL-encoded ("my%20image.png"), file paths are not ("my image.png").
+    // Query strings and fragments never belong to the file name.
+    const candidates = [src];
+    const bare = src.split(/[?#]/)[0] ?? src;
+    try {
+      candidates.push(decodeURI(bare));
+    } catch {
+      // Malformed escape sequence: fall back to the raw path.
+    }
+    candidates.push(bare);
+
+    for (const candidate of candidates) {
+      if (pathMap.has(candidate)) return pathMap.get(candidate)!;
     }
 
     // Check for partial matches (handle different path formats)
-    for (const [path, blobUrl] of pathMap.entries()) {
-      if (path.endsWith(src) || src.endsWith(path.split('/').pop() || '')) {
-        return blobUrl;
+    for (const candidate of candidates) {
+      for (const [path, blobUrl] of pathMap.entries()) {
+        if (path.endsWith(candidate) || candidate.endsWith(path.split('/').pop() || '')) {
+          return blobUrl;
+        }
       }
     }
 
